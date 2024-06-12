@@ -1,10 +1,33 @@
 import { FaPlus } from "react-icons/fa6";
+import DatePicker from "../componets/DatePicker";
+import SearchBar from "../componets/SearchBar";
 
 const CRMPage = () => {
   const data = {
     user: "Dr. Beninah",
     role: "Dispenser",
     dates: [
+      { date: "31-May Friday", count: 55 },
+      { date: "30-May Thursday", count: 14 },
+      { date: "29-May Wednesday", count: 100 },
+      { date: "31-May Friday", count: 55 },
+      { date: "30-May Thursday", count: 14 },
+      { date: "29-May Wednesday", count: 100 },
+      { date: "31-May Friday", count: 55 },
+      { date: "30-May Thursday", count: 14 },
+      { date: "29-May Wednesday", count: 100 },
+      { date: "31-May Friday", count: 55 },
+      { date: "30-May Thursday", count: 14 },
+      { date: "29-May Wednesday", count: 100 },
+      { date: "31-May Friday", count: 55 },
+      { date: "30-May Thursday", count: 14 },
+      { date: "29-May Wednesday", count: 100 },
+      { date: "31-May Friday", count: 55 },
+      { date: "30-May Thursday", count: 14 },
+      { date: "29-May Wednesday", count: 100 },
+      { date: "31-May Friday", count: 55 },
+      { date: "30-May Thursday", count: 14 },
+      { date: "29-May Wednesday", count: 100 },
       { date: "31-May Friday", count: 55 },
       { date: "30-May Thursday", count: 14 },
       { date: "29-May Wednesday", count: 100 },
@@ -29,11 +52,10 @@ const CRMPage = () => {
       <div className="bg-white flex justify-start  shadow rounded-lg p-4">
         <div className="w-1/2">
           <div>
-            <input
-              type="text"
-              placeholder="Search"
-              className="border rounded p-2"
-            />
+            <SearchBar />
+          </div>
+          <div>
+            <DatePicker />
           </div>
           <div className="mt-4 w-full">
             <div className=" grid gap-0.5 ">
@@ -54,7 +76,7 @@ const CRMPage = () => {
             </div>
           </div>
         </div>
-        <div className="w-full mx-10">
+        <div className="w-full mx-10 mt-20">
           <div className="grid grid-cols-2 gap-20">
             <div className="">
               <h3 className="text-lg font-bold">Backlog Summary</h3>
@@ -87,8 +109,8 @@ const CRMPage = () => {
               </div>
             </div>
           </div>
-          <div className="mt-4">
-            <h3 className="text-lg font-bold">BACKLOGS</h3>
+          <div className="mt-4 ">
+            <h3 className="text-lg font-bold mb-16">BACKLOGS</h3>
             <div className="bg-gray-100 p-2 rounded-lg">
               {data.backlogs.map((backlog, index) => (
                 <div key={index} className="flex justify-between py-2 border-b">
