@@ -1,89 +1,82 @@
+import { useState } from "react";
+import { FaChevronDown } from "react-icons/fa";
+
 function SearchBar() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   return (
-    <form className="max-w-lg mx-auto">
-      <div className="flex">
-        <label
-          htmlFor="search-dropdown"
-          className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
-        >
+    <form className=" max-w-2xl mx-auto">
+      <div className="flex bg-cyan-400 rounded-b-lg overflow-hidden">
+        <label htmlFor="search-dropdown" className="sr-only">
           Your Email
         </label>
         <button
           id="dropdown-button"
-          data-dropdown-toggle="dropdown"
-          className="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
+          onClick={toggleDropdown}
           type="button"
+          className="flex-shrink-0 z-10 bg-cyan-400 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-100 "
         >
-          All categories{" "}
-          <svg
-            className="w-2.5 h-2.5 ms-2.5"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 10 6"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="m1 1 4 4 4-4"
-            />
-          </svg>
+          All categories <FaChevronDown className="w-2.5 h-2.5 ms-2.5" />
         </button>
-        <div
-          id="dropdown"
-          className="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-        >
-          <ul
-            className="py-2 text-sm text-gray-700 dark:text-gray-200"
-            aria-labelledby="dropdown-button"
+        {isDropdownOpen && (
+          <div
+            id="dropdown"
+            className="absolute mt-10 w-44 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow"
           >
-            <li>
-              <button
-                type="button"
-                className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Mockups
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Templates
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Design
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Logos
-              </button>
-            </li>
-          </ul>
-        </div>
+            <ul
+              className="py-2 text-sm text-gray-700"
+              aria-labelledby="dropdown-button"
+            >
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-full px-4 py-2 hover:bg-gray-100"
+                >
+                  Mockups
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-full px-4 py-2 hover:bg-gray-100"
+                >
+                  Templates
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-full px-4 py-2 hover:bg-gray-100"
+                >
+                  Design
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="inline-flex w-full px-4 py-2 hover:bg-gray-100"
+                >
+                  Logos
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
         <div className="relative w-full">
           <input
             type="search"
             id="search-dropdown"
-            className="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 border-l-2 border-gray-300 rounded-e-lg focus:outline-none"
             placeholder="Search Mockups, Logos, Design Templates..."
             required
           />
           <button
             type="submit"
-            className="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            className="absolute top-0 right-0 p-2.5 text-sm font-medium h-full text-white bg-cyan-400 rounded-e-lg "
           >
             <svg
               className="w-4 h-4"

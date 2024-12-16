@@ -5,13 +5,15 @@ import {
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
+  isSameDay,
 } from "date-fns";
 import { useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 function DatePicker() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   const startDate = startOfWeek(currentMonth);
   const endDate = endOfWeek(currentMonth);
   const days = eachDayOfInterval({ start: startDate, end: endDate });
@@ -23,12 +25,14 @@ function DatePicker() {
   const handleNextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
+
   const handleDateClick = (date) => {
     setSelectedDate(date);
   };
+
   return (
-    <div className="w-full  flex justify-around items-center gap-2 md:gap-4 xl:gap-8 py-1 bg-white">
-      <div className="flex justify-between items-center  mb-0.5">
+    <div className="w-full flex justify-around items-center gap-1 md:gap-4 xl:gap-2 py-4 bg-white">
+      <div className="flex justify-between items-center mb-0.5">
         <button onClick={handlePrevMonth} className="focus:outline-none">
           <FaChevronLeft />
         </button>
@@ -43,16 +47,14 @@ function DatePicker() {
         {days.map((day) => (
           <div
             key={day}
-            className={` p-1 cursor-pointer rounded-full ${
-              selectedDate &&
-              format(day, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
+            className={`p-1 cursor-pointer rounded-full ${
+              isSameDay(day, selectedDate)
                 ? "bg-gray-700 text-white"
                 : "bg-white text-gray-700"
             }`}
             onClick={() => handleDateClick(day)}
           >
-            {/* <div>{format(day, "E")}</div> */}
-            <div className="text-md font-bold ">{format(day, "dd")}</div>
+            <div className="text-xl  mx-1">{format(day, "dd")}</div>
           </div>
         ))}
       </div>
