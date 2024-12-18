@@ -1,81 +1,31 @@
-import { FaPlus } from "react-icons/fa6";
-import DatePicker from "../componets/DatePicker";
-import SearchBar from "../componets/SearchBar";
+
+import DatePicker from "../componets/DatePicker/DatePicker";
+import SearchBar from "../componets/SearchBar/SearchBar";
+import { useContext } from "react";
+import { AppContext } from "./context/AppContext";
+import Navbar from "../componets/Navbar/Navbar";
+import Sidebar from "../componets/Sidebar/Sidebar";
 
 const CRMPage = () => {
-  const data = {
-    user: "Dr. Beninah",
-    role: "Dispenser",
-    dates: [
-      { date: "31-May Friday", count: 55 },
-      { date: "30-May Thursday", count: 14 },
-      { date: "29-May Wednesday", count: 100 },
-      { date: "31-May Friday", count: 55 },
-      { date: "30-May Thursday", count: 14 },
-      { date: "29-May Wednesday", count: 100 },
-      { date: "31-May Friday", count: 55 },
-      { date: "30-May Thursday", count: 14 },
-      { date: "29-May Wednesday", count: 100 },
-      { date: "31-May Friday", count: 55 },
-      { date: "30-May Thursday", count: 14 },
-      { date: "29-May Wednesday", count: 100 },
-      { date: "31-May Friday", count: 55 },
-      { date: "30-May Thursday", count: 14 },
-      { date: "29-May Wednesday", count: 100 },
-      { date: "31-May Friday", count: 55 },
-      { date: "30-May Thursday", count: 14 },
-      { date: "29-May Wednesday", count: 100 },
-      { date: "31-May Friday", count: 55 },
-      { date: "30-May Thursday", count: 14 },
-      { date: "29-May Wednesday", count: 100 },
-      { date: "31-May Friday", count: 55 },
-      { date: "30-May Thursday", count: 14 },
-      { date: "29-May Wednesday", count: 100 },
-      // Add more dates as required
-    ],
-    backlogs: [
-      { name: "Dr. ALEX KUMBURA", location: "KIBUYE", status: "Missed" },
-      { name: "Dr. ALES", location: "KIBUYE", status: "Missed" },
-      // Add more backlogs as required
-    ],
-    summary: {
-      missed: 292,
-      draft: 0,
-      rescheduled: 0,
-      skipped: 0,
-      submitted: 1285,
-    },
-  };
+
+  const {data}=useContext(AppContext);
 
   return (
     <div className="min-h-screen  bg-gray-50">
+    <Navbar/>
       <div className="bg-white flex justify-start  shadow rounded-lg ">
+
         <div className="w-1/2">
-          <div>
-            <SearchBar />
-          </div>
+          
           <div>
             <DatePicker />
           </div>
-          <div className=" w-full">
-            <div className=" grid gap-0.5 ">
-              {data.dates.map((date, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between p-2 bg-cyan-400 text-white  text-center"
-                >
-                  <div className="flex justify-between gap-5">
-                    <p>{date.date}</p>
-                    <p>({date.count})</p>
-                  </div>
-                  <div>
-                    <FaPlus />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+
+        <Sidebar/>
+
         </div>
+
+
         <div className="w-full mx-10 mt-24">
           <div className="grid grid-cols-2 gap-20">
             <div className="">
@@ -123,6 +73,7 @@ const CRMPage = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
