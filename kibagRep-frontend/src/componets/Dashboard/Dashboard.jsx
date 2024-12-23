@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { AppContext } from "../../pages/context/AppContext";
 import Bargraph from "../Bargraph/Bargraph";
 import Dognutpie from "../Dognutpie/Dognutpie";
+import { NavLink, Outlet } from "react-router-dom";
 
 const Dashboard = () => {
   const activity = [
@@ -115,15 +116,61 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
-      <div className="bg-slate-50 w-[93%] pb-7 rounded-sm mx-auto py-2">
-        <div className="py-2 px-3 border-solid border-l-[5px] border-cyan-400">
-          <h1 className="text-xl leading-none font-semibold">
-            Special occassions
-          </h1>
+      <div className="w-[93%] mx-auto">
+        <ul>
+          <li className="inline-block px-4 text-xl leading-none font-semibold">
+            <NavLink
+              to="/dashboard/activity"
+              className={({ isActive }) =>
+                isActive
+                  ? "border-solid border-l-[5px] border-cyan-400"
+                  : undefined
+              }
+              end
+            >
+              Activity
+            </NavLink>
+          </li>
+          <li className="inline-block px-4 text-xl leading-none font-semibold">
+            <NavLink
+              to="/dashboard/revenue"
+              className={({ isActive }) =>
+                isActive
+                  ? "border-solid border-l-[5px] border-cyan-400"
+                  : undefined
+              }
+            >
+              Revenue
+            </NavLink>
+          </li>
+          <li className="inline-block px-4 text-xl leading-none font-semibold">
+            <NavLink
+              to="/dashboard/performance"
+              className={({ isActive }) =>
+                isActive
+                  ? "border-solid border-l-[5px] border-cyan-400"
+                  : undefined
+              }
+            >
+              Performance
+            </NavLink>
+          </li>
+          <li className="inline-block px-4 text-xl leading-none font-semibold">
+            <NavLink
+              to="/dashboard/outsidesales"
+              className={({ isActive }) =>
+                isActive
+                  ? "border-solid border-l-[5px] border-cyan-400"
+                  : undefined
+              }
+            >
+              Outside Sales
+            </NavLink>
+          </li>
+        </ul>
+        <div className="bg-slate-50 w-full pb-7 rounded-sm mx-auto py-2">
+          <Outlet />
         </div>
-
-        <div className="flex gap-7"></div>
       </div>
     </div>
   );
