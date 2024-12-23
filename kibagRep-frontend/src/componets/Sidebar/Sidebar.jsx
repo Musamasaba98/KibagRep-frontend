@@ -1,4 +1,3 @@
-import React from "react";
 import { useContext } from "react";
 import { AppContext } from "../../pages/context/AppContext";
 import { FaPlus } from "react-icons/fa6";
