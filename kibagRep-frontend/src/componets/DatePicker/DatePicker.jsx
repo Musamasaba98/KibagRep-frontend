@@ -31,7 +31,7 @@ function DatePicker() {
   };
 
   return (
-    <div className="w-full flex justify-around items-center gap-1 md:gap-4 xl:gap-2 py-4 bg-white">
+    <div className="w-full flex justify-around items-center py-4 bg-white">
       <div className="flex justify-between items-center mb-0.5">
         <button onClick={handlePrevMonth} className="focus:outline-none">
           <FaChevronLeft />
@@ -49,7 +49,7 @@ function DatePicker() {
             key={day}
             className={`p-1 cursor-pointer rounded-full ${
               isSameDay(day, selectedDate)
-                ? "bg-gray-700 text-white"
+                ? "bg-[#f87c86] text-white font-bold"
                 : "bg-white text-gray-700"
             }`}
             onClick={() => handleDateClick(day)}

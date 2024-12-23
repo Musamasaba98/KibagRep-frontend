@@ -1,8 +1,8 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import SearchBar from '../SearchBar/SearchBar';
-import { FaPowerOff} from 'react-icons/fa6';
 import { AppContext } from '../../pages/context/AppContext';
 import { TbRubberStamp } from 'react-icons/tb';
+import { FaList } from 'react-icons/fa';
 
 
 const Navbar = () => {
@@ -16,7 +16,7 @@ const Navbar = () => {
 
       <div className="pr-9 flex items-center gap-7">
        
-        <FaPowerOff fill="#22d3ee" className='w-5 h-5 ms-1.2' onClick={()=>setShowMenu(TbRubberStamp)}/>
+        <FaList fill="#5ac388" className='w-7 h-7 ms-1.2' onClick={()=>setShowMenu(TbRubberStamp)}/>
        
 
       </div>

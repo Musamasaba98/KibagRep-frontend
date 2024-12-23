@@ -9,9 +9,7 @@ function SearchBar() {
   };
 
   return (
-
-    <form className=" w-[31%]">
-
+    <form className=" w-[35%] pl-16">
       <div className="flex bg-cyan-400 rounded-md overflow-hidden">
         <label htmlFor="search-dropdown" className="sr-only">
           Your Email
@@ -20,7 +18,7 @@ function SearchBar() {
           id="dropdown-button"
           onClick={toggleDropdown}
           type="button"
-          className="flex-shrink-0 z-10 bg-cyan-400 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-100 "
+          className="flex-shrink-0 z-10 bg-[#5ac388] inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-100 "
         >
           All categories <FaChevronDown className="w-2.5 h-2.5 ms-2.5" />
         </button>
@@ -78,7 +76,7 @@ function SearchBar() {
           />
           <button
             type="submit"
-            className="absolute top-0 right-0 p-2.5 text-sm font-medium h-full text-white bg-cyan-400 rounded-e-lg "
+            className="absolute top-0 right-0 p-2.5 text-sm font-medium h-full text-white bg-[#5ac388] rounded-e-lg "
           >
             <svg
               className="w-4 h-4"
@@ -100,7 +98,6 @@ function SearchBar() {
         </div>
       </div>
     </form>
-
   );
 }
 
