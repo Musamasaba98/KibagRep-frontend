@@ -11,6 +11,9 @@ import {
 } from "react-router-dom";
 import Homepage from "./pages/Homepage/Homepage.jsx";
 import Activity from "./componets/Dashboard/DashboardComponents/Activity/Activity.jsx";
+import Revenue from "./componets/Dashboard/DashboardComponents/Revenue/Revenue.jsx";
+import Performance from "./componets/Dashboard/DashboardComponents/Performance/Performance.jsx";
+import OutsideSales from "./componets/Dashboard/DashboardComponents/OutsideSales/OutsideSales.jsx";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +30,23 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
+            element: <Navigate to="activity" replace />,
+          },
+          {
+            path: "activity",
             element: <Activity />,
+          },
+          {
+            path: "revenue",
+            element: <Revenue />,
+          },
+          {
+            path: "performance",
+            element: <Performance />,
+          },
+          {
+            path: "outsidesales",
+            element: <OutsideSales />,
           },
         ],
       },

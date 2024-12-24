@@ -32,7 +32,7 @@ const Dashboard = () => {
       <div className="bg-slate-50 w-[93%] pb-7 rounded-sm mx-auto py-2">
         <div className="py-2 px-3  flex justify-between border-cyan-400">
           <h1 className="text-xl pl-2 pt-2 border-solid border-l-[5px] border-cyan-400 leading-none font-semibold">
-            Todays call activity
+            Today&apos;s call activity
           </h1>
           <div>
             <button className="text-white outline-none px-8 py-2 text-sm bg-[#5ac388] rounded-3xl">
@@ -64,42 +64,6 @@ const Dashboard = () => {
           })}
         </div>
       </div>
-
-      {/* <div className="bg-slate-50 w-[93%] pb-7 rounded-sm mx-auto py-2">
-        <div className="py-2 px-3 flex justify-between ">
-          <div className="border-solid border-l-[5px] border-cyan-400">
-            <h1 className="pl-2 text-xl leading-none font-semibold">Sync</h1>
-          </div>
-
-          <div>
-            <button className="text-white outline-none px-8 py-2 text-sm bg-[#5ac388] rounded-3xl">
-              Sync
-            </button>
-          </div>
-        </div>
-
-        <div className="flex gap-7">
-          {activity.map((item, index) => {
-            return (
-              <div
-                className="bg-white w-[130px] h-[100px] rounded mt-2"
-                key={index}
-              >
-                <h2 className="text-center font-light text-3xl text-[#454545]">
-                  {item.count}
-                </h2>
-
-                <div>
-                  <p className="text-[18px] font-[Arial] text-[#454545] text-center pt-[30px]">
-                    {item.title}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div> */}
-
       <div className="bg-slate-50 w-[93%] h-[300px] pb-7 rounded-sm mx-auto py-2">
         <div className="py-2 px-3 flex justify-between border-solid border-l-[5px] border-cyan-400">
           <h1 className="pl-2 text-xl leading-none font-semibold">
@@ -120,35 +84,36 @@ const Dashboard = () => {
         <ul>
           <li className="inline-block px-4 text-xl leading-none font-semibold">
             <NavLink
-              to="/dashboard/activity"
+              to="activity"
               className={({ isActive }) =>
                 isActive
-                  ? "border-solid border-l-[5px] border-cyan-400"
+                  ? "border-solid border-b-[5px] border-cyan-400"
                   : undefined
               }
-              end
+              activeClassName="active-link"
             >
               Activity
             </NavLink>
           </li>
           <li className="inline-block px-4 text-xl leading-none font-semibold">
             <NavLink
-              to="/dashboard/revenue"
+              to="revenue"
               className={({ isActive }) =>
                 isActive
-                  ? "border-solid border-l-[5px] border-cyan-400"
+                  ? "border-solid border-b-[5px] border-cyan-400"
                   : undefined
               }
+              activeClassName="active-link"
             >
               Revenue
             </NavLink>
           </li>
           <li className="inline-block px-4 text-xl leading-none font-semibold">
             <NavLink
-              to="/dashboard/performance"
+              to="performance"
               className={({ isActive }) =>
                 isActive
-                  ? "border-solid border-l-[5px] border-cyan-400"
+                  ? "border-solid border-b-[5px] border-cyan-400"
                   : undefined
               }
             >
@@ -157,10 +122,10 @@ const Dashboard = () => {
           </li>
           <li className="inline-block px-4 text-xl leading-none font-semibold">
             <NavLink
-              to="/dashboard/outsidesales"
+              to="outsidesales"
               className={({ isActive }) =>
                 isActive
-                  ? "border-solid border-l-[5px] border-cyan-400"
+                  ? "border-solid border-b-[5px] border-cyan-400 pb-[1px]"
                   : undefined
               }
             >
