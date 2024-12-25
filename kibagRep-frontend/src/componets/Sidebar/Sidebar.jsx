@@ -7,7 +7,7 @@ const Sidebar = () => {
   console.log(data);
   return (
     <div>
-      <div className=" w-full">
+      <div className=" w-full max-h-[70vh] overflow-y-auto bg-gray-100">
         <div className=" grid gap-0.5 ">
           {data.dates.map((date, index) => (
             <AccordionItem
