@@ -1,7 +1,7 @@
 import { FaRegFlag } from "react-icons/fa6";
 export default function CatchupCard() {
   return (
-    <div className="flex mx-2 xl:mx-4">
+    <div className="flex mx-2 2xl:mx-4">
       <div className="flex items-center gap-2">
         <FaRegFlag />
         <div>

@@ -2,7 +2,7 @@ import { FaRegFlag, FaPhone } from "react-icons/fa6";
 export default function EventsCard() {
   const newDate = new Date();
   return (
-    <div className="flex mx-2 xl:mx-4 items-center gap-2">
+    <div className="flex mx-0.5 2xl:mx-4 items-center gap-2">
       <div className="flex flex-col">
         <div className="">
           <FaRegFlag fill="#ea2727" />
