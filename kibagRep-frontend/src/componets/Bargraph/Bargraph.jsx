@@ -34,7 +34,7 @@ export default function Bargraph() {
       sales: 110,
     },
     {
-      brand: "Gabapentin",
+      brand: "Gaba",
       sales: 140,
     },
   ];

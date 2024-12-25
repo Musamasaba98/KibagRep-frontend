@@ -31,12 +31,12 @@ function DatePicker() {
   };
 
   return (
-    <div className="w-full flex justify-around items-center py-4 bg-white">
+    <div className="w-full flex gap-2 items-center py-4 bg-white">
       <div className="flex justify-between items-center mb-0.5">
         <button onClick={handlePrevMonth} className="focus:outline-none">
           <FaChevronLeft />
         </button>
-        <h2 className="text-lg px-2 font-semibold">
+        <h2 className="lg:text-sm lg:px-1 font-semibold">
           {format(currentMonth, "MMMM")}
         </h2>
         <button onClick={handleNextMonth} className="focus:outline-none">
@@ -47,14 +47,14 @@ function DatePicker() {
         {days.map((day) => (
           <div
             key={day}
-            className={`p-1 cursor-pointer rounded-full ${
+            className={`p-[0.3px] cursor-pointer rounded-full ${
               isSameDay(day, selectedDate)
                 ? "bg-[#f87c86] text-white font-bold"
                 : "bg-white text-gray-700"
             }`}
             onClick={() => handleDateClick(day)}
           >
-            <div className="text-xl  mx-1">{format(day, "dd")}</div>
+            <div className="lg:text-sm  lg:px-[4px]">{format(day, "dd")}</div>
           </div>
         ))}
       </div>

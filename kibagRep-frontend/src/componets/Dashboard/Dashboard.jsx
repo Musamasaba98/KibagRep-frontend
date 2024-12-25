@@ -28,8 +28,8 @@ const Dashboard = () => {
   const { setShowNca } = useContext(AppContext);
 
   return (
-    <div className="w-[100%] flex justify-center pt-5 flex-col gap-11  ">
-      <div className="bg-slate-50 w-[93%] pb-7 rounded-sm mx-auto py-2">
+    <div className="w-[100%] flex justify-center pt-5 flex-col gap-8  ">
+      <div className="bg-slate-50 w-[95%] xl:w-[93%] pb-7 rounded-sm mx-auto py-2">
         <div className="py-2 px-3  flex justify-between border-cyan-400">
           <h1 className="text-xl pl-2 pt-2 border-solid border-l-[5px] border-cyan-400 leading-none font-semibold">
             Today&apos;s call activity
@@ -64,7 +64,7 @@ const Dashboard = () => {
           })}
         </div>
       </div>
-      <div className="bg-slate-50 w-[93%] h-[300px] pb-7 rounded-sm mx-auto py-2">
+      <div className="bg-slate-50 w-[95%] xl:w-[93%] h-[300px] pb-7 rounded-sm mx-auto py-2">
         <div className="py-2 px-3 flex justify-between border-solid border-l-[5px] border-cyan-400">
           <h1 className="pl-2 text-xl leading-none font-semibold">
             Detailing Performance
@@ -80,7 +80,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <div className="w-[93%] mx-auto">
+      <div className="w-[95%] xl:w-[93%] mx-auto">
         <ul>
           <li className="inline-block px-4 text-xl leading-none font-semibold">
             <NavLink
@@ -133,7 +133,7 @@ const Dashboard = () => {
             </NavLink>
           </li>
         </ul>
-        <div className="bg-slate-50 w-full pb-7 rounded-sm mx-auto py-2">
+        <div className="bg-slate-50 w-full pb-7 rounded-sm mx-auto py-4">
           <Outlet />
         </div>
       </div>
