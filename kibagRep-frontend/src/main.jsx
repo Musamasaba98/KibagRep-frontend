@@ -15,6 +15,7 @@ import Revenue from "./componets/Dashboard/DashboardComponents/Revenue/Revenue.j
 import Performance from "./componets/Dashboard/DashboardComponents/Performance/Performance.jsx";
 import OutsideSales from "./componets/Dashboard/DashboardComponents/OutsideSales/OutsideSales.jsx";
 import Events from "./componets/Dashboard/DashboardComponents/Events/Events.jsx";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path:"/admin",
+    element:<AdminDashboard/>
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
