@@ -97,6 +97,19 @@ const Dashboard = () => {
           </li>
           <li className="inline-block px-4 text-xl leading-none font-semibold">
             <NavLink
+              to="events"
+              className={({ isActive }) =>
+                isActive
+                  ? "border-solid border-b-[5px] border-cyan-400"
+                  : undefined
+              }
+              activeClassName="active-link"
+            >
+              Events
+            </NavLink>
+          </li>
+          <li className="inline-block px-4 text-xl leading-none font-semibold">
+            <NavLink
               to="revenue"
               className={({ isActive }) =>
                 isActive

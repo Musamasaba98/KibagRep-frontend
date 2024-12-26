@@ -2,7 +2,7 @@ import { FaRegFlag } from "react-icons/fa6";
 export default function TaskCard() {
   const newDate = new Date();
   return (
-    <div className=" px-2">
+    <div className=" px-2 py-1">
       <div className="flex  items-center gap-2">
         <div className="flex flex-col">
           <div className="">

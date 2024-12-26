@@ -14,6 +14,7 @@ import Activity from "./componets/Dashboard/DashboardComponents/Activity/Activit
 import Revenue from "./componets/Dashboard/DashboardComponents/Revenue/Revenue.jsx";
 import Performance from "./componets/Dashboard/DashboardComponents/Performance/Performance.jsx";
 import OutsideSales from "./componets/Dashboard/DashboardComponents/OutsideSales/OutsideSales.jsx";
+import Events from "./componets/Dashboard/DashboardComponents/Events/Events.jsx";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,11 @@ const router = createBrowserRouter([
           {
             path: "activity",
             element: <Activity />,
+          },
+
+          {
+            path: "events",
+            element: <Events />,
           },
           {
             path: "revenue",

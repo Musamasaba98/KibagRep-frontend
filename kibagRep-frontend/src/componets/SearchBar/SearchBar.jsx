@@ -9,7 +9,7 @@ function SearchBar() {
   };
 
   return (
-    <form className=" w-[35%] pl-16">
+    <form className=" w-[24%] pl-8">
       <div className="flex bg-cyan-400 rounded-md overflow-hidden">
         <label htmlFor="search-dropdown" className="sr-only">
           Your Email
@@ -18,7 +18,7 @@ function SearchBar() {
           id="dropdown-button"
           onClick={toggleDropdown}
           type="button"
-          className="flex-shrink-0 z-10 bg-[#5ac388] inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-100 "
+          className="flex-shrink-0 z-10 bg-[#5ac388] inline-flex items-center py-2.5 px-1  text-sm font-medium text-center text-gray-100 "
         >
           All categories <FaChevronDown className="w-2.5 h-2.5 ms-2.5" />
         </button>
@@ -70,13 +70,13 @@ function SearchBar() {
           <input
             type="search"
             id="search-dropdown"
-            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 border-l-2 border-gray-300 rounded-e-lg focus:outline-none"
+            className="block py-2.5 px-1 w-full text-sm text-gray-900 bg-gray-50 border-l-2 border-gray-300 rounded-e-lg focus:outline-none"
             placeholder="Search Mockups, Logos, Design Templates..."
             required
           />
           <button
             type="submit"
-            className="absolute top-0 right-0 p-2.5 text-sm font-medium h-full text-white bg-[#5ac388] rounded-e-lg "
+            className="absolute top-0 right-0 py-2.5 px-1 text-sm font-medium h-full text-white bg-[#5ac388] rounded-e-lg "
           >
             <svg
               className="w-4 h-4"

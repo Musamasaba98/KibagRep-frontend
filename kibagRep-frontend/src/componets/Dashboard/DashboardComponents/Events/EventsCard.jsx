@@ -1,4 +1,4 @@
-import { FaRegFlag, FaPhone } from "react-icons/fa6";
+import { FaRegFlag } from "react-icons/fa6";
 export default function EventsCard() {
   const newDate = new Date();
   return (
@@ -17,10 +17,10 @@ export default function EventsCard() {
         <div className="flex gap-1 justify-between ">
           <div className="flex gap-1">
             <p className="font-bold text-blue-900 phone">
-              <FaPhone />
-              {/* PHONE CALL */}
+              {/* <FaPhone /> */}
+              PHONE CALL
             </p>
-            <span className="text-xs">with Doctors...</span>
+            <span className="text-xs">with Doctors Hospital, Sseguku</span>
           </div>
           <div className="flex gap-2">
             <p className="text-xs">{newDate.toLocaleDateString()}</p>
