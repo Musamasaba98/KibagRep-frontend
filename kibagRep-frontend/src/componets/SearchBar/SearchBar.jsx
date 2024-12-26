@@ -9,7 +9,7 @@ function SearchBar() {
   };
 
   return (
-    <form className=" w-[24%] pl-8">
+    <form className=" w-[24%] pl-8 xl:pl-16">
       <div className="flex bg-cyan-400 rounded-md overflow-hidden">
         <label htmlFor="search-dropdown" className="sr-only">
           Your Email

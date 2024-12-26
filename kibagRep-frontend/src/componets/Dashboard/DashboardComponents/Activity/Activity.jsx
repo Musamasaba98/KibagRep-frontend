@@ -8,11 +8,15 @@ export default function Activity() {
         <h3 className="pl-2">My Tasks</h3>
         <div className="pl-4">
           <TaskCard />
+          <TaskCard />
+          <TaskCard />
         </div>
       </div>
-      <div>
+      <div className="w-full">
         <h3 className="pl-2">Catching Up</h3>
-        <div className="pl-4">
+        <div className="pl-4 mx-auto">
+          <CatchupCard />
+          <CatchupCard />
           <CatchupCard />
         </div>
       </div>

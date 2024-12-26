@@ -35,7 +35,7 @@ export default function AccordionItem({ date, count, profiles }) {
 
       {/* Content */}
       {isActive && (
-        <div className="p-1 bg-gray-100">
+        <div className="p-1 bg-gray-100 max-h-[60vh] overflow-y-auto">
           {profiles?.map((profile, index) => (
             <div
               key={index}

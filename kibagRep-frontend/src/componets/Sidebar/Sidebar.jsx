@@ -5,10 +5,11 @@ import AccordionItem from "./AccordionItem/AccordionItem";
 const Sidebar = () => {
   const { data } = useContext(AppContext);
   console.log(data);
+  // max-h-[60vh] overflow-y-auto
   return (
     <div>
-      <div className=" w-full max-h-[70vh] overflow-y-auto bg-gray-100">
-        <div className=" grid gap-0.5 ">
+      <div className=" w-full h-[100vh] bg-gray-100">
+        <div className=" grid gap-0.5">
           {data.dates.map((date, index) => (
             <AccordionItem
               key={index}

@@ -1,16 +1,16 @@
-import { FaRegFlag } from "react-icons/fa6";
+import { FaRegClock } from "react-icons/fa6";
 export default function EventsCard() {
   const newDate = new Date();
   return (
-    <div className="flex mx-0.5 2xl:mx-4 items-center gap-2">
-      <div className="flex flex-col">
+    <div className="flex mx-auto 2xl:mx-4 w-[95%] items-center justify-between py-1 px-3 ">
+      <div className="flex items-center flex-col">
         <div className="">
-          <FaRegFlag fill="#ea2727" />
+          <FaRegClock fill="#ea2727" />
         </div>
-        <p className="text-xs ">09:00am</p>
+        <p className="text-xs ">09:00 am</p>
       </div>
-      <div className="flex flex-col">
-        <div className="flex gap-3 items-center">
+      <div className="flex w-[80%] px-4 justify-between flex-col">
+        <div className="flex justify-between items-center ">
           <h3 className="text-md">Breakfast meeting</h3>
           <span className="text-sm">In about 5 mins</span>
         </div>

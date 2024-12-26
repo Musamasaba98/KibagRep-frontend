@@ -17,7 +17,7 @@ const CRMPage = () => {
           </div>
         </div>
 
-        <div className="w-full ml-[21%]">
+        <div className="w-full h-[93vh] ml-[21%]">
           <Outlet />
         </div>
       </div>
