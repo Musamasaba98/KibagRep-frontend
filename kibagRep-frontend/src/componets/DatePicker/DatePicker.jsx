@@ -37,7 +37,7 @@ function DatePicker() {
           <FaChevronLeft />
         </button>
         <h2 className="lg:text-sm lg:px-1 font-semibold">
-          {format(currentMonth, "MMMM")}
+          {format(currentMonth, "MMM")}
         </h2>
         <button onClick={handleNextMonth} className="focus:outline-none">
           <FaChevronRight />
