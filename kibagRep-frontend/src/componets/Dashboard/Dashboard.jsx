@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { AppContext } from "../../pages/context/AppContext";
+// import { useContext } from "react";
+// import { AppContext } from "../../pages/context/AppContext";
 import Bargraph from "../Bargraph/Bargraph";
 import Dognutpie from "../Dognutpie/Dognutpie";
 import { NavLink, Outlet } from "react-router-dom";
@@ -25,7 +25,7 @@ const Dashboard = () => {
     },
   ];
 
-  const { setShowNca } = useContext(AppContext);
+  const { setShowNca } = { setShowNca: () => {} };
 
   return (
     <div className="w-[100%] flex justify-center pt-5 flex-col gap-8  ">

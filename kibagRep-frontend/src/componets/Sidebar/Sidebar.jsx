@@ -1,9 +1,11 @@
-import { useContext } from "react";
-import { AppContext } from "../../pages/context/AppContext";
+// import { useContext } from "react";
+// import { AppContext } from "../../pages/context/AppContext";
 import AccordionItem from "./AccordionItem/AccordionItem";
+import data from "../../data.js";
 
 const Sidebar = () => {
-  const { data } = useContext(AppContext);
+  // const { data } = useContext(AppContext);
+
   console.log(data);
   // max-h-[60vh] overflow-y-auto
   return (
