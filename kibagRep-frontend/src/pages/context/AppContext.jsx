@@ -130,6 +130,8 @@ const AppContextProvider = (props) => {
   const [showUnplanned, setShowUnplanned] = useState(false);
   const [showNca, setShowNca] = useState(false);
 
+  const [showSidebar,setShowSidebar]=useState(false);
+
   const context_value = {
     data,
     showMenu,
@@ -138,6 +140,8 @@ const AppContextProvider = (props) => {
     setShowUnplanned,
     setShowNca,
     showNca,
+    setShowSidebar,
+    showSidebar
   };
 
   return (
