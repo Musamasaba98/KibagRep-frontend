@@ -1,5 +1,3 @@
-import Bargraph from "../../../componets/Bargraph/Bargraph";
-import Dognutpie from "../../../componets/Dognutpie/Dognutpie";
 
 
 const DetailingCont = () => {
@@ -12,7 +10,7 @@ const DetailingCont = () => {
         <h2 className='font-bold text-[21px] py-2 px-3'>Total detailing performance</h2>
 
         <div className="w-full h-[90%]">
-        <Dognutpie/>
+      
         </div>
 
         </div>
@@ -23,7 +21,7 @@ const DetailingCont = () => {
         <h2 className='font-bold text-[21px] py-2 px-3'>Total brand exposure performance</h2>
 
         <div className="w-full h-[90%]">
-        <Bargraph/>
+      
         </div>
 
         </div>

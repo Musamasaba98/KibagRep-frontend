@@ -1,4 +1,5 @@
 import React from 'react'
+import Activity from './components/Activity/Activity';
 
 const PerformActivity = () => {
   return (
@@ -16,7 +17,13 @@ const PerformActivity = () => {
             </ul>
           </div>
 
+          {/* Containers */}
+          <div className="w-full">
+        <Activity/>
         </div>
+
+        </div>
+        {/* End of this container above */}
       
     </div>
   )
