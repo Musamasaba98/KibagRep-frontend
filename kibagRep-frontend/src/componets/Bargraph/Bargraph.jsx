@@ -31,7 +31,7 @@ export default function Bargraph() {
     },
     {
       brand: "Nap",
-      sales: 110,
+      sales: 100,
     },
     {
       brand: "Gaba",
@@ -39,7 +39,7 @@ export default function Bargraph() {
     },
   ];
   const COLOR_PALETTE = [
-    "#2389ff",
+    "#ff0000",
     "#0dcccc",
     "#f18e56",
     "#d787ff",
@@ -56,7 +56,7 @@ export default function Bargraph() {
     colorField: "brand",
     legend: false,
     style: {
-      maxWidth: 30,
+      maxWidth: 40,
       inset: 5,
     },
     scale: {
