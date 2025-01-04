@@ -1,16 +1,26 @@
 import { FaXmark } from "react-icons/fa6";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleShowNca } from "../../store/uiStateSlice";
+import { useEffect, useState } from "react";
 
 // Building the NCA page popup.
 
 const Ncapopup = () => {
   const { showNca } = useSelector((state) => state.uiState);
-
+  const [isAnimating, setIsAnimating] = useState(false);
+  useEffect(() => {
+    if (showNca) {
+      setIsAnimating(true);
+    } else {
+      const timer = setTimeout(() => setIsAnimating(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [showNca]);
+  const dispatch = useDispatch();
   return (
     <div
       className={`w-full h-screen flex items-center bg-[#100000a4] fixed top-[0] z-[100] transition-opacity duration-300 ${
-        showNca ? "opacity-100 visible" : "opacity-0 invisible"
+        showNca || isAnimating ? "opacity-100 visible" : "opacity-0 invisible"
       }`}
     >
       <div
@@ -24,7 +34,7 @@ const Ncapopup = () => {
           <FaXmark
             fill="#fff"
             className="w-6 h-6 ms-1.5"
-            onClick={() => toggleShowNca()}
+            onClick={() => dispatch(toggleShowNca())}
           />
         </div>
         {/* End of the NCA  haeding div */}

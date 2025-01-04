@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaXmark } from "react-icons/fa6";
 import { useDispatch } from "react-redux";
-import { toggleShowMenu } from "../../store/uiStateSlice";
+import { toggleShowMenu, toggleShowUnplanned } from "../../store/uiStateSlice";
 // import { AppContext } from '../../pages/context/AppContext';
 
 // eslint-disable-next-line react/prop-types
@@ -43,7 +43,8 @@ const MenuPopup = ({ showMenu }) => {
           <div className="w-full py-3 px-3 hover:text-white">
             <p
               onClick={() => {
-                console.log("object");
+                dispatch(toggleShowUnplanned());
+                dispatch(toggleShowMenu());
               }}
               className="font-light text-[#454545] text-[18px] font-[Arial]"
             >

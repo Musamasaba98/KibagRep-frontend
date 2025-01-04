@@ -6,11 +6,23 @@ import {
   FaSquarePollVertical,
 } from "react-icons/fa6";
 import { FaCalendarAlt } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleShowUnplanned } from "../../store/uiStateSlice";
+import { useEffect, useState } from "react";
 
 const AddUnplanned = () => {
-  const { toggleShowUnplanned } = useSelector((state) => state.uiState);
+  const { showUnplanned } = useSelector((state) => state.uiState);
+  const [isAnimating, setIsAnimating] = useState(false);
 
+  useEffect(() => {
+    if (showUnplanned) {
+      setIsAnimating(true);
+    } else {
+      const timer = setTimeout(() => setIsAnimating(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [showUnplanned]);
+  const dispatch = useDispatch();
   const todos = [
     {
       place: "Hp. Nakavule",
@@ -33,9 +45,19 @@ const AddUnplanned = () => {
   ];
 
   return (
-    <div className="overflow-hidden w-full h-screen bg-[#100000a4] flex items-center fixed top-[0] z-[100]">
-      <div className="overflow-hidden w-[65%] 2xl:w-[50%] relative 2xl:h-[640px] h-[540px] bg-white mx-auto rounded-md">
-        <div className="full bg-cyan-400">
+    <div
+      className={`overflow-hidden w-full h-screen bg-[#100000a4] flex items-center fixed top-[0] z-[100] transition-opacity duration-300 ${
+        showUnplanned || isAnimating
+          ? "opacity-100 visible"
+          : "opacity-0 invisible"
+      }`}
+    >
+      <div
+        className={`overflow-hidden w-[65%] 2xl:w-[50%] relative 2xl:h-[640px] h-[540px] bg-white mx-auto rounded-md  transition-transform delay duration-300 ease-in-out ${
+          showUnplanned ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="full bg-[#5ac388]">
           <h2 className="py-3 px-4 font-bold text-white text-2xl">
             Add Unplanned
           </h2>
@@ -134,7 +156,7 @@ const AddUnplanned = () => {
 
         <div className="font-[Arial] items-center flex justify-center gap-24 absolute bottom-[0] w-full bg-[#808080] h-[50px]">
           <h2
-            onClick={() => toggleShowUnplanned()}
+            onClick={() => dispatch(toggleShowUnplanned())}
             className="text-white font-bold text-lg cursor-pointer"
           >
             CANCEL

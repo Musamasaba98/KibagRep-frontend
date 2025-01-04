@@ -17,6 +17,7 @@ import { Provider } from "react-redux";
 import persistStore from "redux-persist/es/persistStore";
 import { PersistGate } from "redux-persist/integration/react";
 import { store } from "./store/store.js";
+
 let persistor = persistStore(store);
 
 const router = createBrowserRouter([
