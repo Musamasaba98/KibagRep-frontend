@@ -1,4 +1,4 @@
-import { FaBell, FaList } from "react-icons/fa6";
+import { FaBell, FaLetterboxd, FaList } from "react-icons/fa6";
 
 
 
@@ -20,7 +20,7 @@ const Navbar = () => {
       </div>
 
       <div>
-      <FaBell className="w-6 h-6"/>
+      <FaLetterboxd className="w-6 h-6"/>
       </div>
       
       <div>

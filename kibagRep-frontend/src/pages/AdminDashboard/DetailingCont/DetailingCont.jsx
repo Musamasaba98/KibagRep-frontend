@@ -18,7 +18,7 @@ const DetailingCont = () => {
         {/* This is the brand exposure container */}
         <div className="w-[50%] bg-white h-[400px] rounded-md">
 
-        <h2 className='font-bold text-[21px] py-2 px-3'>Total brand exposure performance</h2>
+        <h2 className='font-bold text-[21px] py-2 px-3'>Total brand exposure</h2>
 
         <div className="w-full h-[90%]">
       
