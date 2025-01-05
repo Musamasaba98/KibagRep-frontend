@@ -5,7 +5,7 @@ import { FaBell, FaLetterboxd, FaList } from "react-icons/fa6";
 const Navbar = () => {
 
   return (
-    <div className="w-full z-[100] flex sticky top-0 items-center justify-between px-6 h-[60px] bg-white border-solid border-b-[1px] border-gray-200">
+    <div className="w-full z-[100] flex sticky top-0 items-center justify-between h-[60px] px-6 bg-white border-solid border-b-[1px] border-gray-100">
 
       <div>
       <FaList className="w-6 h-6"/>

@@ -2,10 +2,10 @@ import {FaUsers} from "react-icons/fa6"
 
 const TopCards = () => {
   return (
-    <div className="w-ful flex flex-wrap pt-5 px-8 gap-5 lg:gap-4 xl:gap-7 2xl:gap-10">
+    <div className="w-ful flex flex-wrap pt-5 px-8 gap-3 lg:gap-3 xl:gap-6 2xl:gap-10">
 
        {/* This is the top card */}
-      <div className="w-[23%] flex items-center px-3 h-[150px] bg-gradient-to-r from-blue-100 to-red-100 rounded-md border-solid border-[1px] border-[#cacaca]">
+      <div className="w-[23%] flex items-center px-3 h-[150px] bg-gradient-to-r from-green-100 to-red-100 rounded-md border-solid border-[1px] border-[#cacaca]">
       
       <div className="flex justify-between gap-6 w-full">
       <div>
@@ -22,7 +22,7 @@ const TopCards = () => {
       {/* The end of the top card */}
 
       {/* This is the top card */}
-      <div className="w-[23%] flex items-center px-3 h-[150px] bg-gradient-to-r from-blue-100 to-red-100 rounded-md border-solid border-[1px] border-[#cacaca]">
+      <div className="w-[23%] flex items-center px-3 h-[150px] bg-gradient-to-r from-blue-200 to-orange-100 rounded-md border-solid border-[1px] border-[#cacaca]">
       
       <div className="flex justify-between gap-6 w-full">
       <div>
