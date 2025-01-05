@@ -12,6 +12,10 @@
   background: #f1f1f1;
 }
 
+.kk{
+  color: rgb(14, 6, 31);
+}
+
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: #888;
