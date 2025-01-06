@@ -9,6 +9,21 @@ const Calendar = () => {
 
   const days = generateCalendarDays(currentDate);
 
+  const events=[
+    {
+      day:1,
+      event_on:"Visit Norvic hospital"
+    },
+    {
+      day:8,
+      event_on:"Visit Norvic hospital"
+    },
+    {
+      day:5,
+      event_on:"Visit Norvic hospital"
+    },
+  ]
+
 
   return (
     <div className='w-full pb-3 px-8 mt-4'>
@@ -34,7 +49,7 @@ const Calendar = () => {
          <div className="w-full grid grid-cols-7 mt-2">
           {days.map((item,index)=>{
             return(
-            <li className={`border-solid border-[1px] border-gray-100 ${isSameMonth(item,currentDate)?`text-black`:`text-gray-400`} list-none text-[18px] font-[Arial] w-full text-center py-8 px-8`}>
+            <li id='list' className={`border-solid border-[1px] border-gray-100 ${isSameMonth(item,currentDate)?`text-black`:`text-gray-400`} list-none text-[18px] font-[Arial] w-full text-center py-8 px-8`}>
               {format(item,"d")}
               </li>
             );
