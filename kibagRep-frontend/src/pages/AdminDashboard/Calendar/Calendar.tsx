@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { generateCalendarDays } from '../../../utils/utils';
+import { generateCalendarDays } from '../../../utils/utils.js';
 import { format,isSameMonth,addMonths,subMonths } from 'date-fns';
 
 

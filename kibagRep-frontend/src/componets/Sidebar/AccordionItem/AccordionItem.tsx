@@ -2,9 +2,14 @@ import { useState, useEffect } from "react";
 import UserProfileCard from "../UserProfileCard/UserProfileCard";
 import { FaPlus } from "react-icons/fa6";
 
-export default function AccordionItem({ date, count, profiles }) {
+type AccordionProps = {
+  date:any,
+  count:number,
+  profiles:any[]
+}
+
+export default function AccordionItem({ date, count, profiles }:AccordionProps) {
   const [isActive, setIsActive] = useState(false);
-  console.log(profiles);
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     if (date === today) {

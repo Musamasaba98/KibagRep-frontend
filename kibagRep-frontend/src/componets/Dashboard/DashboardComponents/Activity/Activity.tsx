@@ -1,9 +1,9 @@
 import { useSelector } from "react-redux";
-import CatchupCard from "./CatchupCard";
-import TaskCard from "./TaskCard";
+import CatchupCard from "./CatchupCard.js";
+import TaskCard from "./TaskCard.js";
 
 export default function Activity() {
-  const showMenu = useSelector((state) => state.uiState.showMenu);
+  const showMenu = useSelector((state:any) => state.uiState.showMenu);
   console.log("showMenu", showMenu);
   return (
     <div className="grid grid-cols-2 mx-2">

@@ -1,8 +1,8 @@
 import { createContext, useState } from "react";
 
-export const AppContext = createContext(null);
+export const AppContext = createContext({});
 
-const AppContextProvider = (props) => {
+const AppContextProvider = (props:any) => {
   const dummyProfiles = [
     {
       id: 1,

@@ -26,7 +26,7 @@ function DatePicker() {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
 
-  const handleDateClick = (date) => {
+  const handleDateClick = (date:any) => {
     setSelectedDate(date);
   };
 
@@ -44,7 +44,7 @@ function DatePicker() {
         </button>
       </div>
       <div className="flex justify-between items-center">
-        {days.map((day) => (
+        {days.map((day:any) => (
           <div
             key={day}
             className={`p-[0.3px] cursor-pointer rounded-full ${

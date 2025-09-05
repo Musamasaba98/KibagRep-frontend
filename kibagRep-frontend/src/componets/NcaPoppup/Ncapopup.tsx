@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 // Building the NCA page popup.
 
 const Ncapopup = () => {
-  const { showNca } = useSelector((state) => state.uiState);
+  const { showNca } = useSelector((state:any) => state.uiState);
   const [isAnimating, setIsAnimating] = useState(false);
   useEffect(() => {
     if (showNca) {

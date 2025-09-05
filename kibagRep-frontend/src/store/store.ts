@@ -10,7 +10,7 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import uiSlice from "./uiStateSlice";
+import uiSlice from "./uiStateSlice.js";
 
 const persistConfig = {
   key: "root",

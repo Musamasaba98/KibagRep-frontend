@@ -1,6 +1,6 @@
 // import { useContext } from "react";
 // import { AppContext } from "../../pages/context/AppContext";
-import AccordionItem from "./AccordionItem/AccordionItem";
+import AccordionItem from "./AccordionItem/AccordionItem.js";
 import data from "../../data.js";
 
 const Sidebar = () => {

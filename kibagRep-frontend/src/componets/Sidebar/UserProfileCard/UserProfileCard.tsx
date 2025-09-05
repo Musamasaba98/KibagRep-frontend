@@ -1,6 +1,6 @@
 import { FaLocationDot } from "react-icons/fa6";
 
-export default function UserProfileCard() {
+export default function UserProfileCard(props:any) {
   return (
     <div className="flex items-center  bg-white rounded-lg ">
       <div className="w-10 h-10 flex-shrink-0">

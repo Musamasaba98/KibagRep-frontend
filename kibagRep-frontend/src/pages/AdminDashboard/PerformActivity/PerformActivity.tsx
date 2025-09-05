@@ -1,12 +1,12 @@
 import React from 'react'
-import Activity from './components/Activity/Activity';
+import Activity from './components/Activity/Activity.js';
 
 const PerformActivity = () => {
   return (
     <div className='w-ful mt-6 mx-8'>
 
         {/* The conatiner to hold the : activities,revenue & more */}
-        <div className="w-full bg-white rounded-md h-[400px]">
+        <div className="w-full bg-white rounded-md h-[420px] pb-5">
 
           <div className='p-4 px-8 border-solid border-b-[1px] border-gray-100'>
             <ul>
@@ -19,7 +19,7 @@ const PerformActivity = () => {
 
           {/* Containers */}
           <div className="w-full">
-    
+          <Activity/>
         </div>
 
         </div>

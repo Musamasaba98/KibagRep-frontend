@@ -1,5 +1,5 @@
-import Calendar from "../Calendar/Calendar";
-import Dashboard from "../Dashboard/Dashboard";
+import Calendar from "../Calendar/Calendar.js";
+import Dashboard from "../Dashboard/Dashboard.js";
 
 
 

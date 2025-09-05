@@ -1,13 +1,12 @@
 import TopSelling from "../../TopSelling/TopSelling";
-import DetailingCont from "../DetailingCont/DetailingCont";
 import PerformActivity from "../PerformActivity/PerformActivity";
-import TopCards from "../TopCards/TopCards";
+import TopBox from "../TopBox/TopBox";
+
 
 const Dashboard = () => {
   return (
     <div className='w-full'>
-       <TopCards/>
-      <DetailingCont/>
+      <TopBox/>
       <PerformActivity/>
       <TopSelling/>
     </div>

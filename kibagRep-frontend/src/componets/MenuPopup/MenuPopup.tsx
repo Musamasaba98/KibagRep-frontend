@@ -5,7 +5,7 @@ import { toggleShowMenu, toggleShowUnplanned } from "../../store/uiStateSlice";
 // import { AppContext } from '../../pages/context/AppContext';
 
 // eslint-disable-next-line react/prop-types
-const MenuPopup = ({ showMenu }) => {
+const MenuPopup = ({ showMenu }:{showMenu:boolean}) => {
   const dispatch = useDispatch();
   const [isAnimating, setIsAnimating] = useState(false);
   useEffect(() => {

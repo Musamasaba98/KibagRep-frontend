@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es2020", 
+    "allowImportingTsExtensions":true,
+    "lib": ["dom", "dom.iterable", "esnext"], // Include DOM types for React
+    "allowJs": true, // Allow JavaScript files in the project
+    "skipLibCheck": true, // Skip type checking of all declaration files (*.d.ts)
+    "esModuleInterop": true, // Enables better interoperability for CommonJS and ES Modules
+    "allowSyntheticDefaultImports": true, // Allow synthetic default imports
+    "strict": true, // Enable all strict type-checking options
+    "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file
+    "noEmit": true, // Do not emit output (only perform type checking)
+    "isolatedModules": true, // Ensure each file can be transpiled independently
+    "jsx": "react-jsx", // Specify how JSX is emitted
+    "module": "esnext", // Specify module code generation
+    "moduleResolution": "node", // Resolve modules using Node.js resolution strategy
+    "resolveJsonModule": true, // Allow importing .json files
+    "incremental": true, // Enable incremental compilation
+    "noFallthroughCasesInSwitch": true // Report errors for fallthrough cases in switch statement
+  },
+  "include": [
+    "src" // Include all files in the 'src' directory
+  ],
+  "exclude": [
+    "node_modules" // Exclude files in 'node_modules'
+  ]
+}

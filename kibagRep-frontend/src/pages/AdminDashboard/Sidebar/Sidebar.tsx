@@ -9,7 +9,7 @@ const Sidebar = () => {
     <div className='fixed bg-white transition-width duration-[1s] w-[22%] 2xl:w-[15%] h-screen border-solid border-r-[1px] border-grey-200 overflow-y-scroll [&::-webkit-scrollbar]:w-0'>
     
    {/* Div for the icons and text */}
-    <div className="flex flex-col gap-[10px] 2xl:gap-7 pt-3">
+    <div className="flex flex-col gap-6 2xl:gap-7 pt-3">
     
 
 
@@ -146,9 +146,6 @@ const Sidebar = () => {
 
     </div>
     {/* End of the menu option div */}
-    
-
-
 
     </div>
     </div>

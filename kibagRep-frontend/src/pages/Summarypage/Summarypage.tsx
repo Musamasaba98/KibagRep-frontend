@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { AppContext } from "./context/AppContext";
+import { AppContext } from "../context/AppContext";
 
 export default function Summarypage() {
-  const { data } = useContext(AppContext);
+  const { data } = useContext<any>(AppContext);
   return (
     <>
       <div className="grid grid-cols-2 gap-20">
@@ -40,7 +40,7 @@ export default function Summarypage() {
       <div className="mt-4 ">
         <h3 className="text-lg font-bold mb-16">BACKLOGS</h3>
         <ul className="bg-gray-100 p-2 rounded-lg">
-          {data.backlogs.map((backlog, index) => (
+          {data.backlogs.map((backlog:any, index:number) => (
             <li key={index} className="grid grid-cols-3 py-2 border-b">
               <span className="">{backlog.name}</span>
               <span>{backlog.location}</span>

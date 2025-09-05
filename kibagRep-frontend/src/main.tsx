@@ -7,17 +7,17 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
-import Homepage from "./pages/Homepage/Homepage.jsx";
-import Activity from "./componets/Dashboard/DashboardComponents/Activity/Activity.jsx";
-import Revenue from "./componets/Dashboard/DashboardComponents/Revenue/Revenue.jsx";
-import Performance from "./componets/Dashboard/DashboardComponents/Performance/Performance.jsx";
-import OutsideSales from "./componets/Dashboard/DashboardComponents/OutsideSales/OutsideSales.jsx";
-import Events from "./componets/Dashboard/DashboardComponents/Events/Events.jsx";
-import AdminDashboard from "./pages/AdminDashboard/AdminDashboard.jsx";
+import Homepage from "./pages/Homepage/Homepage";
+import Activity from "./componets/Dashboard/DashboardComponents/Activity/Activity";
+import Revenue from "./componets/Dashboard/DashboardComponents/Revenue/Revenue";
+import Performance from "./componets/Dashboard/DashboardComponents/Performance/Performance";
+import OutsideSales from "./componets/Dashboard/DashboardComponents/OutsideSales/OutsideSales";
+import Events from "./componets/Dashboard/DashboardComponents/Events/Events";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import { Provider } from "react-redux";
 import persistStore from "redux-persist/es/persistStore";
 import { PersistGate } from "redux-persist/integration/react";
-import { store } from "./store/store.js";
+import { store } from "./store/store";
 
 let persistor = persistStore(store);
 
@@ -69,7 +69,9 @@ const router = createBrowserRouter([
   }
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const root:any = document.getElementById("root");
+
+ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>

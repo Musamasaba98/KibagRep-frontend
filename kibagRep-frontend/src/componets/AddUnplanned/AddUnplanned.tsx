@@ -11,7 +11,7 @@ import { toggleShowUnplanned } from "../../store/uiStateSlice";
 import { useEffect, useState } from "react";
 
 const AddUnplanned = () => {
-  const { showUnplanned } = useSelector((state) => state.uiState);
+  const { showUnplanned } = useSelector((state:any) => state.uiState);
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {

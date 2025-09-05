@@ -1,7 +1,7 @@
 import { startOfMonth,endOfMonth,startOfWeek,addDays,format, endOfWeek } from "date-fns";
 
 
-export const generateCalendarDays = (currentDate)=>{
+export const generateCalendarDays = (currentDate:Date)=>{
 
     //Find the start and end of the visible calendar grid
     const startDate = startOfWeek(startOfMonth(currentDate),{weekStartsOn:0});

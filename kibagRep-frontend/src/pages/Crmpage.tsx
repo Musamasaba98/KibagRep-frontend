@@ -1,14 +1,14 @@
-import DatePicker from "../componets/DatePicker/DatePicker";
-import Navbar from "../componets/Navbar/Navbar";
-import Sidebar from "../componets/Sidebar/Sidebar";
+import DatePicker from "../componets/DatePicker/DatePicker.js";
+import Navbar from "../componets/Navbar/Navbar.js";
+import Sidebar from "../componets/Sidebar/Sidebar.js";
 import { Outlet } from "react-router-dom";
-import MenuPopup from "../componets/MenuPopup/MenuPopup";
+import MenuPopup from "../componets/MenuPopup/MenuPopup.js";
 import { useSelector } from "react-redux";
-import AddUnplanned from "../componets/AddUnplanned/AddUnplanned";
-import Ncapopup from "../componets/NcaPoppup/Ncapopup";
+import AddUnplanned from "../componets/AddUnplanned/AddUnplanned.js";
+import Ncapopup from "../componets/NcaPoppup/Ncapopup.js";
 
 const CRMPage = () => {
-  const { showMenu } = useSelector((state) => state.uiState);
+  const { showMenu } = useSelector((state:any) => state.uiState);
   return (
     <>
       <MenuPopup showMenu={showMenu} />
