@@ -1,5 +1,5 @@
 // import { useContext } from "react";
-import MenuPopup from "./componets/MenuPopPup/MenuPopup.js";
+// import MenuPopup from "./componets/MenuPopPup/MenuPopup";
 import CRMPage from "./pages/Crmpage.js";
 // import { AppContext } from "./pages/context/AppContext";
 // import AddUnplanned from "./componets/AddUnplanned/AddUnplanned";
@@ -12,7 +12,7 @@ function App() {
   console.log(showMenu);
   return (
     <>
-      <MenuPopup />
+
       {/* {showUnplanned ? <AddUnplanned /> : <></>} */}
       {/* {showNca ? <Ncapopup /> : <></>} */}
       <CRMPage />
