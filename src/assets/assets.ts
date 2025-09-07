@@ -1,6 +1,6 @@
-import house_icon from "./house.svg";
+import test_img from "./26695762.png"
 
 
 export const icons={
-    house_icon
+    test_img
 }

@@ -18,6 +18,8 @@ import { Provider } from "react-redux";
 import persistStore from "redux-persist/es/persistStore";
 import { PersistGate } from "redux-persist/integration/react";
 import { store } from "./store/store";
+import AdminPage from "./pages/AdminPage/AdminPage";
+import RepPage from "./pages/RepPage/RepPage";
 
 let persistor = persistStore(store);
 
@@ -66,6 +68,12 @@ const router = createBrowserRouter([
   {
     path:"/admin",
     element:<AdminDashboard/>
+  },{
+    path:"/admin-page",
+    element:<AdminPage/>
+  },{
+    path:"/rep-page",
+    element:<RepPage/>
   }
 ]);
 

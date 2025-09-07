@@ -40,7 +40,7 @@ export default function Bargraph() {
   ];
   const COLOR_PALETTE = [
     "#ff0000",
-    "#0dcccc",
+    "#454545",
     "#f18e56",
     "#d787ff",
     "#7f6bff",

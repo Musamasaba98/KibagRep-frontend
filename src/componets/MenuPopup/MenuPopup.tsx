@@ -28,7 +28,8 @@ const MenuPopup = ({ showMenu }:{showMenu:boolean}) => {
           showMenu ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="w-full flex cursor-pointer items-center justify-end pr-7 h-[60px] bg-[#5ac388]">
+        <div className="w-full flex cursor-pointer items-center justify-between px-4 h-[55px] bg-[#19c464]">
+          <h1 className="text-white font-bold text-xl">Menu</h1>
           <FaXmark
             fill="#fff"
             className="w-7 h-7 ms-2.5"

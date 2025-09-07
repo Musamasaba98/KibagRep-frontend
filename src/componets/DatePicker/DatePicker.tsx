@@ -49,7 +49,7 @@ function DatePicker() {
             key={day}
             className={`p-[0.3px] cursor-pointer rounded-full ${
               isSameDay(day, selectedDate)
-                ? "bg-[#f87c86] text-white font-bold"
+                ? "bg-[#f84c5a] text-white font-bold"
                 : "bg-white text-gray-700"
             }`}
             onClick={() => handleDateClick(day)}
