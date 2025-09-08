@@ -57,8 +57,8 @@ const AddUnplanned = () => {
           showUnplanned ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="full bg-[#5ac388]">
-          <h2 className="py-3 px-4 font-bold text-white text-2xl">
+        <div className="full bg-[#19c464] onClick={()=>dispatch(toggleShowMenu())}]">
+          <h2 className="py-3 px-4 font-bold text-white text-xl">
             Add Unplanned
           </h2>
         </div>
