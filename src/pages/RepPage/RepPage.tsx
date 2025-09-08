@@ -1,10 +1,9 @@
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
-import ActivityCards from './components/ActivityCards';
-import DetailingPerformance from './components/DetailingPerformance';
 import MenuPopup from "../../componets/MenuPopup/MenuPopup";
 import { useSelector } from 'react-redux';
 import AddUnplanned from '../../componets/AddUnplanned/AddUnplanned';
+import { Outlet } from 'react-router-dom';
 
 
 const RepPage = () => {
@@ -21,8 +20,8 @@ const RepPage = () => {
     <div className="w-full flex">
     <Sidebar/>
     <div className="w-full ml-[380px] p-7">
-    <ActivityCards/>
-    <DetailingPerformance/>
+    {/* all the  pages will be showed here */}
+    <Outlet/>
     </div>
     </div>
     </div>

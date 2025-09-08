@@ -122,3 +122,60 @@ const data = {
 };
 
 export default data;
+
+
+export const all_tasks = [
+  {
+    id: 1,
+    title: "Follow up with client A",
+    state: "pending",
+    dueDate: "2025-09-08",
+    priority: "high",
+  },
+  {
+    id: 7,
+    title: "Deliver samples to clinic",
+    state: "missed",
+    dueDate: "2025-09-04",
+    priority: "medium",
+  },
+  {
+    id: 8,
+    title: "Submit weekly expenses",
+    state: "completed",
+    dueDate: "2025-09-05",
+    priority: "low",
+  },
+  {
+    id: 13,
+    title: "Missed call with distributor",
+    state: "missed",
+    dueDate: "2025-09-03",
+    priority: "high",
+  }
+];
+
+
+export const recentActivities = [
+  {
+    time: "08:30 AM",
+    title: "Visited Dr. John Smith",
+    description: "Samples delivered for Product A",
+    status: "completed", // completed, pending, missed
+    type: "visit" // visit, call, follow-up
+  },
+  {
+    time: "11:45 AM",
+    title: "Follow-up with Dr. Mary Lee",
+    description: "Pending prescription approvals",
+    status: "missed",
+    type: "follow-up"
+  },
+  {
+    time: "01:30 PM",
+    title: "Visited Pharmacy XYZ",
+    description: "Delivered promotional materials",
+    status: "completed",
+    type: "visit"
+  }
+];

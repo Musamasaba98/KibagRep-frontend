@@ -2,42 +2,47 @@ import { BiCalendar, BiFileBlank, BiHome, BiLock } from "react-icons/bi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { BsCardChecklist } from "react-icons/bs";
 import DatePicker from "../../../componets/DatePicker/DatePicker";
+import { Link } from "react-router-dom";
 
 
 const Sidebar = () => {
   return (
     <div className="w-[380px] flex bg-white h-screen fixed shadow">
     {/* left conatiner with links for navigation */}
-    <div className="w-[90px] py-6 flex flex-col gap-10 items-center h-full border-solid border-r-[1px] border-gray-200">
+    <div className="w-[88px] py-6 flex flex-col gap-10 items-center h-full border-solid border-r-[1px] border-gray-200">
     
     {/* link */}
+    <Link to="/rep-page">
     <div className="cursor-pointer flex flex-col gap-1 items-center">
     <BiHome className=" text-[#454545] w-7 h-7"/>
-    <p className="text-[14px] text-[#454545]">HOME</p>
+    <p className="text-[13px] text-[#454545]">HOME</p>
     </div>
+    </Link>
 
     {/* link */}
+    <Link to="/rep-page/tasks">
     <div className="cursor-pointer flex flex-col gap-1 items-center">
     <BsCardChecklist className=" text-[#454545] w-7 h-7"/>
-    <p className="text-[14px] text-[#454545]">TASKS</p>
+    <p className="text-[13px] text-[#454545]">TASKS</p>
     </div>
+    </Link>
 
     {/* link */}
     <div className="cursor-pointer flex flex-col gap-1 items-center">
     <BiFileBlank className=" text-[#454545] w-7 h-7"/>
-    <p className="text-[14px] text-[#454545]">REPORTS</p>
+    <p className="text-[13px] text-[#454545]">REPORTS</p>
     </div>
 
     {/* link */}
     <div className="cursor-pointer flex flex-col gap-1 items-center">
     <BiCalendar className=" text-[#454545] w-7 h-7"/>
-    <p className="text-[14px] text-[#454545]">CALENDAR</p>
+    <p className="text-[12px] text-[#454545]">CALENDAR</p>
     </div>
 
     {/* link */}
     <div className="cursor-pointer flex flex-col gap-1 items-center">
     <IoSettingsOutline className=" text-[#454545] w-7 h-7"/>
-    <p className="text-[14px] text-[#454545]">SETTINGS</p>
+    <p className="text-[13px] text-[#454545]">SETTINGS</p>
     </div>
 
     </div>
