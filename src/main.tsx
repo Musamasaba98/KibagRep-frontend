@@ -10,6 +10,8 @@ import { store } from "./store/store";
 import RepPage from "./pages/RepPage/RepPage";
 import Home from "./pages/RepPage/Children/Home";
 import Tasks from "./pages/RepPage/Children/Tasks";
+import Signup from "./pages/Authentication/Signup";
+import Login from "./pages/Authentication/Login";
 
 let persistor = persistStore(store);
 
@@ -17,6 +19,13 @@ const router = createBrowserRouter([
   {
   path:"/",
   element:<Homepage/>
+  },
+  {
+    path:"/signup",
+    element:<Signup/>
+  },{
+    path:"/login",
+    element:<Login/>
   },
  {
     path:"/rep-page",

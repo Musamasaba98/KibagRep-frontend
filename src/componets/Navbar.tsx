@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 
 
 const Navbar = () => {
@@ -19,10 +20,12 @@ const Navbar = () => {
               <li className="cursor-pointer">Login</li>
             </ul>
 
-
+            <Link to="/signup">
             <button className="bg-text bg-[#09be51] text-white px-6 py-3 rounded-full font-semibold hover:bg-green-300 transition">
               Signup for free
             </button>
+            </Link>
+
           </div>
         </div>
     </div>
