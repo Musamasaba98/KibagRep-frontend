@@ -12,6 +12,10 @@ import Home from "./pages/RepPage/Children/Home";
 import Tasks from "./pages/RepPage/Children/Tasks";
 import Signup from "./pages/Authentication/Signup";
 import Login from "./pages/Authentication/Login";
+import AdminPage from "./pages/AdminPage/AdminPage";
+import ManagerPage from "./pages/ManagerPage/ManagerPage";
+import Dashboard from "./pages/ManagerPage/children/Dashboard";
+import Messaging from "./pages/ManagerPage/children/Messaging";
 
 let persistor = persistStore(store);
 
@@ -26,6 +30,23 @@ const router = createBrowserRouter([
   },{
     path:"/login",
     element:<Login/>
+  },
+  {
+    path:"/admin",
+    element:<AdminPage/>
+  },{
+    path:"/manager",
+    element:<ManagerPage/>,
+    children:[
+      {
+        path:"/manager/",
+        index:true,
+        element:<Dashboard/>
+      },{
+        path:"/manager/messaging",
+        element:<Messaging/>
+      }
+    ]
   },
  {
     path:"/rep-page",
