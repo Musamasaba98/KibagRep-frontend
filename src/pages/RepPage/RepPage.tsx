@@ -14,7 +14,7 @@ const RepPage = () => {
     <>
     <MenuPopup showMenu={showMenu}/>
     <AddUnplanned/>
-    <div className='w-full'>
+    <div className='w-full bg-gray-100'>
     <Navbar/>
     {/* the page contents */}
     <div className="w-full flex">
