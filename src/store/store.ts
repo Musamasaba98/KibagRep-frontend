@@ -11,21 +11,23 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import uiSlice from "./uiStateSlice.js";
+import authSlice from "./authSlice";
 
 const persistConfig = {
   key: "root",
   storage,
   whitelist: ["auth", "uiState"],
 };
+
 const rootReducer = combineReducers({
   uiState: uiSlice.reducer,
-  //   auth: persistReducer(persistConfig, authReducer),
+  auth: authSlice.reducer,
 });
 
-const persitedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: persitedReducer,
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
@@ -33,5 +35,8 @@ export const store = configureStore({
       },
     }),
 });
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 setupListeners(store.dispatch);

@@ -1,83 +1,90 @@
+import { icons } from "../assets/assets";
+import { FaUserGroup, FaDatabase } from "react-icons/fa6";
+import { BiBarChart } from "react-icons/bi";
+import { MdGpsFixed } from "react-icons/md";
 
-import { FaUserGroup } from "react-icons/fa6"
-import { icons } from "../assets/assets"
-import { BiBarChart } from "react-icons/bi"
-
+const POINTS = [
+  {
+    icon: FaUserGroup,
+    title: "Managing medical reps has never been this clear",
+    body: "Assign territories, approve call cycles, and track visits — all from one dashboard. No more chasing Excel sheets.",
+  },
+  {
+    icon: MdGpsFixed,
+    title: "GPS-enforced accountability, not just logging",
+    body: "Every visit is verified against the doctor's registered facility. Fake GPS is flagged automatically — not by managers guessing.",
+  },
+  {
+    icon: FaDatabase,
+    title: "Uganda's verified HCP database is the foundation",
+    body: "Doctors and pharmacies maintain their own profiles. Your reps always call on accurate, up-to-date records.",
+  },
+  {
+    icon: BiBarChart,
+    title: "Insight on load, not after a week of report pulling",
+    body: "Country managers see national KPIs the moment they log in. No waiting, no manual aggregation, no guesswork.",
+  },
+];
 
 const AboutBanner = () => {
   return (
-    <div className="w-full relative">
+    <section id="about" className="w-full bg-gradient-to-br from-[#16a34a] to-[#14532d] relative overflow-hidden py-24">
 
-    <div className="absolute top-0 w-full overflow-hidden leading-none rotate-[-180]">
-    <svg
-      className="relative block w-full h-20"
-      xmlns="http://www.w3.org/2000/svg"
-      preserveAspectRatio="none"
-      viewBox="0 0 1200 120"
-    >
-      <path
-        d="M0,0 C600,120 600,0 1200,120 L1200,0 L0,0 Z"
-        className="fill-white"
-      ></path>
-    </svg>
-  </div>
+      {/* Subtle dot texture */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
 
-    <div className="w-full bg-[#09be51] pt-24 pb-24 mt-8 flex">
-    <div className="w-[90%] 2xl:w-[70%] flex justify-between mx-auto">
-    {/* the left container */}
-    <div className="w-[50%]">
-    <div>
-    <h1 className="font-black text-white text-4xl">Built specifically for Africa's healthcare challenges</h1>
-    <p className="pt-3 leading-relaxed text-white md:text-xl text-lg">Tackle Africa’s unique healthcare needs with tools that help medical teams stay organized, reach more clinics, and make smarter decisions—fast and easily</p>
-    </div>
-    {/* the lists */}
-    <div className="flex flex-col gap-5 py-7">
+      <div className="w-[90%] 2xl:w-[70%] mx-auto relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-16">
 
-    <div className="flex gap-3">
-    <div className="bg-white w-9 h-9 flex items-center justify-center flex-shrink-0 rounded-full">
-    <FaUserGroup className="w-6 h-6 text-[#09be51]"/>
-    </div>
-    <div>
-    <h1 className="text-white font-black text-xl">Managing medical reps easily</h1>
-    <p className="text-white leading-[20px]">Assign tasks, track visits, and stay updated in real-time—anywhere, anytime</p>
-    </div>
-    </div>
+          {/* Left — copy */}
+          <div className="flex-1 w-full">
+            <p className="text-[#4ade80] font-bold text-sm tracking-widest uppercase mb-4">
+              Why KibagRep
+            </p>
+            <h2 className="font-black text-3xl md:text-4xl text-white tracking-tight leading-tight max-w-lg">
+              Built specifically for Africa's healthcare challenges
+            </h2>
+            <p className="text-white/70 text-lg mt-4 leading-relaxed max-w-lg">
+              Phyzii captured inputs. KibagRep enforces outcomes. Every feature is designed around the real problems of field sales in East Africa.
+            </p>
 
-    <div className="flex gap-3">
-    <div className="bg-white w-9 h-9 flex items-center justify-center flex-shrink-0 rounded-full">
-    <BiBarChart className="w-8 h-8 text-[#09be51]"/>
-    </div>
-    <div>
-    <h1 className="text-white font-black text-xl">Boost Team Performance</h1>
-    <p className="text-white leading-[20px]">Monitor progress, get instant insights, and make decisions that drive results</p>
-    </div>
-    </div>
+            {/* Points */}
+            <div className="flex flex-col gap-6 mt-10">
+              {POINTS.map(({ icon: Icon, title, body }) => (
+                <div key={title} className="flex gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-[#4ade80]" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-[15px] leading-tight">{title}</h3>
+                    <p className="text-white/65 text-sm leading-relaxed mt-1">{body}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-    </div>
-    </div>
-    {/* the left container */}
-    <div className="w-[45%]">
-    <img src={icons.hero_2_img} className=""/>
-    </div>
-    </div>
+          {/* Right — image */}
+          <div className="flex-1 flex justify-center lg:justify-end w-full max-w-sm lg:max-w-md">
+            <div className="relative w-full">
+              <div className="absolute inset-0 rounded-3xl bg-white/10 blur-3xl scale-90 pointer-events-none" />
+              <img
+                src={icons.hero_2_img}
+                alt="Field rep using KibagRep"
+                className="relative w-full h-auto object-contain drop-shadow-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
-    </div>
-
-    <div className="absolute bottom-0 w-full overflow-hidden leading-none rotate-180">
-    <svg
-      className="relative block w-full h-20"
-      xmlns="http://www.w3.org/2000/svg"
-      preserveAspectRatio="none"
-      viewBox="0 0 1200 120"
-    >
-      <path
-        d="M0,0 C600,120 600,0 1200,120 L1200,0 L0,0 Z"
-        className="fill-white"
-      ></path>
-    </svg>
-  </div>
-    </div>
-  )
-}
-
-export default AboutBanner
+export default AboutBanner;

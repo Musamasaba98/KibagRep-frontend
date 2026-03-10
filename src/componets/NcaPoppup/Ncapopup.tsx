@@ -1,169 +1,267 @@
-import { FaXmark } from "react-icons/fa6";
-import { useDispatch, useSelector } from "react-redux";
-import { toggleShowNca } from "../../store/uiStateSlice";
 import { useEffect, useState } from "react";
+import { FaXmark } from "react-icons/fa6";
+import { FiMapPin, FiAlertTriangle, FiLoader } from "react-icons/fi";
+import { getDoctorsApi, getProductsApi, addNcaApi } from "../../services/api";
 
-// Building the NCA page popup.
+interface Doctor {
+  id: string;
+  doctor_name: string;
+  town: string;
+}
 
-const Ncapopup = () => {
-  const { showNca } = useSelector((state:any) => state.uiState);
-  const [isAnimating, setIsAnimating] = useState(false);
+interface Product {
+  id: string;
+  product_name: string;
+}
+
+interface NcaPopupProps {
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+type GpsStatus = "acquiring" | "acquired" | "denied" | "unavailable";
+
+const NCA_REASONS = [
+  "Doctor absent",
+  "Doctor in theatre",
+  "Doctor unavailable — in consultation",
+  "Doctor refused visit",
+  "Doctor not in today",
+  "Public holiday",
+  "Facility closed",
+  "Other",
+];
+
+const Ncapopup = ({ onClose, onSuccess }: NcaPopupProps) => {
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [doctorSearch, setDoctorSearch] = useState("");
+  const [showDoctorList, setShowDoctorList] = useState(false);
+
+  const [doctorId, setDoctorId] = useState("");
+  const [doctorLabel, setDoctorLabel] = useState("");
+  const [focusedProductId, setFocusedProductId] = useState("");
+  const [ncaReason, setNcaReason] = useState("");
+
+  const [gpsLat, setGpsLat] = useState<number | null>(null);
+  const [gpsLng, setGpsLng] = useState<number | null>(null);
+  const [gpsStatus, setGpsStatus] = useState<GpsStatus>("acquiring");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    if (showNca) {
-      setIsAnimating(true);
-    } else {
-      const timer = setTimeout(() => setIsAnimating(false), 200);
-      return () => clearTimeout(timer);
+    if (!navigator.geolocation) {
+      setGpsStatus("unavailable");
+      return;
     }
-  }, [showNca]);
-  const dispatch = useDispatch();
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGpsLat(pos.coords.latitude);
+        setGpsLng(pos.coords.longitude);
+        setGpsStatus("acquired");
+      },
+      () => setGpsStatus("denied"),
+      { timeout: 10000, maximumAge: 60000 }
+    );
+  }, []);
+
+  useEffect(() => {
+    getDoctorsApi()
+      .then((res) => setDoctors(res.data.data ?? res.data))
+      .catch(() => {});
+    getProductsApi()
+      .then((res) => setProducts(res.data.data ?? res.data))
+      .catch(() => {});
+  }, []);
+
+  const filteredDoctors =
+    doctorSearch.length >= 2
+      ? doctors.filter(
+          (d) =>
+            d.doctor_name.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+            d.town?.toLowerCase().includes(doctorSearch.toLowerCase())
+        )
+      : [];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!doctorId) { setError("Select a doctor"); return; }
+    if (!focusedProductId) { setError("Select the product you were planning to detail"); return; }
+    if (!ncaReason) { setError("Select an NCA reason"); return; }
+    setError("");
+    setLoading(true);
+    try {
+      await addNcaApi({
+        doctor_id: doctorId,
+        focused_product_id: focusedProductId,
+        nca_reason: ncaReason,
+        gps_lat: gpsLat,
+        gps_lng: gpsLng,
+      });
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to log NCA. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const gpsIndicator = () => {
+    if (gpsStatus === "acquiring")
+      return (
+        <span className="flex items-center gap-1 text-[11px] text-amber-600 font-medium">
+          <FiLoader className="w-3 h-3 animate-spin" /> Acquiring GPS…
+        </span>
+      );
+    if (gpsStatus === "acquired")
+      return (
+        <span className="flex items-center gap-1 text-[11px] text-[#16a34a] font-medium">
+          <FiMapPin className="w-3 h-3" /> GPS acquired
+        </span>
+      );
+    return (
+      <span className="flex items-center gap-1 text-[11px] text-gray-400 font-medium">
+        <FiAlertTriangle className="w-3 h-3" /> GPS unavailable
+      </span>
+    );
+  };
+
   return (
-    <div
-      className={`w-full h-screen flex items-center bg-[#100000a4] fixed top-[0] z-[100] transition-opacity duration-300 ${
-        showNca || isAnimating ? "opacity-100 visible" : "opacity-0 invisible"
-      }`}
-    >
-      <div
-        className={`w-[75%] bg-white h-[75vh] 2xl:h-[55vh] mx-auto py-auto relative  transition-transform delay duration-300 ease-in-out ${
-          showNca ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="w-full items-center bg-cyan-400 h-[60px] flex px-6 justify-between">
-          <h2 className="text-white font-bold text-2xl">NCA</h2>
-
-          <FaXmark
-            fill="#fff"
-            className="w-6 h-6 ms-1.5"
-            onClick={() => dispatch(toggleShowNca())}
-          />
-        </div>
-        {/* End of the NCA  haeding div */}
-
-        <div>
-          <h2 className="font-bold text-xl pt-3 pl-2">Visit Details</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-amber-500 px-6 py-4">
+          <div>
+            <h2 className="text-white font-bold text-xl">Log NCA</h2>
+            <p className="text-white/80 text-xs mt-0.5">No Customer Activity</p>
+            <div className="mt-1">{gpsIndicator()}</div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-white/80 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white rounded"
+          >
+            <FaXmark className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Building the form */}
-        <form method="post" className="w-[100%] px-3 mx-auto mt-6">
-          {/* This is the biginning of the first form input fields */}
-          <div className="flex gap-5 justify-between">
-            <input
-              type="date"
-              name=""
-              id=""
-              className="w-[20%] outline-0 pb-1 text-[#454545] border-solid border-b-[2px] border-[#454545]"
-            />
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3 py-2 rounded-md">
+              {error}
+            </div>
+          )}
 
+          {/* Info banner */}
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-700">
+            <strong>NCA</strong> means you attempted this visit but the doctor was unavailable.
+            The system still records your attempt with GPS evidence.
+          </div>
+
+          {/* Doctor search */}
+          <div className="relative">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Doctor <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
-              value={"Wellness 3 UG-Task force..."}
-              name=""
-              id=""
-              className="w-[20%] outline-0 pb-1 text-[#454545] border-solid border-b-[2px] border-[#454545]"
+              placeholder="Search by name or town…"
+              value={doctorLabel || doctorSearch}
+              onChange={(e) => {
+                setDoctorLabel("");
+                setDoctorId("");
+                setDoctorSearch(e.target.value);
+                setShowDoctorList(true);
+              }}
+              onFocus={() => setShowDoctorList(true)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
             />
+            {showDoctorList && filteredDoctors.length > 0 && (
+              <ul className="absolute z-10 bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-48 overflow-y-auto shadow-lg">
+                {filteredDoctors.map((doc) => (
+                  <li
+                    key={doc.id}
+                    className="px-4 py-2.5 hover:bg-amber-50 cursor-pointer text-sm"
+                    onMouseDown={() => {
+                      setDoctorId(doc.id);
+                      setDoctorLabel(`${doc.doctor_name} — ${doc.town}`);
+                      setDoctorSearch("");
+                      setShowDoctorList(false);
+                    }}
+                  >
+                    <span className="font-medium">{doc.doctor_name}</span>
+                    {doc.town && (
+                      <span className="text-gray-400 ml-2 text-xs">{doc.town}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {showDoctorList && doctorSearch.length >= 2 && filteredDoctors.length === 0 && (
+              <div className="absolute z-10 bg-white border border-gray-200 rounded-lg w-full mt-1 px-4 py-3 text-sm text-gray-400 shadow">
+                No doctors found
+              </div>
+            )}
+          </div>
 
+          {/* Product (what was planned) */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Product you planned to detail <span className="text-red-500">*</span>
+            </label>
             <select
-              name=""
-              id=""
-              className="w-[20%] outline-0 pb-1 text-[#454545] border-solid border-b-[2px] border-[#454545]"
+              value={focusedProductId}
+              onChange={(e) => setFocusedProductId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
             >
-              <option value="Select NCA type">Select NCA type</option>
+              <option value="">Select product…</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.product_name}
+                </option>
+              ))}
             </select>
+          </div>
 
-            <input
-              type="text"
-              name=""
-              placeholder="Enter NCA name"
-              className="w-[20%] outline-0 pb-1 text-[#454545] border-solid border-b-[2px] border-[#454545]"
-            />
-
+          {/* NCA reason */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Reason <span className="text-red-500">*</span>
+            </label>
             <select
-              name=""
-              id=""
-              className="w-[20%] outline-0 pb-1 text-[#454545] border-solid border-b-[2px] border-[#454545]"
+              value={ncaReason}
+              onChange={(e) => setNcaReason(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
             >
-              <option value="Select town">Select town</option>
+              <option value="">Select reason…</option>
+              {NCA_REASONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
             </select>
           </div>
-          {/* This is the end of the first form input fields */}
 
-          <div className="flex pt-6 gap-4 w-full">
-            <div className="flex gap-2">
-              <input type="radio" name="" id="" />
-              <p>Half day</p>
-            </div>
-
-            <div className="flex gap-2">
-              <input type="radio" name="" id="" />
-              <p>Full day</p>
-            </div>
-
-            <div>
-              <select
-                name=""
-                id=""
-                className="w-[170px] outline-0 pb-1 text-[#454545] border-solid border-b-[2px] border-[#454545]"
-              >
-                <option value="Select session">Select session</option>
-              </select>
-            </div>
-          </div>
-          {/* End of radios and input */}
-
-          <div className="flex gap-9 pt-5">
-            <div>
-              <p className="font-bold">Joint work</p>
-            </div>
-
-            <div>
-              <p className="font-bold">Add unlisted</p>
-            </div>
-
-            <div>
-              <p className="font-bold">Add unlisted</p>
-            </div>
-          </div>
-          {/* End of add options */}
-
-          <div className="flex gap-4 pt-4">
-            <input
-              type="text"
-              className="px-2 h-[42px] w-[280px] outline-[0] border-solid rounded-md  border-[2px] border-[#454545]"
-            />
-
-            <input
-              type="text"
-              className="px-2 h-[42px] w-[280px] outline-[0] border-solid rounded-md  border-[2px] border-[#454545]"
-            />
-          </div>
-
-          {/* End of the 2 inputs */}
-
-          <h2 className="font-bold pt-3">Comments</h2>
-
-          <div className="w-full">
-            <input
-              type="text"
-              className="w-full mt-3 font-semibold text-[#454545] outline-none border-solid border-b-2 pb-1 border-[#454545]"
-              placeholder="Add a comment"
-            />
-          </div>
-
-          {/* Beginning of the last container */}
-
-          <div className="pt-4 flex gap-4">
-            <button
-              type="button"
-              className="bg-cyan-400 text-white outline-0 px-8 h-[42px] rounded-md"
-            >
-              Save
-            </button>
-
+          {/* Actions */}
+          <div className="flex gap-3 pt-1">
             <button
               type="submit"
-              className="bg-cyan-400 text-white outline-0 px-8 h-[42px] rounded-md"
+              disabled={loading}
+              className="flex-1 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-500"
+              style={{ transition: "opacity 0.15s, background-color 0.15s" }}
             >
-              Submit
+              {loading ? "Saving…" : "Log NCA"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 border border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100 font-semibold py-2.5 rounded-lg text-sm"
+              style={{ transition: "background-color 0.15s" }}
+            >
+              Cancel
             </button>
           </div>
         </form>
