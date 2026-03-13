@@ -11,7 +11,7 @@ import {
   MdCheckCircleOutline,
 } from "react-icons/md";
 import { FiActivity } from "react-icons/fi";
-import { getCurrentCycleApi } from "../../../services/api";
+import { getCurrentCycleApi, getMyTargetApi } from "../../../services/api";
 import type { Activity } from "./ActivityCards";
 import { useSampleBalances, type SampleBalance } from "./ActivityCards";
 
@@ -307,7 +307,7 @@ const CycleTab = ({ cycle, loading }: { cycle: CycleData | null; loading: boolea
           }}
         />
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {["A", "B", "C"].map((tier) => {
           const items = cycle.items.filter((i) => i.tier === tier);
           const tierDone = items.filter((i) => i.visits_done >= i.frequency).length;
@@ -430,12 +430,16 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
   const [cycle, setCycle] = useState<CycleData | null>(null);
   const [cycleLoading, setCycleLoading] = useState(true);
   const { balances, loading: balancesLoading } = useSampleBalances();
+  const [target, setTarget] = useState<{ target_value: number; target_units: number } | null>(null);
 
   useEffect(() => {
     getCurrentCycleApi()
       .then((res) => setCycle(res.data?.data ?? null))
       .catch(() => {})
       .finally(() => setCycleLoading(false));
+    getMyTargetApi()
+      .then((res) => setTarget(res.data?.data ?? null))
+      .catch(() => {});
   }, []);
 
   // Derive tasks from cycle data
@@ -487,12 +491,12 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
     <div className="bg-white rounded-2xl shadow-[0_2px_16px_0_rgba(0,0,0,0.06)] overflow-hidden">
 
       {/* ── Tab nav ── */}
-      <div className="flex items-center border-b border-gray-100 px-3 overflow-x-auto">
+      <div className="flex items-center border-b border-gray-100 overflow-x-auto scrollbar-none">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-3.5 text-sm font-semibold whitespace-nowrap focus-visible:outline-none transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3.5 text-xs sm:text-sm font-semibold whitespace-nowrap focus-visible:outline-none transition-colors ${
               activeTab === tab.id
                 ? "text-[#16a34a] border-b-[3px] border-[#16a34a]"
                 : "text-gray-400 hover:text-gray-600 border-b-[3px] border-transparent"
@@ -569,7 +573,54 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
 
         {/* Performance */}
         {activeTab === "performance" && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Monthly target card */}
+            {target ? (
+              <div className="bg-white rounded-xl p-3.5 shadow-[0_1px_6px_0_rgba(0,0,0,0.05)]">
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2.5">Monthly Target</p>
+                <div className="space-y-3">
+                  {[
+                    {
+                      label: "Sales Value",
+                      target: target.target_value,
+                      actual: 0,
+                      format: (v: number) => `UGX ${v.toLocaleString()}`,
+                      color: "#16a34a",
+                      bg: "#dcfce7",
+                    },
+                    {
+                      label: "Units Sold",
+                      target: target.target_units,
+                      actual: balances.reduce((s, b) => s + b.given, 0),
+                      format: (v: number) => v.toString(),
+                      color: "#0891b2",
+                      bg: "#e0f2fe",
+                    },
+                  ].map(({ label, target: t, actual, format, color, bg }) => {
+                    const pct = t > 0 ? Math.min(Math.round((actual / t) * 100), 100) : 0;
+                    return (
+                      <div key={label}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="font-semibold text-[#1a1a1a]">{label}</span>
+                          <span className="text-gray-400">{format(actual)} / {format(t)}</span>
+                        </div>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color, transition: "width 0.4s" }} />
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <span className="text-[10px] font-bold" style={{ color }}>{pct}%</span>
+                          <span className="text-[10px] rounded-full px-1.5 font-semibold" style={{ background: bg, color }}>target {format(t)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 rounded-xl px-3.5 py-3 text-xs text-gray-400 text-center">
+                No target set for this month yet
+              </div>
+            )}
             <ShortcutCard
               icon={MdOutlineAssessment}
               label="Detailing Performance"

@@ -8,11 +8,14 @@ import { toggleShowNca, toggleShowUnplanned } from '../../store/uiStateSlice';
 import AddUnplanned from '../../componets/AddUnplanned/AddUnplanned';
 import Ncapopup from '../../componets/NcaPoppup/Ncapopup';
 import LogVisitModal from '../../componets/LogVisitModal/LogVisitModal';
+import PharmacyFabModal from '../../componets/LogPharmacyModal/PharmacyFabModal';
 import { Outlet } from 'react-router-dom';
 import { FaPlus, FaXmark, FaStethoscope, FaBan, FaCalendarPlus } from 'react-icons/fa6';
+import { TbPill } from 'react-icons/tb';
 
 const SPEED_DIAL = [
   { key: 'visit'     as const, label: 'Log Visit',  Icon: FaStethoscope, color: 'bg-[#16a34a] hover:bg-[#15803d]', shadow: 'shadow-green-600/30' },
+  { key: 'pharmacy'  as const, label: 'Log Pharmacy', Icon: TbPill,       color: 'bg-violet-600 hover:bg-violet-700', shadow: 'shadow-violet-600/30' },
   { key: 'nca'       as const, label: 'Log NCA',    Icon: FaBan,         color: 'bg-amber-500 hover:bg-amber-600',  shadow: 'shadow-amber-500/30'  },
   { key: 'unplanned' as const, label: 'Unplanned',  Icon: FaCalendarPlus,color: 'bg-sky-600 hover:bg-sky-700',      shadow: 'shadow-sky-600/30'    },
 ];
@@ -24,7 +27,8 @@ const RepPage = () => {
   // NCA and Unplanned are Redux-driven so MenuPopup can also trigger them
   const showNca: boolean = useSelector((state: any) => state.uiState.showNca);
   const showUnplanned: boolean = useSelector((state: any) => state.uiState.showUnplanned);
-  const [showLogVisit, setShowLogVisit] = useState(false);
+  const [showLogVisit,    setShowLogVisit]    = useState(false);
+  const [showLogPharmacy, setShowLogPharmacy] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -41,6 +45,7 @@ const RepPage = () => {
   const openModal = (key: 'visit' | 'nca' | 'unplanned') => {
     setFabOpen(false);
     if (key === 'visit')     setShowLogVisit(true);
+    if (key === 'pharmacy')  setShowLogPharmacy(true);
     if (key === 'nca')       dispatch(toggleShowNca());
     if (key === 'unplanned') dispatch(toggleShowUnplanned());
   };
@@ -49,13 +54,14 @@ const RepPage = () => {
     <>
       <MenuPopup showMenu={showMenu} />
 
-      {showLogVisit  && <LogVisitModal  onClose={() => setShowLogVisit(false)}           onSuccess={handleVisitSuccess} />}
+      {showLogVisit    && <LogVisitModal    onClose={() => setShowLogVisit(false)}    onSuccess={handleVisitSuccess} />}
+      {showLogPharmacy && <PharmacyFabModal onClose={() => setShowLogPharmacy(false)} onSuccess={handleVisitSuccess} />}
       {showNca       && <Ncapopup       onClose={() => dispatch(toggleShowNca())}         onSuccess={handleVisitSuccess} />}
       {showUnplanned && <AddUnplanned   onClose={() => dispatch(toggleShowUnplanned())}   onSuccess={handleVisitSuccess} />}
 
       {fabOpen && <div className="fixed inset-0 z-30" onClick={() => setFabOpen(false)} />}
 
-      <div className="w-full bg-gray-100 min-h-screen">
+      <div className="w-full bg-gray-100 min-h-screen overflow-x-hidden">
         <Navbar />
         <div className="w-full flex">
           <Sidebar />

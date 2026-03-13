@@ -123,19 +123,20 @@ const Navbar = () => {
           /* Normal mode */
           <>
             {/* Brand mark */}
-            <div className="flex items-center gap-2.5 flex-1">
+            <div className="flex items-center gap-2 shrink-0">
               <div className="w-8 h-8 bg-[#16a34a] rounded-xl flex items-center justify-center shadow-sm shadow-green-700/25">
                 <span className="text-white font-black text-sm tracking-tight">K</span>
               </div>
-              <div className="flex flex-col leading-none">
-                <span className="font-black text-[#222f36] text-[15px] tracking-tight">KibagRep</span>
-                {!locating && locationName && (
-                  <span className="flex items-center gap-0.5 text-[10px] text-[#16a34a] font-semibold mt-0.5">
-                    <MdLocationOn className="w-3 h-3 shrink-0" />
-                    {locationName}
-                  </span>
-                )}
-              </div>
+            </div>
+
+            {/* Center: location only */}
+            <div className="flex-1 flex flex-col items-center">
+              {!locating && locationName && (
+                <span className="flex items-center gap-0.5 text-[11px] text-[#16a34a] font-semibold">
+                  <MdLocationOn className="w-3 h-3 shrink-0" />
+                  {locationName}
+                </span>
+              )}
             </div>
 
             {/* Action icons */}
@@ -193,13 +194,15 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Location chip */}
-        {!locating && locationName && (
-          <div className="flex items-center gap-1 text-[11px] text-gray-500 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-lg">
-            <MdLocationOn className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
-            <span className="font-medium">{locationName}</span>
-          </div>
-        )}
+        {/* Center: location only */}
+        <div className="flex flex-col items-center">
+          {!locating && locationName && (
+            <div className="flex items-center gap-1 text-xs text-[#16a34a] font-semibold">
+              <MdLocationOn className="w-3.5 h-3.5 shrink-0" />
+              <span>{locationName}</span>
+            </div>
+          )}
+        </div>
 
         {/* Right */}
         <div className="flex items-center gap-1.5">

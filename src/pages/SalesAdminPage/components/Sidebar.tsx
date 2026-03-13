@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../../store/authSlice";
-import { FaHouse, FaUserDoctor, FaHospital, FaBoxOpen, FaBuildingColumns, FaArrowUpFromBracket, FaRotate, FaFileLines } from "react-icons/fa6";
+import { FaHouse, FaUserDoctor, FaHospital, FaBoxOpen, FaBuildingColumns, FaArrowUpFromBracket, FaRotate, FaFileLines, FaUsers, FaPills } from "react-icons/fa6";
 import { BsBell } from "react-icons/bs";
 import { GoGear } from "react-icons/go";
 import { SlLogout } from "react-icons/sl";
@@ -11,7 +11,7 @@ const navLinkBase =
 const activeClass = "bg-green-50 text-[#16a34a] font-semibold";
 const inactiveClass = "text-[#222f36]";
 
-const Sidebar = () => {
+const Sidebar = ({ onNav }: { onNav?: () => void }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -37,42 +37,52 @@ const Sidebar = () => {
 
       {/* navigation links */}
       <div className="flex flex-col gap-1 pt-4 px-4 pb-6">
-        <NavLink to="/sales-admin" end className={getLinkClass}>
+        <NavLink to="/sales-admin" end className={getLinkClass} onClick={onNav}>
           <FaHouse className="w-5 h-5 flex-shrink-0" />
           <span>Dashboard</span>
         </NavLink>
 
-        <NavLink to="/sales-admin/doctors" className={getLinkClass}>
+        <NavLink to="/sales-admin/doctors" className={getLinkClass} onClick={onNav}>
           <FaUserDoctor className="w-5 h-5 flex-shrink-0" />
           <span>Doctors</span>
         </NavLink>
 
-        <NavLink to="/sales-admin/pharmacies" className={getLinkClass}>
+        <NavLink to="/sales-admin/pharmacies" className={getLinkClass} onClick={onNav}>
           <FaHospital className="w-5 h-5 flex-shrink-0" />
           <span>Pharmacies</span>
         </NavLink>
 
-        <NavLink to="/sales-admin/products" className={getLinkClass}>
+        <NavLink to="/sales-admin/products" className={getLinkClass} onClick={onNav}>
           <FaBoxOpen className="w-5 h-5 flex-shrink-0" />
           <span>Products</span>
         </NavLink>
 
-        <NavLink to="/sales-admin/facilities" className={getLinkClass}>
+        <NavLink to="/sales-admin/samples" className={getLinkClass} onClick={onNav}>
+          <FaPills className="w-5 h-5 flex-shrink-0" />
+          <span>Samples</span>
+        </NavLink>
+
+        <NavLink to="/sales-admin/facilities" className={getLinkClass} onClick={onNav}>
           <FaBuildingColumns className="w-5 h-5 flex-shrink-0" />
           <span>Facilities</span>
         </NavLink>
 
-        <NavLink to="/sales-admin/upload" className={getLinkClass}>
+        <NavLink to="/sales-admin/upload" className={getLinkClass} onClick={onNav}>
           <FaArrowUpFromBracket className="w-5 h-5 flex-shrink-0" />
           <span>Bulk Upload</span>
         </NavLink>
 
-        <NavLink to="/sales-admin/cycles" className={getLinkClass}>
+        <NavLink to="/sales-admin/users" className={getLinkClass} onClick={onNav}>
+          <FaUsers className="w-5 h-5 flex-shrink-0" />
+          <span>Team Members</span>
+        </NavLink>
+
+        <NavLink to="/sales-admin/cycles" className={getLinkClass} onClick={onNav}>
           <FaRotate className="w-5 h-5 flex-shrink-0" />
           <span>Call Cycles</span>
         </NavLink>
 
-        <NavLink to="/sales-admin/reports" className={getLinkClass}>
+        <NavLink to="/sales-admin/reports" className={getLinkClass} onClick={onNav}>
           <FaFileLines className="w-5 h-5 flex-shrink-0" />
           <span>Reports</span>
         </NavLink>

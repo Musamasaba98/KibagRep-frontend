@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FiArrowRight } from "react-icons/fi";
 import { signupApi } from "../../services/api";
 
 const ROLES = [
@@ -67,13 +68,41 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-8 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_4px_24px_0_rgba(0,0,0,0.08)] p-8">
+    <div className="min-h-screen flex">
+      {/* Brand panel */}
+      <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] flex-col justify-between bg-[#0f2318] px-12 py-14 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#16a34a] rounded-xl flex items-center justify-center shadow-lg shadow-green-900/50"><span className="text-white font-black text-lg">K</span></div>
+          <span className="text-white font-black text-xl tracking-tight">KibagRep</span>
+        </div>
+        <div>
+          <h1 className="text-white text-4xl font-black leading-tight tracking-tight">Start tracking.<br/><span className="text-[#16a34a]">Start winning.</span></h1>
+          <p className="text-white/50 text-base mt-5 leading-relaxed max-w-sm">Create your account and join your field team on Uganda's most accountable SFA platform.</p>
+          <div className="mt-8 p-5 rounded-xl bg-white/5 border border-white/10">
+            <p className="text-white text-3xl font-black">1,900<span className="text-[#16a34a]">+</span></p>
+            <p className="text-white/50 text-sm mt-0.5">Verified HCPs in Uganda</p>
+          </div>
+        </div>
+        <p className="text-white/25 text-xs">© 2026 KibagRep · Uganda</p>
+      </div>
+      {/* Form panel */}
+      <div className="flex-1 flex flex-col bg-gray-50 lg:overflow-y-auto lg:custom-scrollbar lg:items-start lg:justify-center lg:px-10 lg:py-10">
+
+        {/* Mobile: brand header */}
+        <div className="lg:hidden bg-[#0f2318] px-7 pt-12 pb-16 flex flex-col gap-1 shrink-0">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="w-9 h-9 bg-[#16a34a] rounded-xl flex items-center justify-center shadow shadow-green-900/60"><span className="text-white font-black text-sm">K</span></div>
+            <span className="text-white font-black text-lg tracking-tight">KibagRep</span>
+          </div>
+          <p className="text-white text-2xl font-black leading-tight">Create your account</p>
+          <p className="text-white/50 text-sm">Join your team on KibagRep</p>
+        </div>
+
+        {/* Mobile: white scrollable card */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-white lg:bg-transparent rounded-t-3xl lg:rounded-none -mt-6 lg:mt-0 px-6 lg:px-0 pt-7 pb-10 shadow-[0_-4px_24px_0_rgba(0,0,0,0.07)] lg:shadow-none">
+        <div className="w-full max-w-md mx-auto lg:mx-0">
         {/* Header */}
         <div className="mb-7">
-          <div className="w-9 h-9 rounded-xl bg-[#16a34a] flex items-center justify-center mb-4">
-            <span className="text-white font-black text-base">K</span>
-          </div>
           <h1 className="text-2xl font-black text-[#222f36] tracking-tight">
             Create your account
           </h1>
@@ -220,9 +249,9 @@ const Signup = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-bold rounded-xl text-sm disabled:opacity-60 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] mt-1"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-bold rounded-xl text-sm disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] mt-1"
           >
-            {loading ? "Creating account…" : "Create account"}
+            {loading ? "Creating account…" : <><span>Create account</span><FiArrowRight className="w-4 h-4" /></>}
           </button>
         </form>
 
@@ -235,6 +264,8 @@ const Signup = () => {
             Sign in
           </Link>
         </p>
+      </div>
+      </div>
       </div>
     </div>
   );

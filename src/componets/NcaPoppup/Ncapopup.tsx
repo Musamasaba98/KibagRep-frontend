@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaXmark } from "react-icons/fa6";
 import { FiMapPin, FiAlertTriangle, FiLoader } from "react-icons/fi";
-import { getDoctorsApi, getProductsApi, addNcaApi } from "../../services/api";
+import { getCompanyDoctorListApi, getProductsApi, addNcaApi } from "../../services/api";
 
 interface Doctor {
   id: string;
@@ -17,6 +17,8 @@ interface Product {
 interface NcaPopupProps {
   onClose: () => void;
   onSuccess: () => void;
+  initialDoctorId?: string;
+  initialDoctorLabel?: string;
 }
 
 type GpsStatus = "acquiring" | "acquired" | "denied" | "unavailable";
@@ -32,14 +34,14 @@ const NCA_REASONS = [
   "Other",
 ];
 
-const Ncapopup = ({ onClose, onSuccess }: NcaPopupProps) => {
+const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel = "" }: NcaPopupProps) => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [doctorSearch, setDoctorSearch] = useState("");
   const [showDoctorList, setShowDoctorList] = useState(false);
 
-  const [doctorId, setDoctorId] = useState("");
-  const [doctorLabel, setDoctorLabel] = useState("");
+  const [doctorId, setDoctorId] = useState(initialDoctorId);
+  const [doctorLabel, setDoctorLabel] = useState(initialDoctorLabel);
   const [focusedProductId, setFocusedProductId] = useState("");
   const [ncaReason, setNcaReason] = useState("");
 
@@ -67,7 +69,7 @@ const Ncapopup = ({ onClose, onSuccess }: NcaPopupProps) => {
   }, []);
 
   useEffect(() => {
-    getDoctorsApi()
+    getCompanyDoctorListApi()
       .then((res) => setDoctors(res.data.data ?? res.data))
       .catch(() => {});
     getProductsApi()
@@ -79,7 +81,7 @@ const Ncapopup = ({ onClose, onSuccess }: NcaPopupProps) => {
     doctorSearch.length >= 2
       ? doctors.filter(
           (d) =>
-            d.doctor_name.toLowerCase().includes(doctorSearch.toLowerCase()) ||
+            d.doctor_name?.toLowerCase().includes(doctorSearch.toLowerCase()) ||
             d.town?.toLowerCase().includes(doctorSearch.toLowerCase())
         )
       : [];
@@ -180,7 +182,7 @@ const Ncapopup = ({ onClose, onSuccess }: NcaPopupProps) => {
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
             />
             {showDoctorList && filteredDoctors.length > 0 && (
-              <ul className="absolute z-10 bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-48 overflow-y-auto shadow-lg">
+              <ul className="absolute z-10 bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-48 overflow-y-auto custom-scrollbar shadow-lg">
                 {filteredDoctors.map((doc) => (
                   <li
                     key={doc.id}

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { getTodayActivitiesApi, getSampleBalancesApi } from "../../../services/api";
 import { format } from "date-fns";
 import { FiActivity, FiPackage, FiMic, FiRefreshCw } from "react-icons/fi";
-import { MdOutlineInventory2, MdOutlineWarningAmber } from "react-icons/md";
+import { MdOutlineWarningAmber } from "react-icons/md";
+
 
 export interface Activity {
   id: string;
@@ -20,7 +21,7 @@ export interface SampleBalance {
   product: { id: string; product_name: string };
 }
 
-const KPI_DAILY_TARGET = 10;
+const KPI_DAILY_TARGET = 15; // Uganda pharma field standard: 15 HCPs per day
 
 // ─── Shared data hook (one fetch, shared by both sections) ────────────────────
 export function useActivityData(refreshKey: number) {
@@ -63,13 +64,10 @@ export const KpiCards = ({
   loading: boolean;
   onRefresh?: () => void;
 }) => {
-  const { balances, loading: balancesLoading } = useSampleBalances();
-
-  const totalVisits = activities.filter((a) => !a.nca_reason).length;
-  const ncaCount = activities.filter((a) => !!a.nca_reason).length;
-  const samplesGiven = activities.reduce((s, a) => s + (a.samples_given ?? 0), 0);
+  const totalVisits   = activities.filter((a) => !a.nca_reason).length;
+  const ncaCount      = activities.filter((a) => !!a.nca_reason).length;
+  const samplesGiven  = activities.reduce((s, a) => s + (a.samples_given ?? 0), 0);
   const detailingDone = activities.filter((a) => a.focused_product && !a.nca_reason).length;
-  const samplesRemaining = balances.reduce((s, b) => s + Math.max(0, b.issued - b.given), 0);
 
   const cards = [
     {
@@ -120,18 +118,6 @@ export const KpiCards = ({
       showProgress: false,
       isLoading: loading,
     },
-    {
-      value: samplesRemaining,
-      target: null,
-      label: "Samples Left",
-      icon: MdOutlineInventory2,
-      gradient: "from-gray-50 to-white",
-      iconBg: "bg-gray-100",
-      iconColor: "text-gray-500",
-      valueColor: "text-gray-700",
-      showProgress: false,
-      isLoading: balancesLoading,
-    },
   ];
 
   return (
@@ -150,7 +136,7 @@ export const KpiCards = ({
           </button>
         )}
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pt-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3">
         {cards.map((card) => {
           const Icon = card.icon;
           const pct = card.target
@@ -159,7 +145,7 @@ export const KpiCards = ({
           return (
             <div
               key={card.label}
-              className={`flex flex-col justify-between min-h-[130px] p-4 rounded-xl bg-gradient-to-br ${card.gradient} shadow-[0_2px_12px_0_rgba(0,0,0,0.07)] hover:shadow-[0_4px_20px_0_rgba(0,0,0,0.12)] cursor-pointer`}
+              className={`flex flex-col justify-between min-h-[110px] sm:min-h-[130px] p-3.5 sm:p-4 rounded-xl bg-gradient-to-br ${card.gradient} shadow-[0_2px_12px_0_rgba(0,0,0,0.07)] hover:shadow-[0_4px_20px_0_rgba(0,0,0,0.12)] cursor-pointer`}
               style={{ transition: "box-shadow 0.2s, opacity 0.2s" }}
             >
               <div className="flex items-center justify-between">

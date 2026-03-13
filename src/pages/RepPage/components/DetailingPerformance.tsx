@@ -45,7 +45,7 @@ const DetailingPerformance = () => {
       </div>
 
       <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-5">
-        <div className="bg-white rounded-2xl shadow-[0_2px_16px_0_rgba(0,0,0,0.06)] hover:shadow-[0_4px_24px_0_rgba(0,0,0,0.1)] p-5 transition-shadow">
+        <div className="bg-white rounded-2xl overflow-hidden shadow-[0_2px_16px_0_rgba(0,0,0,0.06)] hover:shadow-[0_4px_24px_0_rgba(0,0,0,0.1)] p-5 transition-shadow">
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">
             Visit distribution
           </p>

@@ -1,12 +1,14 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import { useSelector } from "react-redux";
-import { BiCalendar, BiFileBlank, BiHome, BiReceipt } from "react-icons/bi";
+import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap } from "react-icons/bi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { BsCardChecklist } from "react-icons/bs";
 import { FaUserMd, FaHistory } from "react-icons/fa";
-import { FaUserDoctor } from "react-icons/fa6";
+import { TbPill } from "react-icons/tb";
+import { FaUserDoctor, FaLocationCrosshairs } from "react-icons/fa6";
 import { MdOutlineEventRepeat, MdAdd, MdClose, MdCheckCircle } from "react-icons/md";
+import { IoWarningOutline } from "react-icons/io5";
 import { BiLock, BiChevronDown, BiChevronUp } from "react-icons/bi";
 import {
   format,
@@ -17,9 +19,11 @@ import {
   isAfter,
   isSameDay,
 } from "date-fns";
-import DatePicker from "../../../componets/DatePicker/DatePicker";
-import { NavLink } from "react-router-dom";
-import { getActivityHistoryApi, getCurrentCycleApi } from "../../../services/api";
+import LogVisitModal from "../../../componets/LogVisitModal/LogVisitModal";
+import LogPharmacyModal from "../../../componets/LogPharmacyModal/LogPharmacyModal";
+import Ncapopup from "../../../componets/NcaPoppup/Ncapopup";
+import { NavLink, useNavigate } from "react-router-dom";
+import { getActivityHistoryApi, getTodayTourPlanApi } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,15 +32,6 @@ interface DoctorActivity {
   date: string;
   doctor: { id: string; doctor_name: string; town?: string };
   outcome?: string;
-}
-
-interface CycleItem {
-  id: string;
-  doctor_id: string;
-  tier: string;
-  frequency: number;
-  visits_done: number;
-  doctor: { id: string; doctor_name: string; town?: string; location?: string; speciality?: string[] };
 }
 
 // ─── Nav helpers ─────────────────────────────────────────────────────────────
@@ -75,36 +70,168 @@ const DoctorTile = ({
   town,
   visited,
   label,
+  onLogVisit,
+  onNca,
+  onViewProfile,
 }: {
   name: string;
   town?: string;
   visited: boolean;
   label?: "planned" | "unplanned";
-}) => (
-  <div className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition-colors">
-    <Initials name={name} />
-    <div className="flex-1 min-w-0">
-      <p className="text-xs font-semibold text-[#222f36] truncate">{name}</p>
-      {town && <p className="text-[10px] text-gray-400 truncate">{town}</p>}
-      {label && (
-        <span
-          className={`inline-block text-[9px] font-bold uppercase tracking-wide mt-0.5 px-1.5 py-px rounded-full ${
-            label === "unplanned"
-              ? "bg-amber-50 text-amber-600"
-              : "bg-blue-50 text-blue-500"
-          }`}
-        >
-          {label}
-        </span>
+  onLogVisit?: () => void;
+  onNca?: () => void;
+  onViewProfile?: () => void;
+}) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50">
+      <Initials name={name} />
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-[#222f36] truncate">{name}</p>
+        {town && <p className="text-[10px] text-gray-400 truncate">{town}</p>}
+        {label && (
+          <span className={
+            `inline-block text-[9px] font-bold uppercase tracking-wide mt-0.5 px-1.5 py-px rounded-full ${
+              label === "unplanned" ? "bg-amber-50 text-amber-600" : "bg-[#f0fdf4] text-[#16a34a]"
+            }`
+          }>
+            {label}
+          </span>
+        )}
+      </div>
+
+      {visited ? (
+        <MdCheckCircle className="w-4 h-4 text-[#16a34a] flex-shrink-0" />
+      ) : (
+        <div ref={menuRef} className="relative flex-shrink-0">
+          <button
+            onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
+            className="w-5 h-5 rounded-full bg-[#16a34a] text-white flex items-center justify-center hover:bg-[#15803d] focus-visible:outline-none shadow-sm"
+            aria-label="Actions"
+          >
+            <MdAdd className="w-3.5 h-3.5" />
+          </button>
+
+          {menuOpen && (
+            <div
+              className="absolute right-0 top-7 z-50 bg-white rounded-xl border border-gray-100 overflow-hidden w-40 py-0.5"
+              style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.10)" }}
+            >
+              {onLogVisit && (
+                <button
+                  onClick={() => { onLogVisit(); setMenuOpen(false); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-[#16a34a] hover:bg-[#f0fdf4] focus-visible:outline-none"
+                >
+                  <MdCheckCircle className="w-3.5 h-3.5 shrink-0" />
+                  Log Visit
+                </button>
+              )}
+              {onNca && (
+                <button
+                  onClick={() => { onNca(); setMenuOpen(false); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-amber-600 hover:bg-amber-50 focus-visible:outline-none border-t border-gray-50"
+                >
+                  <IoWarningOutline className="w-3.5 h-3.5 shrink-0" />
+                  Flag NCA
+                </button>
+              )}
+              {onViewProfile && (
+                <button
+                  onClick={() => { onViewProfile(); setMenuOpen(false); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 focus-visible:outline-none border-t border-gray-50"
+                >
+                  <FaUserDoctor className="w-3.5 h-3.5 shrink-0" />
+                  View Profile
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
-    {visited ? (
-      <MdCheckCircle className="w-4 h-4 text-[#16a34a] flex-shrink-0" />
-    ) : (
-      <span className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0" />
-    )}
-  </div>
-);
+  );
+};
+
+// ─── Pharmacy tile ───────────────────────────────────────────────────────────
+
+const PharmacyTile = ({
+  name,
+  town,
+  slot,
+  visited,
+  onLogPharmacy,
+}: {
+  name: string;
+  town?: string;
+  slot?: string;
+  visited?: boolean;
+  onLogPharmacy?: () => void;
+}) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50">
+      <TbPill className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-[#222f36] truncate">{name}</p>
+        {town && <p className="text-[10px] text-gray-400 truncate">{town}</p>}
+      </div>
+      <div className="flex items-center gap-1.5 shrink-0">
+        <span className="text-[9px] font-semibold text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-full">
+          {slot === "MORNING" ? "AM" : "PM"}
+        </span>
+        {visited ? (
+          <MdCheckCircle className="w-4 h-4 text-violet-500 flex-shrink-0" />
+        ) : onLogPharmacy && (
+          <div ref={menuRef} className="relative">
+            <button
+              onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
+              className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center hover:bg-violet-700 focus-visible:outline-none shadow-sm"
+              aria-label="Log pharmacy visit"
+            >
+              <MdAdd className="w-3.5 h-3.5" />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-7 z-50 bg-white rounded-xl border border-gray-100 overflow-hidden w-36 py-0.5"
+                   style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.10)" }}>
+                <button
+                  onClick={() => { onLogPharmacy(); setMenuOpen(false); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-violet-600 hover:bg-violet-50 focus-visible:outline-none"
+                >
+                  <TbPill className="w-3.5 h-3.5 shrink-0" />
+                  Log Visit
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // ─── Add-entry modal ──────────────────────────────────────────────────────────
 
@@ -113,9 +240,11 @@ type FormTab = "unplanned" | "leave";
 const AddEntryModal = ({
   day,
   onClose,
+  onOpenLogVisit,
 }: {
   day: Date;
   onClose: () => void;
+  onOpenLogVisit?: () => void;
 }) => {
   const [tab, setTab] = useState<FormTab>("unplanned");
 
@@ -132,18 +261,16 @@ const AddEntryModal = ({
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      if (tab === "unplanned" && !doctorName.trim()) return;
-      setSubmitting(true);
-      try {
-        // TODO: wire to addDoctorActivityApi ({ ...form, visitType: "UNPLANNED" })
-        //       or leave API when built
-        await new Promise((r) => setTimeout(r, 500));
+      if (tab === "unplanned") {
+        // Open the proper Log Visit modal which has full doctor search + product
         onClose();
-      } finally {
-        setSubmitting(false);
+        onOpenLogVisit?.();
+        return;
       }
+      // Leave / NCA — just close for now (no backend for day-off yet)
+      onClose();
     },
-    [tab, doctorName, onClose]
+    [tab, onClose, onOpenLogVisit]
   );
 
   const modal = (
@@ -218,7 +345,7 @@ const AddEntryModal = ({
                 disabled={submitting || !doctorName.trim()}
                 className="w-full py-2 text-sm font-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
               >
-                {submitting ? "Logging…" : "Log Unplanned Visit"}
+                {"Open Log Visit Form →"}
               </button>
             </>
           ) : (
@@ -264,13 +391,30 @@ const AddEntryModal = ({
   return ReactDOM.createPortal(modal, document.body);
 };
 
+// ─── Today plan entry type ───────────────────────────────────────────────────
+
+interface TodayPlanEntry {
+  id: string;
+  entry_type: "CLINICIAN" | "PHARMACY";
+  slot: "MORNING" | "EVENING";
+  doctor_id: string | null;
+  doctor?: { id: string; doctor_name: string; town?: string } | null;
+  pharmacy_id: string | null;
+  pharmacy_name: string | null;
+  pharmacy?: { id: string; pharmacy_name: string; location: string; town?: string } | null;
+}
+
 // ─── Day row ──────────────────────────────────────────────────────────────────
 
 interface DayRowProps {
   day: Date;
   activities: DayActivity[];
-  cycleItems: CycleItem[];  // only populated for today
+  todayPlanEntries: TodayPlanEntry[];  // tour plan entries for today (empty for other days)
   onAddClick: (day: Date) => void;
+  onLogVisit?:    (doctorId: string, doctorName: string) => void;
+  onNca?:         (doctorId: string, doctorName: string) => void;
+  onViewProfile?: (doctorId: string, doctorName: string) => void;
+  onLogPharmacy?: (pharmacyId: string, pharmacyName: string, location?: string) => void;
 }
 
 interface DayActivity {
@@ -281,13 +425,13 @@ interface DayActivity {
   visitType?: string; // "PLANNED" | "UNPLANNED"
 }
 
-const DayRow = ({ day, activities, cycleItems, onAddClick }: DayRowProps) => {
+const DayRow = ({ day, activities, todayPlanEntries, onAddClick, onLogVisit, onNca, onViewProfile, onLogPharmacy, visitedPharmacyIds }: DayRowProps) => {
   const today = startOfDay(new Date());
   const dayStart = startOfDay(day);
   const isFuture = isAfter(dayStart, today);
   const isToday = isSameDay(dayStart, today);
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(isToday); // today opens by default
 
   const label = format(day, "dd MMM — EEEE");
   const visitedDoctorIds = new Set(activities.map((a) => a.doctorId));
@@ -295,13 +439,25 @@ const DayRow = ({ day, activities, cycleItems, onAddClick }: DayRowProps) => {
   // Today: show cycle doctors (planned) + unplanned activities
   // Past: show all logged activities only
   const plannedTiles = isToday
-    ? cycleItems.map((ci) => ({
-        key: ci.id,
-        doctorId: ci.doctor.id,
-        name: ci.doctor.doctor_name,
-        town: ci.doctor.town,
-        visited: visitedDoctorIds.has(ci.doctor.id),
+    ? todayPlanEntries.map((entry) => ({
+        key: entry.id,
+        doctorId:   entry.entry_type === "CLINICIAN" ? (entry.doctor_id ?? "") : "",
+        pharmacyId: entry.entry_type === "PHARMACY"  ? (entry.pharmacy_id ?? "") : "",
+        name: entry.entry_type === "CLINICIAN"
+          ? (entry.doctor?.doctor_name ?? "Unknown")
+          : (entry.pharmacy?.pharmacy_name ?? entry.pharmacy_name ?? "Unknown Pharmacy"),
+        location: entry.entry_type === "PHARMACY"
+          ? [entry.pharmacy?.location, entry.pharmacy?.town].filter(Boolean).join(" · ")
+          : undefined,
+        town: entry.entry_type === "CLINICIAN"
+          ? entry.doctor?.town
+          : [entry.pharmacy?.location, entry.pharmacy?.town].filter(Boolean).join(" · "),
+        visited: entry.entry_type === "CLINICIAN"
+          ? visitedDoctorIds.has(entry.doctor_id ?? "")
+          : visitedPharmacyIds.includes(entry.pharmacy_id ?? ""),
         label: "planned" as const,
+        entryType: entry.entry_type,
+        slot: entry.slot,
       }))
     : [];
 
@@ -378,13 +534,34 @@ const DayRow = ({ day, activities, cycleItems, onAddClick }: DayRowProps) => {
           ) : (
             <div className="divide-y divide-gray-50">
               {allTiles.map((tile) => (
-                <DoctorTile
-                  key={tile.key}
-                  name={tile.name}
-                  town={tile.town}
-                  visited={tile.visited}
-                  label={tile.label ?? (isToday ? "planned" : undefined)}
-                />
+                (tile as any).entryType === "PHARMACY" ? (
+                  <PharmacyTile
+                    key={tile.key}
+                    name={tile.name}
+                    town={tile.town}
+                    slot={(tile as any).slot}
+                    onLogPharmacy={(tile as any).pharmacyId && onLogPharmacy
+                      ? () => onLogPharmacy((tile as any).pharmacyId, tile.name, (tile as any).location)
+                      : undefined}
+                  />
+                ) : (
+                  <DoctorTile
+                    key={tile.key}
+                    name={tile.name}
+                    town={tile.town}
+                    visited={tile.visited}
+                    label={tile.label ?? (isToday ? "planned" : undefined)}
+                    onLogVisit={!tile.visited && tile.doctorId && onLogVisit
+                      ? () => onLogVisit(tile.doctorId, tile.name)
+                      : undefined}
+                    onNca={!tile.visited && tile.doctorId && onNca
+                      ? () => onNca(tile.doctorId, tile.name)
+                      : undefined}
+                    onViewProfile={tile.doctorId && onViewProfile
+                      ? () => onViewProfile(tile.doctorId, tile.name)
+                      : undefined}
+                  />
+                )
               ))}
             </div>
           )}
@@ -399,15 +576,34 @@ const DayRow = ({ day, activities, cycleItems, onAddClick }: DayRowProps) => {
 const Sidebar = () => {
   const showPanel = useSelector((state: any) => state.uiState.showSidebarPanel);
   const [activitiesByDay, setActivitiesByDay] = useState<Record<string, DayActivity[]>>({});
-  const [cycleItems, setCycleItems] = useState<CycleItem[]>([]);
+  const [todayPlanEntries, setTodayPlanEntries] = useState<TodayPlanEntry[]>([]);
   const [modalDay, setModalDay] = useState<Date | null>(null);
+  const [visitModal,  setVisitModal]  = useState<{ doctorId: string; doctorName: string } | null>(null);
+  const [ncaModal,    setNcaModal]    = useState<{ doctorId: string; doctorName: string } | null>(null);
+  const [pharmModal,  setPharmModal]  = useState<{ pharmacyId: string; pharmacyName: string; location?: string } | null>(null);
+  const [visitedPharmacyIds, setVisitedPharmacyIds] = useState<string[]>([]);
+  const todayRowRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  // Scroll today's row to vertical center on mount and when panel opens
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (todayRowRef.current && scrollContainerRef.current) {
+        const COLLAPSED_ROW_H = 50;
+        const todayTop = todayRowRef.current.offsetTop;
+        scrollContainerRef.current.scrollTop = Math.max(0, todayTop - COLLAPSED_ROW_H * 2);
+      }
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [showPanel]);
 
   useEffect(() => {
     Promise.all([
       getActivityHistoryApi({ days: 31, limit: 500 }),
-      getCurrentCycleApi(),
+      getTodayTourPlanApi(),
     ])
-      .then(([histRes, cycleRes]) => {
+      .then(([histRes, planRes]) => {
         const activities: DoctorActivity[] = histRes.data?.data ?? [];
         const byDay: Record<string, DayActivity[]> = {};
         for (const a of activities) {
@@ -423,8 +619,8 @@ const Sidebar = () => {
         }
         setActivitiesByDay(byDay);
 
-        const items: CycleItem[] = cycleRes.data?.data?.items ?? [];
-        setCycleItems(items);
+        const entries: TodayPlanEntry[] = planRes.data?.data ?? [];
+        setTodayPlanEntries(entries);
       })
       .catch(() => {
         // silently ignore — UI degrades gracefully
@@ -449,7 +645,7 @@ const Sidebar = () => {
       }}
     >
       {/* left nav strip */}
-      <div className="w-[88px] pt-4 pb-10 flex flex-col items-center h-full border-r border-gray-200 shrink-0 overflow-y-auto">
+      <div className="w-[88px] pt-4 pb-10 flex flex-col items-center h-full border-r border-gray-200 shrink-0 overflow-y-auto scrollbar-none">
         <div className="flex flex-col gap-5 items-center flex-1">
           <NavLink to="/rep-page" end>
             {({ isActive }) => (
@@ -496,6 +692,15 @@ const Sidebar = () => {
             )}
           </NavLink>
 
+          <NavLink to="/rep-page/tour-plan">
+            {({ isActive }) => (
+              <div className={navLinkClass({ isActive })}>
+                <BiMap className={iconClass(isActive)} />
+                <p className={labelClass(isActive)}>TOUR</p>
+              </div>
+            )}
+          </NavLink>
+
           <NavLink to="/rep-page/reports">
             {({ isActive }) => (
               <div className={navLinkClass({ isActive })}>
@@ -519,6 +724,15 @@ const Sidebar = () => {
               <div className={navLinkClass({ isActive })}>
                 <BiCalendar className={iconClass(isActive)} />
                 <p className={labelClass(isActive)}>CALENDAR</p>
+              </div>
+            )}
+          </NavLink>
+
+          <NavLink to="/rep-page/near-me">
+            {({ isActive }) => (
+              <div className={navLinkClass({ isActive })}>
+                <FaLocationCrosshairs className={iconClass(isActive)} />
+                <p className={labelClass(isActive)}>MAP</p>
               </div>
             )}
           </NavLink>
@@ -546,20 +760,24 @@ const Sidebar = () => {
           pointerEvents: showPanel ? "auto" : "none",
         }}
       >
-        <DatePicker />
-        <hr />
-        <div className="flex-1 overflow-y-auto">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto custom-scrollbar">
           {monthDays.map((day) => {
             const key = format(day, "yyyy-MM-dd");
             const isToday = isSameDay(startOfDay(day), startOfDay(new Date()));
             return (
-              <DayRow
-                key={key}
-                day={day}
-                activities={activitiesByDay[key] ?? []}
-                cycleItems={isToday ? cycleItems : []}
-                onAddClick={handleAddClick}
-              />
+              <div key={key} ref={isToday ? todayRowRef : undefined}>
+                <DayRow
+                  day={day}
+                  activities={activitiesByDay[key] ?? []}
+                  todayPlanEntries={isToday ? todayPlanEntries : []}
+                  onAddClick={handleAddClick}
+                  onLogVisit={(id, name) => setVisitModal({ doctorId: id, doctorName: name })}
+                  onNca={(id, name) => setNcaModal({ doctorId: id, doctorName: name })}
+                  onViewProfile={(id) => navigate(`/rep-page/doctors?highlight=${id}`)}
+                  onLogPharmacy={(id, name, loc) => setPharmModal({ pharmacyId: id, pharmacyName: name, location: loc })}
+                  visitedPharmacyIds={visitedPharmacyIds}
+                />
+              </div>
             );
           })}
         </div>
@@ -567,7 +785,45 @@ const Sidebar = () => {
 
       {/* modal — rendered to body via portal */}
       {modalDay && (
-        <AddEntryModal day={modalDay} onClose={() => setModalDay(null)} />
+        <AddEntryModal day={modalDay} onClose={() => setModalDay(null)} onOpenLogVisit={() => setVisitModal({ doctorId: "", doctorName: "" })} />
+      )}
+
+      {/* Log Visit modal — triggered from sidebar chip */}
+      {visitModal && (
+        <LogVisitModal
+          initialDoctorId={visitModal.doctorId}
+          initialDoctorLabel={visitModal.doctorName}
+          onClose={() => setVisitModal(null)}
+          onSuccess={() => {
+            setVisitModal(null);
+            // Refresh activity history so the chip updates to visited
+            getTodayTourPlanApi(); // trigger sidebar re-fetch via parent if needed
+          }}
+        />
+      )}
+
+      {/* NCA modal — triggered from sidebar chip */}
+      {ncaModal && (
+        <Ncapopup
+          initialDoctorId={ncaModal.doctorId}
+          initialDoctorLabel={ncaModal.doctorName}
+          onClose={() => setNcaModal(null)}
+          onSuccess={() => setNcaModal(null)}
+        />
+      )}
+
+      {/* Log Pharmacy modal — triggered from pharmacy chip */}
+      {pharmModal && (
+        <LogPharmacyModal
+          pharmacyId={pharmModal.pharmacyId}
+          pharmacyName={pharmModal.pharmacyName}
+          pharmacyLocation={pharmModal.location}
+          onClose={() => setPharmModal(null)}
+          onSuccess={() => {
+            const id = pharmModal?.pharmacyId;
+            if (id) setVisitedPharmacyIds((prev) => [...prev, id]);
+          }}
+        />
       )}
     </div>
   );
