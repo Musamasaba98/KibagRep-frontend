@@ -2,16 +2,12 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toggleShowMenu } from "../../store/uiStateSlice";
-
-const emit = (name: string, detail?: Record<string, unknown>) =>
-  window.dispatchEvent(new CustomEvent(name, { detail: detail ?? {} }));
 import { logout } from "../../store/authSlice";
 import { icons } from "../../assets/assets";
 import {
   MdAddCircleOutline,
   MdOutlineBarChart,
   MdOutlineCalendarToday,
-  MdOutlineAssignment,
   MdManageSearch,
   MdOutlineAssessment,
   MdOutlineChecklist,
@@ -22,6 +18,9 @@ import {
   MdClose,
 } from "react-icons/md";
 import { FiPackage } from "react-icons/fi";
+
+const emit = (name: string, detail?: Record<string, unknown>) =>
+  window.dispatchEvent(new CustomEvent(name, { detail: detail ?? {} }));
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
