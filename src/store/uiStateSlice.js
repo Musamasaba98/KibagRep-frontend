@@ -6,10 +6,10 @@ const uiSlice = createSlice({
     showMenu: false,
     showUnplanned: false,
     showNca: false,
+    showSidebarPanel: true,
   },
   reducers: {
     toggleShowMenu: (state) => {
-      console.log(state.showMenu);
       state.showMenu = !state.showMenu;
     },
     toggleShowUnplanned: (state) => {
@@ -18,10 +18,13 @@ const uiSlice = createSlice({
     toggleShowNca: (state) => {
       state.showNca = !state.showNca;
     },
+    toggleSidebarPanel: (state) => {
+      state.showSidebarPanel = !state.showSidebarPanel;
+    },
   },
 });
 
-export const { toggleShowMenu, toggleShowUnplanned, toggleShowNca } =
+export const { toggleShowMenu, toggleShowUnplanned, toggleShowNca, toggleSidebarPanel } =
   uiSlice.actions;
 
 export default uiSlice;
