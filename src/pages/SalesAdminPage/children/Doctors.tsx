@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { FaUserDoctor, FaMagnifyingGlass } from "react-icons/fa6";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { getCompanyDoctorListApi, setDoctorTierApi } from "../../../services/api";
+
+const PAGE_SIZE = 30;
 
 type Tier = "A" | "B" | "C";
 
@@ -24,16 +27,27 @@ const Doctors = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ]             = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [page, setPage]       = useState(1);
+  const [meta, setMeta]       = useState({ total: 0, pages: 1 });
   const [saving, setSaving]   = useState<string | null>(null);
 
-  const load = () => {
+  // Debounce search
+  useEffect(() => {
+    const t = setTimeout(() => { setDebouncedQ(q); setPage(1); }, 350);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  useEffect(() => {
     setLoading(true);
-    getCompanyDoctorListApi()
-      .then(r => setDoctors(r.data.data ?? []))
+    getCompanyDoctorListApi({ q: debouncedQ || undefined, page, limit: PAGE_SIZE })
+      .then(r => {
+        setDoctors(r.data.data ?? []);
+        if (r.data?.meta) setMeta({ total: r.data.meta.total, pages: r.data.meta.pages });
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
-  };
-  useEffect(() => { load(); }, []);
+  }, [debouncedQ, page]);
 
   const handleTier = async (doctorId: string, tier: Tier) => {
     setSaving(doctorId);
@@ -44,31 +58,14 @@ const Doctors = () => {
     finally { setSaving(null); }
   };
 
-  const filtered = q.length >= 2
-    ? doctors.filter(d => d.doctor_name.toLowerCase().includes(q.toLowerCase()) || d.town?.toLowerCase().includes(q.toLowerCase()))
-    : doctors;
-
-  const tierCounts = { A: 0, B: 0, C: 0, none: 0 };
-  for (const d of doctors) {
-    const t = d.company_tier?.tier;
-    if (t === "A" || t === "B" || t === "C") tierCounts[t]++;
-    else tierCounts.none++;
-  }
-
   return (
     <div className="p-4 sm:p-6 flex flex-col gap-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-[#1a2530] tracking-tight">HCP Directory</h1>
           <p className="text-sm text-gray-400 mt-0.5">
-            Assign A/B/C tiers to doctors — determines call cycle frequency
+            {loading ? "Loading…" : `${meta.total} doctors · assign A/B/C tiers`}
           </p>
-        </div>
-        <div className="flex gap-2 text-xs font-semibold">
-          <span className="bg-green-100 text-[#16a34a] px-2.5 py-1 rounded-full border border-green-200">A: {tierCounts.A}</span>
-          <span className="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200">B: {tierCounts.B}</span>
-          <span className="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full border border-gray-200">C: {tierCounts.C}</span>
-          <span className="bg-white text-gray-400 px-2.5 py-1 rounded-full border border-gray-200">Untiered: {tierCounts.none}</span>
         </div>
       </div>
 
@@ -85,14 +82,14 @@ const Doctors = () => {
           <div className="flex justify-center py-16">
             <div className="w-7 h-7 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : doctors.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-gray-400">
             <FaUserDoctor className="w-10 h-10 mb-3 opacity-20" />
             <p className="font-semibold">{q ? "No matching doctors" : "No doctors in your company list"}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {filtered.map(d => {
+            {doctors.map(d => {
               const tier = d.company_tier?.tier;
               return (
                 <div key={d.id} className="flex items-center gap-3 px-4 sm:px-5 py-3.5 hover:bg-gray-50/50">
@@ -129,6 +126,30 @@ const Doctors = () => {
           </div>
         )}
       </div>
+
+      {meta.pages > 1 && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-400">Page {page} of {meta.pages}</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page <= 1 || loading}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              style={{ transition: "background-color 0.12s" }}
+            >
+              <FiChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page >= meta.pages || loading}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              style={{ transition: "background-color 0.12s" }}
+            >
+              <FiChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <p className="text-xs text-gray-400 text-center">
         Tier A = 4 visits/month · Tier B = 2 visits/month · Tier C = 1 visit/month

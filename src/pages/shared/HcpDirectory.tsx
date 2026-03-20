@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
-import { FiCheckCircle, FiXCircle } from "react-icons/fi";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { FiCheckCircle, FiXCircle, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { LuSearch, LuUserCheck, LuSendHorizontal, LuStethoscope, LuBuilding2 } from "react-icons/lu";
 import { TbUserQuestion, TbUserCheck } from "react-icons/tb";
 import { MdOutlineWarningAmber } from "react-icons/md";
@@ -55,7 +55,11 @@ interface Recommendation {
   user?: { id: string; firstname: string; lastname: string };
 }
 
+interface Meta { total: number; page: number; pages: number; }
+
 type Tab = "company" | "directory" | "recommendations";
+
+const PAGE_SIZE = 25;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -102,73 +106,138 @@ const EmptyState = ({ message, sub }: { message: string; sub: string }) => (
   </div>
 );
 
+const Pager = ({
+  meta, onPrev, onNext, loading,
+}: {
+  meta: Meta; onPrev: () => void; onNext: () => void; loading: boolean;
+}) => (
+  <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/40">
+    <span className="text-xs text-gray-400">{meta.total} total</span>
+    <div className="flex items-center gap-2">
+      <button
+        onClick={onPrev}
+        disabled={meta.page <= 1 || loading}
+        className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+        style={{ transition: "background-color 0.12s" }}
+      >
+        <FiChevronLeft className="w-4 h-4" />
+      </button>
+      <span className="text-xs font-semibold text-gray-600 min-w-[60px] text-center">
+        {meta.page} / {meta.pages || 1}
+      </span>
+      <button
+        onClick={onNext}
+        disabled={meta.page >= (meta.pages || 1) || loading}
+        className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+        style={{ transition: "background-color 0.12s" }}
+      >
+        <FiChevronRight className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+);
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const HcpDirectory = () => {
   const [tab, setTab] = useState<Tab>("company");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Company list state
   const [companyDocs, setCompanyDocs] = useState<CompanyDoc[]>([]);
+  const [companyMeta, setCompanyMeta] = useState<Meta>({ total: 0, page: 1, pages: 1 });
+  const [companyPage, setCompanyPage] = useState(1);
+  const [companyLoading, setCompanyLoading] = useState(true);
+
+  // Directory state
   const [directoryDocs, setDirectoryDocs] = useState<DirectoryDoc[]>([]);
+  const [dirMeta, setDirMeta] = useState<Meta>({ total: 0, page: 1, pages: 1 });
+  const [dirPage, setDirPage] = useState(1);
+  const [dirLoading, setDirLoading] = useState(false);
+
+  // Recommendations (small — loaded once)
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [recsLoading, setRecsLoading] = useState(true);
+
   const [actioning, setActioning] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  const loadData = () => {
-    setLoading(true);
-    setError("");
-    Promise.allSettled([
-      getCompanyDoctorListApi(),
-      getDoctorDirectoryApi(),
-      getRecommendationsApi(),
-    ]).then(([cRes, dRes, rRes]) => {
-      if (cRes.status === "fulfilled") setCompanyDocs(cRes.value.data?.data ?? []);
-      if (dRes.status === "fulfilled") setDirectoryDocs(dRes.value.data?.data ?? []);
-      if (rRes.status === "fulfilled") setRecommendations(rRes.value.data?.data ?? []);
-      setLoading(false);
+  // Debounce search
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Reset pages on new search
+  useEffect(() => { setCompanyPage(1); }, [debouncedSearch]);
+  useEffect(() => { setDirPage(1); }, [debouncedSearch]);
+
+  // Load company list
+  const loadCompany = useCallback((page: number, q: string) => {
+    setCompanyLoading(true);
+    getCompanyDoctorListApi({ q: q || undefined, page, limit: PAGE_SIZE })
+      .then((r) => {
+        setCompanyDocs(r.data?.data ?? []);
+        if (r.data?.meta) setCompanyMeta(r.data.meta);
+      })
+      .catch(() => setError("Failed to load company list"))
+      .finally(() => setCompanyLoading(false));
+  }, []);
+
+  // Load directory
+  const loadDirectory = useCallback((page: number, q: string) => {
+    setDirLoading(true);
+    getDoctorDirectoryApi({ q: q || undefined, page, limit: PAGE_SIZE })
+      .then((r) => {
+        setDirectoryDocs(r.data?.data ?? []);
+        if (r.data?.meta) setDirMeta(r.data.meta);
+      })
+      .catch(() => setError("Failed to load directory"))
+      .finally(() => setDirLoading(false));
+  }, []);
+
+  // Company list: load on mount + whenever page/search changes
+  useEffect(() => {
+    loadCompany(companyPage, debouncedSearch);
+  }, [loadCompany, companyPage, debouncedSearch]);
+
+  // Directory: load lazily (first time tab is opened) + on page/search change
+  useEffect(() => {
+    if (tab !== "directory") return;
+    loadDirectory(dirPage, debouncedSearch);
+  }, [loadDirectory, tab, dirPage, debouncedSearch]);
+
+  // Prefetch directory total for tab badge
+  useEffect(() => {
+    getDoctorDirectoryApi({ page: 1, limit: 1 })
+      .then((r) => { if (r.data?.meta) setDirMeta((prev) => ({ ...prev, total: r.data.meta.total })); })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Recommendations: load once on mount
+  useEffect(() => {
+    getRecommendationsApi()
+      .then((r) => setRecommendations(r.data?.data ?? []))
+      .catch(() => {})
+      .finally(() => setRecsLoading(false));
+  }, []);
+
+  const filteredRecs = useMemo(() => {
+    const q = search.toLowerCase();
+    return recommendations.filter((r) => {
+      const name = r.doctor?.doctor_name ?? r.clinician_name ?? "";
+      return name.toLowerCase().includes(q);
     });
-  };
-
-  useEffect(() => { loadData(); }, []);
-
-  const q = search.toLowerCase();
-
-  const filteredCompany = useMemo(
-    () =>
-      companyDocs.filter((d) =>
-        d.doctor &&
-        (
-          (d.doctor.doctor_name ?? "").toLowerCase().includes(q) ||
-          (d.doctor.town ?? "").toLowerCase().includes(q)
-        )
-      ),
-    [companyDocs, q]
-  );
-
-  const filteredDirectory = useMemo(
-    () =>
-      directoryDocs.filter((d) =>
-        (d.doctor_name ?? "").toLowerCase().includes(q) ||
-        (d.town ?? "").toLowerCase().includes(q)
-      ),
-    [directoryDocs, q]
-  );
-
-  const filteredRecs = useMemo(
-    () =>
-      recommendations.filter((r) => {
-        const name = r.doctor?.doctor_name ?? r.clinician_name ?? "";
-        return name.toLowerCase().includes(q);
-      }),
-    [recommendations, q]
-  );
+  }, [recommendations, search]);
 
   const handleApprove = async (id: string) => {
     setActioning(id);
     try {
       await approveRecommendationApi(id);
       setRecommendations((prev) => prev.filter((r) => r.id !== id));
-      loadData(); // refresh company list too
+      loadCompany(companyPage, debouncedSearch);
     } catch {
       setError("Failed to approve recommendation.");
     } finally {
@@ -202,14 +271,10 @@ const HcpDirectory = () => {
     }
   };
 
-  const tabs: { key: Tab; label: string; count?: number }[] = [
-    { key: "company", label: "Company List", count: companyDocs.length },
-    { key: "directory", label: "Full Directory", count: directoryDocs.length },
-    {
-      key: "recommendations",
-      label: "Recommendations",
-      count: recommendations.length,
-    },
+  const tabs: { key: Tab; label: string; count: number | null }[] = [
+    { key: "company",         label: "Company List",    count: companyMeta.total || null },
+    { key: "directory",       label: "Full Directory",  count: dirMeta.total || null },
+    { key: "recommendations", label: "Recommendations", count: recommendations.length || null },
   ];
 
   return (
@@ -227,12 +292,7 @@ const HcpDirectory = () => {
         <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
           <MdOutlineWarningAmber className="w-4 h-4 flex-shrink-0" />
           {error}
-          <button
-            onClick={() => setError("")}
-            className="ml-auto text-red-400 hover:text-red-600"
-          >
-            ✕
-          </button>
+          <button onClick={() => setError("")} className="ml-auto text-red-400 hover:text-red-600">✕</button>
         </div>
       )}
 
@@ -250,7 +310,7 @@ const HcpDirectory = () => {
               }`}
             >
               {label}
-              {count !== undefined && (
+              {count !== null && (
                 <span
                   className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
                     tab === key
@@ -260,7 +320,7 @@ const HcpDirectory = () => {
                       : "bg-gray-100 text-gray-500"
                   }`}
                 >
-                  {loading ? "…" : count}
+                  {count}
                 </span>
               )}
             </button>
@@ -274,11 +334,9 @@ const HcpDirectory = () => {
             <input
               className="flex-1 bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
               placeholder={
-                tab === "company"
-                  ? "Search company doctors…"
-                  : tab === "directory"
-                  ? "Search all HCPs…"
-                  : "Search recommendations…"
+                tab === "company" ? "Search company doctors…"
+                : tab === "directory" ? "Search all HCPs…"
+                : "Search recommendations…"
               }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -286,110 +344,125 @@ const HcpDirectory = () => {
           </div>
         </div>
 
-        {/* ── Tab content ── */}
-
-        {/* Company List */}
+        {/* ── Company List ── */}
         {tab === "company" && (
-          loading ? (
-            <Spinner />
-          ) : filteredCompany.length === 0 ? (
+          companyLoading && companyDocs.length === 0 ? <Spinner /> :
+          companyDocs.length === 0 ? (
             <EmptyState
               message={search ? "No doctors match your search" : "No doctors on company list"}
               sub={search ? "Try a different name or town" : "Approve recommendations to add doctors to your list"}
             />
           ) : (
-            <div className="divide-y divide-gray-50">
-              {filteredCompany.map((d) => (
-                <div key={d.doctor_id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50/60">
-                  <DocAvatar name={d.doctor.doctor_name} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-[#1a1a1a] text-sm">{d.doctor.doctor_name}</p>
-                      <CadreChip cadre={d.doctor.cadre} />
-                      {d.doctor.company_tier?.tier && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold border ${
-                          d.doctor.company_tier.tier === "A"
-                            ? "bg-[#f0fdf4] border-[#dcfce7] text-[#16a34a]"
-                            : d.doctor.company_tier.tier === "B"
-                            ? "bg-amber-50 border-amber-200 text-amber-700"
-                            : "bg-gray-100 border-gray-200 text-gray-500"
-                        }`}>
-                          Tier {d.doctor.company_tier.tier}
-                        </span>
+            <>
+              <div className="divide-y divide-gray-50">
+                {companyDocs.map((d) => (
+                  <div key={d.doctor_id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50/60">
+                    <DocAvatar name={d.doctor.doctor_name} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-[#1a1a1a] text-sm">{d.doctor.doctor_name}</p>
+                        <CadreChip cadre={d.doctor.cadre} />
+                        {d.doctor.company_tier?.tier && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold border ${
+                            d.doctor.company_tier.tier === "A"
+                              ? "bg-[#f0fdf4] border-[#dcfce7] text-[#16a34a]"
+                              : d.doctor.company_tier.tier === "B"
+                              ? "bg-amber-50 border-amber-200 text-amber-700"
+                              : "bg-gray-100 border-gray-200 text-gray-500"
+                          }`}>
+                            Tier {d.doctor.company_tier.tier}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {[d.doctor.town, d.doctor.location].filter(Boolean).join(" · ") || "—"}
+                      </p>
+                      {d.doctor.speciality && d.doctor.speciality.length > 0 && (
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          {d.doctor.speciality.slice(0, 3).map((s) => (
+                            <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#f0fdf4] border border-[#dcfce7] text-[#16a34a] font-medium">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {[d.doctor.town, d.doctor.location].filter(Boolean).join(" · ") || "—"}
-                    </p>
-                    {d.doctor.speciality && d.doctor.speciality.length > 0 && (
-                      <div className="flex gap-1 mt-1 flex-wrap">
-                        {d.doctor.speciality.slice(0, 3).map((s) => (
-                          <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#f0fdf4] border border-[#dcfce7] text-[#16a34a] font-medium">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <LuUserCheck className="w-4 h-4 text-[#16a34a]" />
+                      <span className="text-[11px] font-semibold text-[#16a34a]">On List</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <LuUserCheck className="w-4 h-4 text-[#16a34a]" />
-                    <span className="text-[11px] font-semibold text-[#16a34a]">On List</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              {companyMeta.pages > 1 && (
+                <Pager
+                  meta={companyMeta}
+                  loading={companyLoading}
+                  onPrev={() => setCompanyPage((p) => p - 1)}
+                  onNext={() => setCompanyPage((p) => p + 1)}
+                />
+              )}
+            </>
           )
         )}
 
-        {/* Full Directory */}
+        {/* ── Full Directory ── */}
         {tab === "directory" && (
-          loading ? (
-            <Spinner />
-          ) : filteredDirectory.length === 0 ? (
+          dirLoading && directoryDocs.length === 0 ? <Spinner /> :
+          directoryDocs.length === 0 ? (
             <EmptyState
               message={search ? "No HCPs match your search" : "No HCPs in directory"}
               sub="The KibagRep master directory will appear here"
             />
           ) : (
-            <div className="divide-y divide-gray-50">
-              {filteredDirectory.map((d) => (
-                <div key={d.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50/60">
-                  <DocAvatar name={d.doctor_name} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-[#1a1a1a] text-sm">{d.doctor_name}</p>
-                      <CadreChip cadre={d.cadre} />
-                      {d.on_company_list && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#f0fdf4] border border-[#dcfce7] text-[#16a34a] font-bold">
-                          ✓ On List
-                        </span>
+            <>
+              <div className="divide-y divide-gray-50">
+                {directoryDocs.map((d) => (
+                  <div key={d.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50/60">
+                    <DocAvatar name={d.doctor_name} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-[#1a1a1a] text-sm">{d.doctor_name}</p>
+                        <CadreChip cadre={d.cadre} />
+                        {d.on_company_list && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#f0fdf4] border border-[#dcfce7] text-[#16a34a] font-bold">
+                            ✓ On List
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {[d.town, d.location].filter(Boolean).join(" · ") || "—"}
+                      </p>
+                      {d.speciality && d.speciality.length > 0 && (
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          {d.speciality.slice(0, 3).map((s) => (
+                            <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-500 font-medium">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {[d.town, d.location].filter(Boolean).join(" · ") || "—"}
-                    </p>
-                    {d.speciality && d.speciality.length > 0 && (
-                      <div className="flex gap-1 mt-1 flex-wrap">
-                        {d.speciality.slice(0, 3).map((s) => (
-                          <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-500 font-medium">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <LuBuilding2 className="w-4 h-4 text-gray-300 flex-shrink-0" />
                   </div>
-                  <LuBuilding2 className="w-4 h-4 text-gray-300 flex-shrink-0" />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              {dirMeta.pages > 1 && (
+                <Pager
+                  meta={dirMeta}
+                  loading={dirLoading}
+                  onPrev={() => setDirPage((p) => p - 1)}
+                  onNext={() => setDirPage((p) => p + 1)}
+                />
+              )}
+            </>
           )
         )}
 
-        {/* Recommendations */}
+        {/* ── Recommendations ── */}
         {tab === "recommendations" && (
-          loading ? (
-            <Spinner />
-          ) : filteredRecs.length === 0 ? (
+          recsLoading ? <Spinner /> :
+          filteredRecs.length === 0 ? (
             <EmptyState
               message={search ? "No recommendations match your search" : "No pending recommendations"}
               sub="When reps recommend doctors, they'll appear here for review"
@@ -418,15 +491,11 @@ const HcpDirectory = () => {
                               New Clinician
                             </span>
                           )}
-                          {rec.clinician_cadre && (
-                            <CadreChip cadre={rec.clinician_cadre} />
-                          )}
+                          {rec.clinician_cadre && <CadreChip cadre={rec.clinician_cadre} />}
                         </div>
                         <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                           {(rec.doctor?.town ?? rec.clinician_location) && (
-                            <p className="text-xs text-gray-400">
-                              {rec.doctor?.town ?? rec.clinician_location}
-                            </p>
+                            <p className="text-xs text-gray-400">{rec.doctor?.town ?? rec.clinician_location}</p>
                           )}
                           {rec.clinician_contact && (
                             <p className="text-xs text-gray-400">{rec.clinician_contact}</p>

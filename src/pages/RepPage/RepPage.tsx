@@ -3,35 +3,85 @@ import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
 import MenuPopup from "../../componets/MenuPopup/MenuPopup";
-import { useSelector, useDispatch } from 'react-redux';
-import { toggleShowNca, toggleShowUnplanned } from '../../store/uiStateSlice';
-import AddUnplanned from '../../componets/AddUnplanned/AddUnplanned';
-import Ncapopup from '../../componets/NcaPoppup/Ncapopup';
-import LogVisitModal from '../../componets/LogVisitModal/LogVisitModal';
+import { useSelector } from 'react-redux';
+import VisitGroupModal from '../../componets/VisitGroupModal/VisitGroupModal';
+import NcaMissedGroupModal from '../../componets/NcaMissedGroupModal/NcaMissedGroupModal';
 import PharmacyFabModal from '../../componets/LogPharmacyModal/PharmacyFabModal';
+import FieldIntelGroupModal from '../../componets/FieldIntelGroupModal/FieldIntelGroupModal';
 import { Outlet } from 'react-router-dom';
-import { FaPlus, FaXmark, FaStethoscope, FaBan, FaCalendarPlus } from 'react-icons/fa6';
+import { FaPlus, FaXmark, FaStethoscope, FaBan } from 'react-icons/fa6';
 import { TbPill } from 'react-icons/tb';
+import { FiEye } from 'react-icons/fi';
 
-const SPEED_DIAL = [
-  { key: 'visit'     as const, label: 'Log Visit',  Icon: FaStethoscope, color: 'bg-[#16a34a] hover:bg-[#15803d]', shadow: 'shadow-green-600/30' },
-  { key: 'pharmacy'  as const, label: 'Log Pharmacy', Icon: TbPill,       color: 'bg-violet-600 hover:bg-violet-700', shadow: 'shadow-violet-600/30' },
-  { key: 'nca'       as const, label: 'Log NCA',    Icon: FaBan,         color: 'bg-amber-500 hover:bg-amber-600',  shadow: 'shadow-amber-500/30'  },
-  { key: 'unplanned' as const, label: 'Unplanned',  Icon: FaCalendarPlus,color: 'bg-sky-600 hover:bg-sky-700',      shadow: 'shadow-sky-600/30'    },
-];
+// ─── FAB actions (4 grouped) ──────────────────────────────────────────────────
+
+const FAB_ACTIONS = [
+  {
+    key: 'visit'    as const,
+    label: 'Log Visit',
+    sub: 'Planned · Unplanned',
+    Icon: FaStethoscope,
+    bg: 'bg-[#f0fdf4]',
+    iconColor: 'bg-[#16a34a]',
+    text: 'text-[#15803d]',
+    sub2: 'text-[#16a34a]/60',
+    border: 'border-[#bbf7d0]',
+  },
+  {
+    key: 'nca'      as const,
+    label: 'NCA / Missed',
+    sub: 'NCA · Missed · Skipped',
+    Icon: FaBan,
+    bg: 'bg-amber-50',
+    iconColor: 'bg-amber-500',
+    text: 'text-amber-700',
+    sub2: 'text-amber-500/70',
+    border: 'border-amber-200',
+  },
+  {
+    key: 'pharmacy' as const,
+    label: 'Pharmacy',
+    sub: 'Log pharmacy visit',
+    Icon: TbPill,
+    bg: 'bg-violet-50',
+    iconColor: 'bg-violet-600',
+    text: 'text-violet-700',
+    sub2: 'text-violet-500/70',
+    border: 'border-violet-200',
+  },
+  {
+    key: 'intel'    as const,
+    label: 'Field Intel',
+    sub: 'Competitor · Stock',
+    Icon: FiEye,
+    bg: 'bg-sky-50',
+    iconColor: 'bg-sky-600',
+    text: 'text-sky-700',
+    sub2: 'text-sky-500/70',
+    border: 'border-sky-200',
+  },
+] as const;
+
+type FabKey = typeof FAB_ACTIONS[number]['key'];
+
+// ─── RepPage ──────────────────────────────────────────────────────────────────
 
 const RepPage = () => {
-  const dispatch = useDispatch();
   const showMenu: boolean = useSelector((state: any) => state.uiState.showMenu);
   const showSidebarPanel: boolean = useSelector((state: any) => state.uiState.showSidebarPanel ?? true);
-  // NCA and Unplanned are Redux-driven so MenuPopup can also trigger them
-  const showNca: boolean = useSelector((state: any) => state.uiState.showNca);
-  const showUnplanned: boolean = useSelector((state: any) => state.uiState.showUnplanned);
-  const [showLogVisit,    setShowLogVisit]    = useState(false);
-  const [showLogPharmacy, setShowLogPharmacy] = useState(false);
-  const [fabOpen, setFabOpen] = useState(false);
+
+  const [showVisitGroup,   setShowVisitGroup]   = useState(false);
+  const [visitInitialTab,  setVisitInitialTab]  = useState<'planned' | 'unplanned'>('planned');
+  const [showNcaMissed,    setShowNcaMissed]    = useState(false);
+  const [ncaMissedTab,     setNcaMissedTab]     = useState<'nca' | 'missed'>('nca');
+  const [ncaMissedPrefill, setNcaMissedPrefill] = useState<{ doctorId?: string; doctorLabel?: string }>({});
+  const [showPharmacy,     setShowPharmacy]     = useState(false);
+  const [showFieldIntel,   setShowFieldIntel]   = useState(false);
+  const [intelInitialTab,  setIntelInitialTab]  = useState<'competitor' | 'stock'>('competitor');
+
+  const [fabOpen,    setFabOpen]    = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [isMobile,   setIsMobile]   = useState(() => window.innerWidth < 768);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -40,28 +90,79 @@ const RepPage = () => {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  const handleVisitSuccess = () => setRefreshKey((k) => k + 1);
+  // Listen for modal-open events fired by MenuPopup and other components
+  useEffect(() => {
+    const onLogMissed = (e: Event) => {
+      const detail = (e as CustomEvent).detail ?? {};
+      setNcaMissedPrefill({ doctorId: detail.doctorId });
+      setNcaMissedTab('missed');
+      setShowNcaMissed(true);
+    };
+    const onOpenVisit = (e: Event) => {
+      const detail = (e as CustomEvent).detail ?? {};
+      setVisitInitialTab(detail.tab === 'unplanned' ? 'unplanned' : 'planned');
+      setShowVisitGroup(true);
+    };
+    const onOpenNca = () => {
+      setNcaMissedTab('nca');
+      setNcaMissedPrefill({});
+      setShowNcaMissed(true);
+    };
+    const onOpenIntel = (e: Event) => {
+      const detail = (e as CustomEvent).detail ?? {};
+      setIntelInitialTab(detail.tab === 'stock' ? 'stock' : 'competitor');
+      setShowFieldIntel(true);
+    };
 
-  const openModal = (key: 'visit' | 'nca' | 'unplanned') => {
+    window.addEventListener('kibag:log-missed',  onLogMissed);
+    window.addEventListener('kibag:open-visit',  onOpenVisit);
+    window.addEventListener('kibag:open-nca',    onOpenNca);
+    window.addEventListener('kibag:open-intel',  onOpenIntel);
+    return () => {
+      window.removeEventListener('kibag:log-missed',  onLogMissed);
+      window.removeEventListener('kibag:open-visit',  onOpenVisit);
+      window.removeEventListener('kibag:open-nca',    onOpenNca);
+      window.removeEventListener('kibag:open-intel',  onOpenIntel);
+    };
+  }, []);
+
+  const handleSuccess = () => setRefreshKey((k) => k + 1);
+
+  const openModal = (key: FabKey) => {
     setFabOpen(false);
-    if (key === 'visit')     setShowLogVisit(true);
-    if (key === 'pharmacy')  setShowLogPharmacy(true);
-    if (key === 'nca')       dispatch(toggleShowNca());
-    if (key === 'unplanned') dispatch(toggleShowUnplanned());
+    if (key === 'visit')    { setVisitInitialTab('planned'); setShowVisitGroup(true); }
+    if (key === 'nca')      { setNcaMissedTab('nca'); setNcaMissedPrefill({}); setShowNcaMissed(true); }
+    if (key === 'pharmacy') { setShowPharmacy(true); }
+    if (key === 'intel')    { setIntelInitialTab('competitor'); setShowFieldIntel(true); }
   };
 
   return (
     <>
       <MenuPopup showMenu={showMenu} />
 
-      {showLogVisit    && <LogVisitModal    onClose={() => setShowLogVisit(false)}    onSuccess={handleVisitSuccess} />}
-      {showLogPharmacy && <PharmacyFabModal onClose={() => setShowLogPharmacy(false)} onSuccess={handleVisitSuccess} />}
-      {showNca       && <Ncapopup       onClose={() => dispatch(toggleShowNca())}         onSuccess={handleVisitSuccess} />}
-      {showUnplanned && <AddUnplanned   onClose={() => dispatch(toggleShowUnplanned())}   onSuccess={handleVisitSuccess} />}
+      {showVisitGroup && (
+        <VisitGroupModal onClose={() => setShowVisitGroup(false)} onSuccess={handleSuccess} initialTab={visitInitialTab} />
+      )}
+      {showNcaMissed && (
+        <NcaMissedGroupModal
+          initialTab={ncaMissedTab}
+          initialDoctorId={ncaMissedPrefill.doctorId}
+          initialDoctorLabel={ncaMissedPrefill.doctorLabel}
+          onClose={() => setShowNcaMissed(false)}
+          onSuccess={() => { setShowNcaMissed(false); handleSuccess(); }}
+        />
+      )}
+      {showPharmacy && (
+        <PharmacyFabModal onClose={() => setShowPharmacy(false)} onSuccess={handleSuccess} />
+      )}
+      {showFieldIntel && (
+        <FieldIntelGroupModal onClose={() => setShowFieldIntel(false)} onSuccess={() => setShowFieldIntel(false)} initialTab={intelInitialTab} />
+      )}
 
+      {/* Backdrop — closes FAB panel on outside click */}
       {fabOpen && <div className="fixed inset-0 z-30" onClick={() => setFabOpen(false)} />}
 
-      <div className="w-full bg-gray-100 min-h-screen overflow-x-hidden">
+      <div className="w-full bg-gray-100 min-h-screen overflow-x-hidden pt-14 md:pt-16">
         <Navbar />
         <div className="w-full flex">
           <Sidebar />
@@ -80,39 +181,46 @@ const RepPage = () => {
 
       <MobileNav />
 
-      {/* Speed-dial FAB */}
+      {/* ── FAB ── */}
       <div
-        className="fixed z-40 flex flex-col items-end gap-3"
-        style={{ bottom: isMobile ? 72 : 32, right: isMobile ? 20 : 32 }}
+        className="fixed z-40 flex flex-col items-end gap-2"
+        style={{ bottom: isMobile ? 72 : 32, right: isMobile ? 16 : 32 }}
       >
-        {SPEED_DIAL.map(({ key, label, Icon, color, shadow }, i) => (
-          <div
-            key={key}
-            className="flex items-center gap-2"
-            style={{
-              opacity: fabOpen ? 1 : 0,
-              transform: fabOpen ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.85)',
-              transition: fabOpen
-                ? `opacity 0.18s ease ${i * 0.05}s, transform 0.18s ease ${i * 0.05}s`
-                : `opacity 0.12s ease ${(SPEED_DIAL.length - 1 - i) * 0.04}s, transform 0.12s ease ${(SPEED_DIAL.length - 1 - i) * 0.04}s`,
-              pointerEvents: fabOpen ? 'auto' : 'none',
-            }}
-          >
-            <span className="bg-white text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-md whitespace-nowrap">
-              {label}
-            </span>
-            <button
-              type="button"
-              onClick={() => openModal(key)}
-              aria-label={label}
-              className={`${color} ${shadow} text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
-              style={{ transition: 'background-color 0.15s' }}
+        {/* Action panel — glassmorphic vertical speed-dial */}
+        <div className="flex flex-col items-end gap-3 pb-1" style={{ pointerEvents: fabOpen ? 'auto' : 'none' }}>
+          {FAB_ACTIONS.map(({ key, label, sub, Icon, bg, iconColor, text, sub2, border }, i) => (
+            <div
+              key={key}
+              className="flex items-center gap-3"
+              style={{
+                opacity: fabOpen ? 1 : 0,
+                transform: fabOpen ? 'translateY(0)' : `translateY(${(FAB_ACTIONS.length - i) * 10}px)`,
+                transition: `opacity 0.18s ease ${fabOpen ? i * 0.05 : (FAB_ACTIONS.length - 1 - i) * 0.04}s, transform 0.18s ease ${fabOpen ? i * 0.05 : (FAB_ACTIONS.length - 1 - i) * 0.04}s`,
+              }}
             >
-              <Icon className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
+              {/* Label pill — action-tinted so it reads against white backgrounds */}
+              <div
+                className={`${bg} border ${border} px-3.5 py-2 rounded-full`}
+                style={{ boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}
+              >
+                <span className={`text-xs font-bold ${text}`}>{label}</span>
+                <span className={`ml-2 text-[10px] ${sub2}`}>{sub}</span>
+              </div>
 
+              {/* Circular icon button */}
+              <button
+                type="button"
+                onClick={() => openModal(key)}
+                className={`${iconColor} text-white w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-lg hover:brightness-110 active:brightness-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+                style={{ transition: 'filter 0.12s' }}
+              >
+                <Icon className="w-[17px] h-[17px]" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* FAB trigger button */}
         <button
           type="button"
           onClick={() => setFabOpen((o) => !o)}

@@ -56,16 +56,17 @@ interface Activity {
 interface RepData {
   user: { id: string; firstname: string; lastname: string };
   activities: Activity[];
+  total_visits: number;
 }
 
 const FMT_DT = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
-type Days = 1 | 3 | 7;
+type Days = 1 | 7 | 30;
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 const TeamMap = () => {
-  const [days, setDays] = useState<Days>(3);
+  const [days, setDays] = useState<Days>(7);
   const [repData, setRepData] = useState<RepData[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeReps, setActiveReps] = useState<Set<string>>(new Set());
@@ -104,6 +105,7 @@ const TeamMap = () => {
   };
 
   const totalPins = visibleData.reduce((s, r) => s + r.activities.length, 0);
+  const totalVisits = visibleData.reduce((s, r) => s + r.total_visits, 0);
 
   return (
     <div className="flex h-[calc(100vh-4rem)]">
@@ -115,7 +117,7 @@ const TeamMap = () => {
             <h2 className="text-sm font-bold text-[#1a1a1a]">Team Map</h2>
           </div>
           <div className="flex gap-1">
-            {([1, 3, 7] as Days[]).map(d => (
+            {([1, 7, 30] as Days[]).map(d => (
               <button key={d} onClick={() => setDays(d)}
                 className={`flex-1 py-1.5 text-xs font-semibold rounded-lg ${
                   days === d ? "bg-[#16a34a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -125,7 +127,9 @@ const TeamMap = () => {
               </button>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-2">{totalPins} GPS points visible</p>
+          <p className="text-xs text-gray-400 mt-2">
+            {totalPins} / {totalVisits} visits with GPS
+          </p>
         </div>
 
         <div className="flex-1 overflow-y-auto py-2">
@@ -153,7 +157,10 @@ const TeamMap = () => {
                       {r.user.firstname} {r.user.lastname}
                     </p>
                     <p className="text-[10px] text-gray-400">
-                      {count} visit{count !== 1 ? "s" : ""}
+                      {r.total_visits} visit{r.total_visits !== 1 ? "s" : ""}
+                      {count < r.total_visits && (
+                        <span className="ml-1 text-amber-500">{count} GPS</span>
+                      )}
                       {anomalies > 0 && <span className="text-red-500 ml-1">· {anomalies} anomal{anomalies !== 1 ? "ies" : "y"}</span>}
                     </p>
                   </div>

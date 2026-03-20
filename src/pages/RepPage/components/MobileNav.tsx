@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { BiHome, BiCalendar, BiFileBlank, BiReceipt } from "react-icons/bi";
+import { BiHome, BiCalendar, BiFileBlank, BiReceipt, BiMap, BiBookOpen } from "react-icons/bi";
 import { BsCardChecklist } from "react-icons/bs";
 import { FaUserMd, FaHistory } from "react-icons/fa";
+import { FaLocationCrosshairs } from "react-icons/fa6";
 import { MdOutlineEventRepeat, MdMoreHoriz } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 
@@ -18,6 +19,9 @@ const PRIMARY = [
 const MORE = [
   { to: "/rep-page/visits", label: "Visits", icon: FaHistory },
   { to: "/rep-page/call-cycle", label: "Cycle", icon: MdOutlineEventRepeat },
+  { to: "/rep-page/tour-plan", label: "Tour", icon: BiMap },
+  { to: "/rep-page/near-me", label: "Map", icon: FaLocationCrosshairs },
+  { to: "/rep-page/library", label: "Library", icon: BiBookOpen },
   { to: "/rep-page/reports", label: "Reports", icon: BiFileBlank },
   { to: "/rep-page/expenses", label: "Expenses", icon: BiReceipt },
   { to: "/rep-page/settings", label: "Settings", icon: IoSettingsOutline },

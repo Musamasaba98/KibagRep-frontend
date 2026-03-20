@@ -5,6 +5,9 @@ import { MdSearch, MdCheckCircle, MdAddCircleOutline, MdClose } from "react-icon
 import { TbRosette, TbUserPlus, TbBuilding } from "react-icons/tb";
 import { HiOutlineGlobeAlt } from "react-icons/hi2";
 import { LuSendHorizontal } from "react-icons/lu";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+
+const PAGE_SIZE = 24;
 import {
   getCompanyDoctorListApi,
   getDoctorDirectoryApi,
@@ -272,6 +275,9 @@ const Doctors = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
+  const [debouncedSearch, setDebouncedSearch] = useState(() => searchParams.get("q") ?? "");
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({ total: 0, pages: 1 });
   const [cycleIds, setCycleIds] = useState<Set<string>>(new Set());
   const [adding, setAdding] = useState<Record<string, boolean>>({});
   const [recommending, setRecommending] = useState<Record<string, boolean>>({});
@@ -280,11 +286,20 @@ const Doctors = () => {
   const [profileDoctor, setProfileDoctor] = useState<Doctor | null>(null);
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const loadDoctors = useCallback((s: Scope) => {
+  // Debounce search → reset page and trigger fetch
+  useEffect(() => {
+    const t = setTimeout(() => { setDebouncedSearch(search); setPage(1); }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Reset page when scope changes
+  useEffect(() => { setPage(1); }, [scope]);
+
+  const loadDoctors = useCallback((s: Scope, p: number, q: string) => {
     setLoading(true);
     setError("");
-    const fetch = s === "company" ? getCompanyDoctorListApi : getDoctorDirectoryApi;
-    Promise.all([fetch(), getCurrentCycleApi()])
+    const fetchFn = s === "company" ? getCompanyDoctorListApi : getDoctorDirectoryApi;
+    Promise.all([fetchFn({ q: q || undefined, page: p, limit: PAGE_SIZE }), getCurrentCycleApi()])
       .then(([docRes, cycleRes]) => {
         const raw = docRes.data.data ?? [];
         const normalized: Doctor[] =
@@ -302,6 +317,7 @@ const Doctors = () => {
               }))
             : raw;
         setDoctors(normalized);
+        if (docRes.data?.meta) setMeta({ total: docRes.data.meta.total, pages: docRes.data.meta.pages });
         const items: { doctor_id: string }[] = cycleRes.data?.data?.items ?? [];
         setCycleIds(new Set(items.map((i) => i.doctor_id)));
       })
@@ -309,26 +325,9 @@ const Doctors = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { loadDoctors(scope); }, [scope, loadDoctors]);
+  useEffect(() => { loadDoctors(scope, page, debouncedSearch); }, [scope, page, debouncedSearch, loadDoctors]);
 
-  // Open profile modal when navigated with highlight=id from sidebar
-  const highlightId = searchParams.get("highlight");
-  useEffect(() => {
-    if (!highlightId || loading || doctors.length === 0) return;
-    const doc = doctors.find((d) => d.id === highlightId);
-    if (doc) setProfileDoctor(doc);
-  }, [highlightId, loading, doctors]);
-
-  const filtered =
-    search.length >= 1
-      ? doctors.filter(
-          (d) =>
-            d.doctor_name.toLowerCase().includes(search.toLowerCase()) ||
-            d.town?.toLowerCase().includes(search.toLowerCase()) ||
-            d.location?.toLowerCase().includes(search.toLowerCase()) ||
-            d.speciality?.some((s) => s.toLowerCase().includes(search.toLowerCase()))
-        )
-      : doctors;
+  const filtered = doctors; // server already filters
 
   const handleAddToCycle = useCallback(
     async (doctorId: string) => {
@@ -389,7 +388,7 @@ const Doctors = () => {
         <div>
           <h1 className="text-2xl font-black text-[#222f36]">HCP Directory</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {loading ? "Loading…" : `${doctors.length} ${scope === "company" ? "approved doctors" : "healthcare professionals"}`}
+            {loading ? "Loading…" : `${meta.total} ${scope === "company" ? "approved doctors" : "healthcare professionals"}`}
           </p>
         </div>
 
@@ -610,6 +609,31 @@ const Doctors = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ── Pagination ── */}
+      {!loading && meta.pages > 1 && (
+        <div className="flex items-center justify-between py-2">
+          <span className="text-xs text-gray-400">{meta.total} total · page {page} of {meta.pages}</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page <= 1}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              style={{ transition: "background-color 0.12s" }}
+            >
+              <FiChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page >= meta.pages}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              style={{ transition: "background-color 0.12s" }}
+            >
+              <FiChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 

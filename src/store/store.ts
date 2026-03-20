@@ -12,16 +12,18 @@ import {
 import storage from "redux-persist/lib/storage";
 import uiSlice from "./uiStateSlice.js";
 import authSlice from "./authSlice";
+import offlineQueueReducer from "./offlineQueueSlice";
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "uiState"],
+  whitelist: ["auth", "uiState", "offlineQueue"],
 };
 
 const rootReducer = combineReducers({
   uiState: uiSlice.reducer,
   auth: authSlice.reducer,
+  offlineQueue: offlineQueueReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

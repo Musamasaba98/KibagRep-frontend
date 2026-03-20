@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import { useSelector } from "react-redux";
-import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap } from "react-icons/bi";
+import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap, BiBookOpen } from "react-icons/bi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { BsCardChecklist } from "react-icons/bs";
 import { FaUserMd, FaHistory } from "react-icons/fa";
@@ -410,6 +410,7 @@ interface DayRowProps {
   day: Date;
   activities: DayActivity[];
   todayPlanEntries: TodayPlanEntry[];  // tour plan entries for today (empty for other days)
+  visitedPharmacyIds: string[];
   onAddClick: (day: Date) => void;
   onLogVisit?:    (doctorId: string, doctorName: string) => void;
   onNca?:         (doctorId: string, doctorName: string) => void;
@@ -600,7 +601,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     Promise.all([
-      getActivityHistoryApi({ days: 31, limit: 500 }),
+      getActivityHistoryApi('days=31&limit=500'),
       getTodayTourPlanApi(),
     ])
       .then(([histRes, planRes]) => {
@@ -638,8 +639,10 @@ const Sidebar = () => {
 
   return (
     <div
-      className="hidden md:flex bg-white h-screen fixed shadow overflow-hidden"
+      className="hidden md:flex bg-white fixed shadow overflow-hidden"
       style={{
+        top: 64,
+        height: 'calc(100vh - 64px)',
         width: showPanel ? 380 : 88,
         transition: "width 250ms ease",
       }}
@@ -733,6 +736,15 @@ const Sidebar = () => {
               <div className={navLinkClass({ isActive })}>
                 <FaLocationCrosshairs className={iconClass(isActive)} />
                 <p className={labelClass(isActive)}>MAP</p>
+              </div>
+            )}
+          </NavLink>
+
+          <NavLink to="/rep-page/library">
+            {({ isActive }) => (
+              <div className={navLinkClass({ isActive })}>
+                <BiBookOpen className={iconClass(isActive)} />
+                <p className={labelClass(isActive)}>LIBRARY</p>
               </div>
             )}
           </NavLink>

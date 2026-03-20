@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { LuTrendingUp, LuClipboardList, LuMapPin, LuTriangleAlert } from "react-icons/lu";
+import { LuTrendingUp, LuClipboardList, LuMapPin, LuTriangleAlert, LuPencil, LuCheck, LuX } from "react-icons/lu";
 import { BsGraphUp } from "react-icons/bs";
-import { getTeamPerformanceApi } from "../../../services/api";
+import { MdOutlinePendingActions } from "react-icons/md";
+import { getTeamPerformanceApi, getProductPricesApi, updateProductPriceApi } from "../../../services/api";
 
 interface RepPerformance {
   user: { id: string; firstname: string; lastname: string };
@@ -17,13 +18,6 @@ interface RepPerformance {
 const getInitials = (firstname: string, lastname: string) =>
   `${firstname?.[0] ?? ""}${lastname?.[0] ?? ""}`.toUpperCase();
 
-const cycleColor = (pct: number | null): string => {
-  if (pct == null) return "text-gray-400";
-  if (pct >= 80) return "text-[#16a34a]";
-  if (pct >= 50) return "text-amber-500";
-  return "text-red-500";
-};
-
 const cycleBg = (pct: number | null): string => {
   if (pct == null) return "bg-gray-100 text-gray-500";
   if (pct >= 80) return "bg-[#dcfce7] text-[#16a34a]";
@@ -31,10 +25,94 @@ const cycleBg = (pct: number | null): string => {
   return "bg-red-50 text-red-600";
 };
 
+interface ProductPrice {
+  id: string;
+  product_name: string;
+  unit_price: number;
+  pending_unit_price: number | null;
+  price_proposed_by: string | null;
+}
+
+// ─── Product price row (manager can propose price) ────────────────────────────
+const ProductPriceRow = ({
+  product, onPropose,
+}: {
+  product: ProductPrice;
+  onPropose: (id: string, price: number) => Promise<void>;
+}) => {
+  const [editing, setEditing] = useState(false);
+  const [price, setPrice] = useState(0);
+  const [saving, setSaving] = useState(false);
+
+  const startEdit = () => {
+    setPrice(product.pending_unit_price ?? product.unit_price);
+    setEditing(true);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    await onPropose(product.id, price);
+    setSaving(false);
+    setEditing(false);
+  };
+
+  return (
+    <div className="flex items-center gap-3 py-3 px-5 border-b border-gray-50 last:border-0">
+      <div className="w-2 h-2 rounded-full bg-[#16a34a] shrink-0" />
+      <span className="text-sm font-medium text-[#1a1a1a] flex-1 min-w-0 truncate">{product.product_name}</span>
+
+      {/* Active price */}
+      <span className="text-xs text-gray-400 shrink-0">
+        Active: <span className="font-semibold text-[#1a1a1a]">
+          {product.unit_price > 0 ? `UGX ${product.unit_price.toLocaleString()}` : "—"}
+        </span>
+      </span>
+
+      {/* Pending badge */}
+      {product.pending_unit_price != null && !editing && (
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 shrink-0">
+          <MdOutlinePendingActions className="w-3 h-3" />
+          UGX {product.pending_unit_price.toLocaleString()} pending CM approval
+        </span>
+      )}
+
+      {editing ? (
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-xs text-gray-400">UGX</span>
+          <input
+            type="number" min={0} value={price}
+            onChange={e => setPrice(Number(e.target.value))}
+            className="w-28 text-right text-sm border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#dcfce7]"
+            autoFocus
+          />
+          <button onClick={save} disabled={saving}
+            className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] disabled:opacity-50"
+            style={{ transition: "background-color 0.15s" }}>
+            {saving ? <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" /> : <LuCheck className="w-3.5 h-3.5" />}
+          </button>
+          <button onClick={() => setEditing(false)}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100"
+            style={{ transition: "background-color 0.15s" }}>
+            <LuX className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ) : (
+        <button onClick={startEdit}
+          className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-[#16a34a] rounded-lg border border-gray-200 hover:border-[#16a34a] hover:bg-[#f0fdf4] shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+          style={{ transition: "background-color 0.15s, border-color 0.15s, color 0.15s" }}>
+          <LuPencil className="w-3 h-3" />
+          Propose
+        </button>
+      )}
+    </div>
+  );
+};
+
 const Analytics = () => {
   const [reps, setReps] = useState<RepPerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [products, setProducts] = useState<ProductPrice[]>([]);
 
   useEffect(() => {
     getTeamPerformanceApi()
@@ -48,7 +126,18 @@ const Analytics = () => {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
+
+    getProductPricesApi()
+      .then((res) => setProducts(res.data?.data ?? []))
+      .catch(() => {});
   }, []);
+
+  const handlePropose = async (productId: string, price: number) => {
+    await updateProductPriceApi(productId, price);
+    setProducts(prev => prev.map(p =>
+      p.id === productId ? { ...p, pending_unit_price: price, price_proposed_by: "me" } : p
+    ));
+  };
 
   // ── Derived KPIs ─────────────────────────────────────────────────────────────
   const totalVisitsMonth = reps.reduce((s, r) => s + (r.visits_this_month ?? 0), 0);
@@ -104,52 +193,6 @@ const Analytics = () => {
     },
   ];
 
-  // ── Loading ──────────────────────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <div className="w-full p-6 flex flex-col gap-6">
-        <div>
-          <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Company-wide KPI analytics</p>
-        </div>
-        <div className="flex items-center gap-3 py-16 justify-center">
-          <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-[#16a34a] animate-spin" />
-          <span className="text-sm text-gray-400">Loading analytics…</span>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Error ────────────────────────────────────────────────────────────────────
-  if (error) {
-    return (
-      <div className="w-full p-6 flex flex-col gap-6">
-        <div>
-          <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Company-wide KPI analytics</p>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex items-center justify-center py-16">
-          <p className="text-red-400 text-sm">Failed to load analytics. Please try again.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Empty ────────────────────────────────────────────────────────────────────
-  if (reps.length === 0) {
-    return (
-      <div className="w-full p-6 flex flex-col gap-6">
-        <div>
-          <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Company-wide KPI analytics</p>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex items-center justify-center py-16">
-          <p className="text-gray-400 text-sm">No rep data available.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full p-6 flex flex-col gap-6">
       {/* Header */}
@@ -158,6 +201,26 @@ const Analytics = () => {
         <p className="text-gray-400 text-sm mt-0.5">Company-wide KPI analytics</p>
       </div>
 
+      {loading && (
+        <div className="flex items-center gap-3 py-16 justify-center">
+          <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-[#16a34a] animate-spin" />
+          <span className="text-sm text-gray-400">Loading analytics…</span>
+        </div>
+      )}
+
+      {!loading && error && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex items-center justify-center py-16">
+          <p className="text-red-400 text-sm">Failed to load analytics. Please try again.</p>
+        </div>
+      )}
+
+      {!loading && !error && reps.length === 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex items-center justify-center py-16">
+          <p className="text-gray-400 text-sm">No rep data available.</p>
+        </div>
+      )}
+
+      {!loading && !error && reps.length > 0 && (<>
       {/* ── Section 1: KPI Cards ───────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpiCards.map(({ label, value, sub, icon: Icon }) => (
@@ -322,6 +385,22 @@ const Analytics = () => {
               );
             })}
           </div>
+        </div>
+      )}
+      </>)}
+
+      {/* ── Product Prices (always visible if products loaded) ──────────────── */}
+      {products.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h2 className="font-bold text-[#1a1a1a] text-[15px]">Product Prices</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Propose a price — Country Manager approval required before it goes live.
+            </p>
+          </div>
+          {products.map(p => (
+            <ProductPriceRow key={p.id} product={p} onPropose={handlePropose} />
+          ))}
         </div>
       )}
     </div>

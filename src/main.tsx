@@ -24,6 +24,7 @@ import Expenses from "./pages/RepPage/Children/Expenses";
 import Calendar from "./pages/RepPage/Children/Calendar";
 import TourPlan from "./pages/RepPage/Children/TourPlan";
 import NearMe from "./pages/RepPage/Children/NearMe";
+import Library from "./pages/RepPage/Children/Library";
 import Settings from "./pages/RepPage/Children/Settings";
 
 // Manager
@@ -64,6 +65,7 @@ import CountryCampaigns from "./pages/CountryPage/children/Campaigns";
 import CountryDoctors from "./pages/CountryPage/children/Doctors";
 import CountryAnalytics from "./pages/CountryPage/children/CountryAnalytics";
 import CountryReports from "./pages/CountryPage/children/CountryReports";
+import CountryProducts from "./pages/CountryPage/children/Products";
 
 // Sales Admin
 import SalesAdminPage from "./pages/SalesAdminPage/SalesAdminPage";
@@ -117,6 +119,7 @@ const router = createBrowserRouter([
           { path: "calendar", element: <Calendar /> },
           { path: "tour-plan", element: <TourPlan /> },
           { path: "near-me", element: <NearMe /> },
+          { path: "library", element: <Library /> },
           { path: "settings", element: <Settings /> },
         ],
       },
@@ -197,6 +200,7 @@ const router = createBrowserRouter([
           { path: "doctors", element: <CountryDoctors /> },
           { path: "analytics", element: <CountryAnalytics /> },
           { path: "reports", element: <CountryReports /> },
+          { path: "products", element: <CountryProducts /> },
         ],
       },
     ],

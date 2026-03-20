@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { FaUserGroup } from "react-icons/fa6";
 import { LuTrendingUp, LuTrendingDown } from "react-icons/lu";
-import { getCompanyFeedApi } from "../../../services/api";
+import { getCompanyUsersApi, getCompanyFeedApi } from "../../../services/api";
+import type { RootState } from "../../../store";
 
 interface RepRow {
   id: string;
@@ -11,28 +13,57 @@ interface RepRow {
 }
 
 const Reps = () => {
+  const currentUserId = useSelector((s: RootState) => s.auth.user?.id);
   const [reps, setReps] = useState<RepRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCompanyFeedApi({ days: 30 })
-      .then((res) => {
-        const summary: any[] = res.data?.summary ?? [];
-        setReps(
-          summary
-            .filter((s) => s.user?.role === "MedicalRep")
-            .map((s) => ({
-              id: s.user.id,
-              name: `${s.user.firstname} ${s.user.lastname}`,
+    Promise.all([
+      getCompanyUsersApi(),
+      getCompanyFeedApi(),
+    ])
+      .then(([usersRes, feedRes]) => {
+        const allUsers: any[] = Array.isArray(usersRes.data?.data)
+          ? usersRes.data.data
+          : Array.isArray(usersRes.data)
+          ? usersRes.data
+          : [];
+
+        // Find this supervisor's team ID
+        const me = allUsers.find((u) => u.id === currentUserId);
+        const myTeamId = me?.team?.id ?? null;
+
+        // All reps in the supervisor's team
+        const teamReps = allUsers.filter(
+          (u) => u.role === "MedicalRep" && u.team?.id === myTeamId
+        );
+
+        // Activity summary keyed by user id
+        const summary: any[] = feedRes.data?.summary ?? [];
+        const activityById: Record<string, { visits: number; samples: number }> = {};
+        summary.forEach((s) => {
+          if (s.user?.id) {
+            activityById[s.user.id] = {
               visits: s.visits ?? 0,
               samples: s.samples ?? 0,
-            }))
-            .sort((a, b) => b.visits - a.visits)
-        );
+            };
+          }
+        });
+
+        const rows: RepRow[] = teamReps
+          .map((rep) => ({
+            id: rep.id,
+            name: `${rep.firstname} ${rep.lastname}`,
+            visits: activityById[rep.id]?.visits ?? 0,
+            samples: activityById[rep.id]?.samples ?? 0,
+          }))
+          .sort((a, b) => b.visits - a.visits);
+
+        setReps(rows);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [currentUserId]);
 
   const maxVisits = Math.max(...reps.map((r) => r.visits), 1);
 
@@ -54,7 +85,7 @@ const Reps = () => {
         ) : reps.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-gray-400">
             <FaUserGroup className="w-10 h-10 mb-3 opacity-30" />
-            <p className="font-semibold">No rep activity in the last 30 days</p>
+            <p className="font-semibold">No reps assigned to your team</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
@@ -67,7 +98,7 @@ const Reps = () => {
               const trendColor = pct >= 60 ? "text-[#16a34a]" : "text-red-500";
 
               return (
-                <div key={rep.id} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 transition-colors cursor-pointer">
+                <div key={rep.id} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60" style={{ transition: "background-color 0.15s" }}>
                   <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center shrink-0">
                     <span className="text-[#16a34a] font-black text-xs">
                       {rep.name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase()}

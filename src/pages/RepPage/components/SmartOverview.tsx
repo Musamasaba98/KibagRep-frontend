@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { format } from "date-fns";
@@ -10,8 +10,8 @@ import {
   MdArrowForwardIos,
   MdCheckCircleOutline,
 } from "react-icons/md";
-import { FiActivity } from "react-icons/fi";
-import { getCurrentCycleApi, getMyTargetApi } from "../../../services/api";
+import { FiActivity, FiEdit3, FiCheck, FiX } from "react-icons/fi";
+import { getCurrentCycleApi, getMyTargetApi, updatePrecallNoteApi } from "../../../services/api";
 import type { Activity } from "./ActivityCards";
 import { useSampleBalances, type SampleBalance } from "./ActivityCards";
 
@@ -22,6 +22,7 @@ interface CycleItem {
   tier: string;
   frequency: number;
   visits_done: number;
+  precall_note?: string | null;
   doctor: { id: string; doctor_name: string; town?: string };
 }
 
@@ -258,9 +259,71 @@ const TodayTab = ({
   );
 };
 
+// ─── Pre-call note inline editor ──────────────────────────────────────────────
+
+const PrecallNoteEditor = ({ item, onSaved }: { item: CycleItem; onSaved: (itemId: string, note: string | null) => void }) => {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft]     = useState(item.precall_note ?? "");
+  const [saving, setSaving]   = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const open = () => { setDraft(item.precall_note ?? ""); setEditing(true); setTimeout(() => inputRef.current?.focus(), 50); };
+  const cancel = () => setEditing(false);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await updatePrecallNoteApi(item.id, draft.trim() || null);
+      onSaved(item.id, draft.trim() || null);
+      setEditing(false);
+    } catch {
+      // silently fail — note is non-critical
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="mt-1.5 flex items-end gap-1.5">
+        <textarea ref={inputRef} value={draft} onChange={(e) => setDraft(e.target.value)} rows={2}
+          placeholder="Pre-call note…"
+          className="flex-1 text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 resize-none outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
+        />
+        <button onClick={save} disabled={saving}
+          className="w-7 h-7 rounded-lg bg-[#16a34a] text-white flex items-center justify-center shrink-0 hover:bg-[#15803d] disabled:opacity-60">
+          <FiCheck className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={cancel}
+          className="w-7 h-7 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center shrink-0 hover:bg-gray-200">
+          <FiX className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button onClick={open}
+      className="flex items-center gap-1 mt-1 text-[10px] text-gray-400 hover:text-[#16a34a] group focus-visible:outline-none">
+      <FiEdit3 className="w-3 h-3" />
+      <span className="truncate max-w-[180px] group-hover:text-[#16a34a]">
+        {item.precall_note ? item.precall_note : "Add pre-call note…"}
+      </span>
+    </button>
+  );
+};
+
 // ─── Cycle tab ────────────────────────────────────────────────────────────────
 
 const CycleTab = ({ cycle, loading }: { cycle: CycleData | null; loading: boolean }) => {
+  const [items, setItems] = useState<CycleItem[]>([]);
+
+  useEffect(() => { if (cycle) setItems(cycle.items); }, [cycle]);
+
+  const handleNoteSaved = (itemId: string, note: string | null) => {
+    setItems((prev) => prev.map((i) => i.id === itemId ? { ...i, precall_note: note } : i));
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-6">
@@ -270,9 +333,9 @@ const CycleTab = ({ cycle, loading }: { cycle: CycleData | null; loading: boolea
   }
   if (!cycle) return <EmptyState label="No cycle data" />;
 
-  const total = cycle.items.length;
-  const done = cycle.items.filter((i) => i.visits_done >= i.frequency).length;
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const total = items.length;
+  const done  = items.filter((i) => i.visits_done >= i.frequency).length;
+  const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
 
   return (
     <div className="space-y-4">
@@ -285,46 +348,67 @@ const CycleTab = ({ cycle, loading }: { cycle: CycleData | null; loading: boolea
             {done} / {total} doctors fully visited
           </p>
         </div>
-        <span
-          className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
-            cycle.status === "LOCKED"
-              ? "bg-[#dcfce7] text-[#16a34a]"
-              : cycle.status === "SUBMITTED"
-              ? "bg-amber-50 text-amber-600"
-              : "bg-gray-100 text-gray-500"
-          }`}
-        >
+        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+          cycle.status === "LOCKED" ? "bg-[#dcfce7] text-[#16a34a]"
+          : cycle.status === "SUBMITTED" ? "bg-amber-50 text-amber-600"
+          : "bg-gray-100 text-gray-500"
+        }`}>
           {cycle.status}
         </span>
       </div>
       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full"
-          style={{
-            width: `${pct}%`,
-            backgroundColor: pct >= 80 ? "#16a34a" : pct >= 50 ? "#f59e0b" : "#ef4444",
-            transition: "width 0.4s ease",
-          }}
+        <div className="h-full rounded-full"
+          style={{ width: `${pct}%`, backgroundColor: pct >= 80 ? "#16a34a" : pct >= 50 ? "#f59e0b" : "#ef4444", transition: "width 0.4s ease" }}
         />
       </div>
       <div className="grid grid-cols-3 gap-2">
         {["A", "B", "C"].map((tier) => {
-          const items = cycle.items.filter((i) => i.tier === tier);
-          const tierDone = items.filter((i) => i.visits_done >= i.frequency).length;
+          const tItems = items.filter((i) => i.tier === tier);
+          const tierDone = tItems.filter((i) => i.visits_done >= i.frequency).length;
           return (
             <div key={tier} className="bg-gray-50 rounded-xl p-3 text-center">
-              <p className="text-lg font-black text-[#222f36]">
-                {tierDone}/{items.length}
-              </p>
+              <p className="text-lg font-black text-[#222f36]">{tierDone}/{tItems.length}</p>
               <p className="text-[10px] text-gray-400 font-semibold">Tier {tier}</p>
             </div>
           );
         })}
       </div>
-      <NavLink
-        to="/rep-page/call-cycle"
-        className="flex items-center justify-between w-full text-xs font-semibold text-[#16a34a] hover:text-[#15803d] transition-colors"
-      >
+
+      {/* Doctor list with pre-call notes */}
+      {items.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Doctors · click to add pre-call notes</p>
+          <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-1">
+            {items.slice(0, 10).map((item) => {
+              const progress = Math.min(100, Math.round((item.visits_done / item.frequency) * 100));
+              return (
+                <div key={item.id} className="bg-white rounded-xl px-3 py-2.5 shadow-[0_1px_4px_0_rgba(0,0,0,0.04)]">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-gray-800 truncate">{item.doctor.doctor_name}</p>
+                      <p className="text-[10px] text-gray-400">{item.visits_done}/{item.frequency} visits</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-[#16a34a]" style={{ width: `${progress}%` }} />
+                      </div>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
+                        item.tier === 'A' ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : item.tier === 'B' ? 'bg-violet-50 text-violet-700 border-violet-200'
+                        : 'bg-gray-100 text-gray-500 border-gray-200'
+                      }`}>{item.tier}</span>
+                    </div>
+                  </div>
+                  <PrecallNoteEditor item={item} onSaved={handleNoteSaved} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <NavLink to="/rep-page/call-cycle"
+        className="flex items-center justify-between w-full text-xs font-semibold text-[#16a34a] hover:text-[#15803d] transition-colors">
         View full cycle <MdArrowForwardIos className="w-3 h-3" />
       </NavLink>
     </div>

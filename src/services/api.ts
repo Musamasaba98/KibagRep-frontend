@@ -82,7 +82,15 @@ export const getUnassignedUsersApi = () => api.get("/user/unassigned");
 export const searchUsersApi = (q: string) => api.get(`/user/search?q=${encodeURIComponent(q)}`);
 
 // ─── HCP Doctor List (company-scoped) ─────────────────────────────────────────
-export const getCompanyDoctorListApi = () => api.get("/doctor");
+type DoctorListParams = { q?: string; page?: number; limit?: number };
+const buildDoctorQuery = (scope: string, p?: DoctorListParams) => {
+  const qs = new URLSearchParams({ scope });
+  if (p?.q) qs.set("q", p.q);
+  if (p?.page) qs.set("page", String(p.page));
+  if (p?.limit) qs.set("limit", String(p.limit));
+  return `/doctor?${qs.toString()}`;
+};
+export const getCompanyDoctorListApi = (p?: DoctorListParams) => api.get(buildDoctorQuery("company", p));
 export const setDoctorTierApi = (doctorId: string, data: { tier: string; visit_frequency?: number; notes?: string }) =>
   api.put(`/doctor/${doctorId}/tier`, data);
 
@@ -135,7 +143,7 @@ export const changePasswordApi = (data: { current_password: string; new_password
 export const searchPharmaciesApi = (q: string) => api.get(`/pharmacy/search?q=${encodeURIComponent(q)}`);
 
 // ─── Doctor Directory & Recommendations ───────────────────────────────────────
-export const getDoctorDirectoryApi = () => api.get('/doctor');
+export const getDoctorDirectoryApi = (p?: DoctorListParams) => api.get(buildDoctorQuery("all", p));
 export const addCycleItemApi = (data: { doctor_id: string; tier?: string; frequency?: number }) => api.post('/cycle/current/items', data);
 export const removeCycleItemApi = (itemId: string) => api.delete(`/cycle/current/items/${itemId}`);
 export const recommendDoctorApi = (doctorId: string) => api.post('/doctor/recommend', { doctor_id: doctorId });
@@ -177,6 +185,32 @@ export const submitTourPlanApi = (id: string) => api.put(`/tour-plan/${id}/submi
 // ─── Daily Report (extended) ──────────────────────────────────────────────────
 export const getDailyReportActivitiesApi = (id: string) => api.get(`/daily-report/${id}/activities`);
 
+// ─── Missed / Backlog / MTD ───────────────────────────────────────────────────
+export const logMissedVisitApi = (data: { doctor_id: string; visit_status: "MISSED" | "RESCHEDULED" | "SKIPPED"; miss_reason?: string; gps_lat?: number | null; gps_lng?: number | null }) =>
+  api.post('/field-doctor/log-missed', data);
+export const getBacklogApi = () => api.get('/field-doctor/backlog');
+export const getMtdStatsApi = () => api.get('/field-doctor/mtd-stats');
+
+// ─── Pre-call notes ───────────────────────────────────────────────────────────
+export const updatePrecallNoteApi = (itemId: string, precall_note: string | null) =>
+  api.patch(`/cycle/current/items/${itemId}/precall`, { precall_note });
+
+// ─── Competitor Intelligence ──────────────────────────────────────────────────
+export const logCompetitorIntelApi = (data: unknown) => api.post('/competitor', data);
+export const getCompetitorIntelApi = (params?: { q?: string; page?: number }) => {
+  const qs = new URLSearchParams();
+  if (params?.q) qs.set('q', params.q);
+  if (params?.page) qs.set('page', String(params.page));
+  return api.get(`/competitor?${qs.toString()}`);
+};
+export const getCompetitorSummaryApi = () => api.get('/competitor/summary');
+
+// ─── E-detailing Library ──────────────────────────────────────────────────────
+export const getLibraryApi = (product_id?: string) =>
+  api.get(`/library${product_id ? '?product_id=' + product_id : ''}`);
+export const addLiteratureItemApi = (data: unknown) => api.post('/library', data);
+export const removeLiteratureItemApi = (id: string) => api.delete(`/library/${id}`);
+
 // ─── Supervisor ───────────────────────────────────────────────────────────────
 export const getTeamPerformanceApi = () => api.get('/supervisor/team-performance');
 export const getTeamMapApi = (days?: number) => api.get(`/supervisor/team-map${days ? '?days=' + days : ''}`);
@@ -185,3 +219,10 @@ export const getTeamMapApi = (days?: number) => api.get(`/supervisor/team-map${d
 export const getMyTargetApi = () => api.get('/target/my');
 export const getTeamTargetsApi = (month?: number, year?: number) => api.get(`/target/team${month && year ? '?month=' + month + '&year=' + year : ''}`);
 export const setTargetApi = (data: unknown) => api.post('/target', data);
+export const getProductTeamTargetsApi = (month: number, year: number) => api.get(`/target/product-team?month=${month}&year=${year}`);
+export const setProductTargetApi = (data: unknown) => api.post('/target/product', data);
+export const setBulkProductTargetsApi = (data: unknown) => api.post('/target/product-bulk', data);
+export const getProductPricesApi = () => api.get('/target/product-prices');
+export const updateProductPriceApi = (id: string, unit_price: number) => api.put(`/target/product-price/${id}`, { unit_price });
+export const approveProductPriceApi = (id: string) => api.put(`/target/product-price/${id}/approve`);
+export const rejectProductPriceApi = (id: string) => api.put(`/target/product-price/${id}/reject`);

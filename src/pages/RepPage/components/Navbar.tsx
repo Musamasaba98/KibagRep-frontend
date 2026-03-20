@@ -8,6 +8,7 @@ import { MdArrowBack, MdLocationOn } from "react-icons/md";
 import { FaChartPie } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleShowMenu, toggleSidebarPanel } from '../../../store/uiStateSlice';
+import SyncWidget from '../../../componets/SyncWidget/SyncWidget';
 
 // ─── GPS location hook ────────────────────────────────────────────────────────
 
@@ -90,7 +91,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="w-full sticky top-0 z-30 bg-white border-b border-gray-100 shadow-[0_1px_12px_0_rgba(0,0,0,0.05)]">
+    <div className="fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-100 shadow-[0_1px_12px_0_rgba(0,0,0,0.05)]">
 
       {/* ── Mobile header (< md) ── */}
       <div className="flex md:hidden items-center h-14 px-4">
@@ -209,6 +210,10 @@ const Navbar = () => {
           <NavIconBtn icon={FaChartPie} />
           <NavIconBtn icon={BiSolidComment} badge={3} />
           <NavIconBtn icon={BiSolidBell} badge={2} />
+
+          <div className="w-px h-6 bg-gray-200 mx-2" />
+
+          <SyncWidget />
 
           <div className="w-px h-6 bg-gray-200 mx-2" />
 

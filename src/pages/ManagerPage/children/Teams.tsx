@@ -9,7 +9,7 @@ interface User {
   firstname: string;
   lastname: string;
   role: string;
-  team_id: string | null;
+  team: { id: string; team_name: string } | null;
 }
 
 interface SupervisorCard {
@@ -44,9 +44,10 @@ const Teams = () => {
         const unassignedReps: User[] = [];
 
         reps.forEach((rep) => {
-          if (rep.team_id) {
-            if (!repsByTeam[rep.team_id]) repsByTeam[rep.team_id] = [];
-            repsByTeam[rep.team_id].push(rep);
+          const tid = rep.team?.id;
+          if (tid) {
+            if (!repsByTeam[tid]) repsByTeam[tid] = [];
+            repsByTeam[tid].push(rep);
           } else {
             unassignedReps.push(rep);
           }
@@ -54,17 +55,17 @@ const Teams = () => {
 
         const built: SupervisorCard[] = supervisors.map((sup) => ({
           supervisor: sup,
-          reps: sup.team_id ? (repsByTeam[sup.team_id] ?? []) : [],
+          reps: sup.team?.id ? (repsByTeam[sup.team.id] ?? []) : [],
         }));
 
-        // Reps whose team_id doesn't match any supervisor
+        // Reps whose team doesn't match any supervisor
         const supervisorTeamIds = new Set(
-          supervisors.map((s) => s.team_id).filter(Boolean)
+          supervisors.map((s) => s.team?.id).filter(Boolean)
         );
         const trueOrphans = [
           ...unassignedReps,
           ...reps.filter(
-            (r) => r.team_id && !supervisorTeamIds.has(r.team_id)
+            (r) => r.team?.id && !supervisorTeamIds.has(r.team.id)
           ),
         ];
 
@@ -178,7 +179,9 @@ const Teams = () => {
                   <p className="font-bold text-[#1a1a1a] text-[15px] truncate">
                     {supervisor.firstname} {supervisor.lastname}
                   </p>
-                  <p className="text-xs text-[#16a34a] font-semibold mt-0.5">Supervisor</p>
+                  <p className="text-xs text-[#16a34a] font-semibold mt-0.5">
+                    Supervisor{supervisor.team?.team_name ? ` · ${supervisor.team.team_name}` : ""}
+                  </p>
                 </div>
 
                 {/* Rep count badge */}
