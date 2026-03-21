@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import { useSelector } from "react-redux";
-import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap } from "react-icons/bi";
+import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap, BiBookOpen } from "react-icons/bi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { BsCardChecklist } from "react-icons/bs";
 import { FaUserMd, FaHistory } from "react-icons/fa";
@@ -34,18 +34,39 @@ interface DoctorActivity {
   outcome?: string;
 }
 
-// ─── Nav helpers ─────────────────────────────────────────────────────────────
+// ─── Nav item ─────────────────────────────────────────────────────────────────
 
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `cursor-pointer flex flex-col gap-1 items-center transition-opacity duration-150 ${
-    isActive ? "opacity-100" : "opacity-40 hover:opacity-70"
-  }`;
+interface NavItemProps {
+  to: string;
+  icon: React.ElementType;
+  label: string;
+  end?: boolean;
+}
 
-const iconClass = (isActive: boolean) =>
-  `w-5 h-5 ${isActive ? "text-[#16a34a]" : "text-[#454545]"}`;
-
-const labelClass = (isActive: boolean) =>
-  `text-[11px] font-semibold tracking-wide ${isActive ? "text-[#16a34a]" : "text-[#454545]"}`;
+const NavItem = ({ to, icon: Icon, label, end }: NavItemProps) => (
+  <NavLink to={to} end={end} className="block">
+    {({ isActive }) => (
+      <div
+        className={`group relative flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-150 ${
+          isActive ? "bg-[#f0fdf4]" : "hover:bg-gray-100"
+        }`}
+      >
+        <Icon
+          className={`w-[22px] h-[22px] transition-colors duration-150 ${
+            isActive ? "text-[#16a34a]" : "text-gray-400 group-hover:text-[#222f36]"
+          }`}
+        />
+        <span
+          className="pointer-events-none absolute left-12 z-[60] hidden group-hover:flex items-center bg-[#222f36] text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg whitespace-nowrap"
+          style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.18)" }}
+        >
+          {label}
+          {isActive && <span className="ml-1.5 w-1 h-1 rounded-full bg-[#16a34a] inline-block" />}
+        </span>
+      </div>
+    )}
+  </NavLink>
+);
 
 // ─── Doctor initials avatar ───────────────────────────────────────────────────
 
@@ -638,123 +659,51 @@ const Sidebar = () => {
 
   return (
     <div
-      className="hidden md:flex bg-white h-screen fixed shadow overflow-hidden"
+      className="hidden md:flex bg-white fixed shadow"
       style={{
-        width: showPanel ? 380 : 88,
+        top: 64,
+        height: 'calc(100vh - 64px)',
+        width: showPanel ? 320 : 72,
         transition: "width 250ms ease",
       }}
     >
-      {/* left nav strip */}
-      <div className="w-[88px] pt-4 pb-10 flex flex-col items-center h-full border-r border-gray-200 shrink-0 overflow-y-auto scrollbar-none">
-        <div className="flex flex-col gap-5 items-center flex-1">
-          <NavLink to="/rep-page" end>
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <BiHome className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>HOME</p>
-              </div>
-            )}
-          </NavLink>
+      {/* left nav strip — icon-only with hover tooltips */}
+      <div className="w-[72px] flex flex-col h-full border-r border-gray-200 shrink-0 bg-white">
+        {/* scrollable nav items */}
+        <div className="flex-1 overflow-y-auto scrollbar-none py-3 flex flex-col items-center gap-0.5">
+          <NavItem to="/rep-page" icon={BiHome} label="Home" end />
+          <NavItem to="/rep-page/tasks" icon={BsCardChecklist} label="Tasks" />
+          <NavItem to="/rep-page/visits" icon={FaHistory} label="Visit History" />
 
-          <NavLink to="/rep-page/tasks">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <BsCardChecklist className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>TASKS</p>
-              </div>
-            )}
-          </NavLink>
+          <div className="w-8 h-px bg-gray-100 my-1.5" />
 
-          <NavLink to="/rep-page/visits">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <FaHistory className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>VISITS</p>
-              </div>
-            )}
-          </NavLink>
+          <NavItem to="/rep-page/doctors" icon={FaUserMd} label="HCP Directory" />
+          <NavItem to="/rep-page/call-cycle" icon={MdOutlineEventRepeat} label="Call Cycle" />
+          <NavItem to="/rep-page/tour-plan" icon={BiMap} label="Tour Plan" />
 
-          <NavLink to="/rep-page/doctors">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <FaUserMd className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>DOCTORS</p>
-              </div>
-            )}
-          </NavLink>
+          <div className="w-8 h-px bg-gray-100 my-1.5" />
 
-          <NavLink to="/rep-page/call-cycle">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <MdOutlineEventRepeat className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>CYCLE</p>
-              </div>
-            )}
-          </NavLink>
+          <NavItem to="/rep-page/reports" icon={BiFileBlank} label="Reports" />
+          <NavItem to="/rep-page/expenses" icon={BiReceipt} label="Expense Claims" />
+          <NavItem to="/rep-page/calendar" icon={BiCalendar} label="Calendar" />
 
-          <NavLink to="/rep-page/tour-plan">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <BiMap className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>TOUR</p>
-              </div>
-            )}
-          </NavLink>
+          <div className="w-8 h-px bg-gray-100 my-1.5" />
 
-          <NavLink to="/rep-page/reports">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <BiFileBlank className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>REPORTS</p>
-              </div>
-            )}
-          </NavLink>
-
-          <NavLink to="/rep-page/expenses">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <BiReceipt className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>CLAIMS</p>
-              </div>
-            )}
-          </NavLink>
-
-          <NavLink to="/rep-page/calendar">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <BiCalendar className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>CALENDAR</p>
-              </div>
-            )}
-          </NavLink>
-
-          <NavLink to="/rep-page/near-me">
-            {({ isActive }) => (
-              <div className={navLinkClass({ isActive })}>
-                <FaLocationCrosshairs className={iconClass(isActive)} />
-                <p className={labelClass(isActive)}>MAP</p>
-              </div>
-            )}
-          </NavLink>
+          <NavItem to="/rep-page/near-me" icon={FaLocationCrosshairs} label="Near Me" />
+          <NavItem to="/rep-page/library" icon={BiBookOpen} label="Library" />
         </div>
 
-        <div className="w-10 border-t border-gray-200 mt-auto mb-4" />
-
-        <NavLink to="/rep-page/settings" className="mb-6">
-          {({ isActive }) => (
-            <div className={navLinkClass({ isActive })}>
-              <IoSettingsOutline className={iconClass(isActive)} />
-              <p className={labelClass(isActive)}>SETTINGS</p>
-            </div>
-          )}
-        </NavLink>
+        {/* settings — always pinned to bottom */}
+        <div className="border-t border-gray-100 py-3 flex flex-col items-center">
+          <NavItem to="/rep-page/settings" icon={IoSettingsOutline} label="Settings" />
+        </div>
       </div>
 
       {/* right column — hidden when panel is collapsed */}
       <div
         className="h-full flex flex-col overflow-hidden"
         style={{
-          width: showPanel ? "calc(380px - 88px)" : 0,
+          width: showPanel ? "calc(320px - 72px)" : 0,
           opacity: showPanel ? 1 : 0,
           transition: "width 250ms ease, opacity 200ms ease",
           pointerEvents: showPanel ? "auto" : "none",

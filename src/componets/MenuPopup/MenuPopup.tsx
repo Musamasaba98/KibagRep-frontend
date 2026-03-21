@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toggleShowMenu, toggleShowUnplanned, toggleShowNca } from "../../store/uiStateSlice";
+import { toggleShowMenu } from "../../store/uiStateSlice";
 import { logout } from "../../store/authSlice";
 import { icons } from "../../assets/assets";
 import {
   MdAddCircleOutline,
   MdOutlineBarChart,
   MdOutlineCalendarToday,
-  MdOutlineAssignment,
   MdManageSearch,
   MdOutlineAssessment,
   MdOutlineChecklist,
@@ -19,6 +18,9 @@ import {
   MdClose,
 } from "react-icons/md";
 import { FiPackage } from "react-icons/fi";
+
+const emit = (name: string, detail?: Record<string, unknown>) =>
+  window.dispatchEvent(new CustomEvent(name, { detail: detail ?? {} }));
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -103,21 +105,21 @@ const MenuPopup = ({ showMenu }: { showMenu: boolean }) => {
           label: "Add Unplanned Visit",
           iconBg: "bg-[#dcfce7]",
           iconColor: "text-[#16a34a]",
-          onClick: () => { dispatch(toggleShowUnplanned()); close(); },
+          onClick: () => { close(); emit('kibag:open-visit', { tab: 'unplanned' }); },
         },
         {
           icon: MdOutlineWarningAmber,
           label: "Log NCA",
           iconBg: "bg-amber-50",
           iconColor: "text-amber-500",
-          onClick: () => { dispatch(toggleShowNca()); close(); },
+          onClick: () => { close(); emit('kibag:open-nca'); },
         },
         {
           icon: MdOutlineBarChart,
           label: "Competitor Intelligence",
           iconBg: "bg-sky-50",
           iconColor: "text-sky-500",
-          onClick: () => { go("/rep-page/visits"); },
+          onClick: () => { close(); emit('kibag:open-intel', { tab: 'competitor' }); },
         },
       ],
     },
@@ -129,7 +131,7 @@ const MenuPopup = ({ showMenu }: { showMenu: boolean }) => {
           label: "Stock Capture",
           iconBg: "bg-orange-50",
           iconColor: "text-orange-500",
-          onClick: () => { go("/rep-page/visits"); },
+          onClick: () => { close(); emit('kibag:open-intel', { tab: 'stock' }); },
         },
         {
           icon: MdManageSearch,
@@ -145,17 +147,10 @@ const MenuPopup = ({ showMenu }: { showMenu: boolean }) => {
       items: [
         {
           icon: MdOutlineCalendarToday,
-          label: "Plan",
+          label: "Tour Plan",
           iconBg: "bg-teal-50",
           iconColor: "text-teal-500",
-          onClick: () => { go("/rep-page/call-cycle"); },
-        },
-        {
-          icon: MdOutlineAssignment,
-          label: "Survey",
-          iconBg: "bg-purple-50",
-          iconColor: "text-purple-500",
-          onClick: () => { go("/rep-page/calendar"); },
+          onClick: () => { go("/rep-page/tour-plan"); },
         },
       ],
     },

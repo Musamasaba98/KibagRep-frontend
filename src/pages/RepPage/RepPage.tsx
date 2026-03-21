@@ -68,7 +68,7 @@ const RepPage = () => {
           <div
             className="w-full p-4 md:p-7"
             style={{
-              marginLeft: isMobile ? 0 : (showSidebarPanel ? 380 : 88),
+              marginLeft: isMobile ? 0 : (showSidebarPanel ? 320 : 72),
               paddingBottom: isMobile ? 96 : undefined,
               transition: isMobile ? undefined : 'margin-left 250ms ease',
             }}
