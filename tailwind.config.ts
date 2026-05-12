@@ -5,6 +5,12 @@ export default {
     extend: {
      colors:{
       primary:"#2563eb",
+     },
+     fontFamily:{
+      'poppins':["poppins","sans-serif"],
+      'poppins-semibold':["poppins-semibold","sans-serif"],
+      'poppins-bold':["poppins-bold","sans-serif"],
+      'poppins-extrabold':["poppins-extrabold","sans-serif"],
      }
     },
   },
