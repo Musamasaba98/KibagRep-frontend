@@ -74,6 +74,7 @@ const Reps = () => {
                     <span className="text-[#16a34a] font-black text-xs">
                       {rep.name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase()}
                     </span>
+                    
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[#1a1a1a] text-sm truncate">{rep.name}</p>

@@ -620,7 +620,7 @@ const Dashboard = () => {
               <p className="text-xs text-gray-400">Monthly call plans awaiting approval</p>
             </div>
             <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-violet-100 text-violet-600">
-              {pendingCycles.length}
+              {pendingCycles?.length}
             </span>
           </div>
           <div className="flex flex-col divide-y divide-violet-50">
@@ -629,7 +629,7 @@ const Dashboard = () => {
               const isCycleExpanded = expandedCycle === c.id;
               const monthLabel = format(new Date(c.year, c.month - 1), "MMMM yyyy");
               const tierCounts = { A: 0, B: 0, C: 0 };
-              c.items.forEach((i) => { if (i.tier in tierCounts) tierCounts[i.tier as keyof typeof tierCounts]++; });
+              c.items?.forEach((i) => { if (i.tier in tierCounts) tierCounts[i.tier as keyof typeof tierCounts]++; });
               return (
                 <div key={c.id} className="px-6 py-4">
                   <div className="flex items-start justify-between gap-4">
@@ -644,7 +644,7 @@ const Dashboard = () => {
                           {c.user.firstname} {c.user.lastname}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
-                          {monthLabel} · {c.items.length} doctors
+                          {monthLabel} · {c.items?.length} doctors
                           {tierCounts.A > 0 && <span className="ml-1.5 font-semibold text-[#16a34a]">A×{tierCounts.A}</span>}
                           {tierCounts.B > 0 && <span className="ml-1 font-semibold text-amber-500">B×{tierCounts.B}</span>}
                           {tierCounts.C > 0 && <span className="ml-1 font-semibold text-gray-400">C×{tierCounts.C}</span>}
