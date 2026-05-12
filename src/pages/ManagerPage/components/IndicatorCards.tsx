@@ -2,40 +2,56 @@ import { useEffect, useState } from "react";
 import { FaUserGroup } from "react-icons/fa6";
 import { LuClipboardCheck, LuTrendingUp } from "react-icons/lu";
 import { BsGraphUp } from "react-icons/bs";
-import { getCompanyFeedApi, getPendingReportsApi } from "../../../services/api";
-
-interface KpiCard {
-  label: string;
-  value: string | number;
-  sub: string;
-  icon: React.ElementType;
-  gradient: string;
-  shadow: string;
-}
+import {
+  getCompanyFeedApi,
+  getPendingReportsApi,
+  getCompanyUsersApi,
+  getTeamPerformanceApi,
+} from "../../../services/api";
 
 const IndicatorCards = () => {
   const [feedCount, setFeedCount] = useState<number | null>(null);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
+  const [supervisorCount, setSupervisorCount] = useState<number | null>(null);
+  const [avgAdherence, setAvgAdherence] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.allSettled([
       getCompanyFeedApi({ days: 1 }),
       getPendingReportsApi(),
-    ]).then(([feedRes, reportsRes]) => {
+      getCompanyUsersApi(),
+      getTeamPerformanceApi(),
+    ]).then(([feedRes, reportsRes, usersRes, perfRes]) => {
       if (feedRes.status === "fulfilled") {
-        const data = feedRes.value.data?.data;
-        setFeedCount(Array.isArray(data) ? data.length : 0);
+        const summary: any[] = feedRes.value.data?.summary ?? [];
+        const totalVisits = summary.reduce((s: number, u: any) => s + (u.visits ?? 0), 0);
+        setFeedCount(totalVisits);
       }
       if (reportsRes.status === "fulfilled") {
         const data = reportsRes.value.data?.data;
         setPendingCount(Array.isArray(data) ? data.length : 0);
       }
+      if (usersRes.status === "fulfilled") {
+        const users: any[] = usersRes.value.data?.data ?? usersRes.value.data ?? [];
+        setSupervisorCount(users.filter((u) => u.role === "Supervisor").length);
+      }
+      if (perfRes.status === "fulfilled") {
+        const reps: any[] = perfRes.value.data?.data ?? [];
+        const values = reps
+          .map((r) => r.cycle_adherence_pct)
+          .filter((v): v is number => v != null);
+        setAvgAdherence(
+          values.length > 0
+            ? Math.round(values.reduce((s, v) => s + v, 0) / values.length)
+            : null
+        );
+      }
       setLoading(false);
     });
   }, []);
 
-  const cards: KpiCard[] = [
+  const cards = [
     {
       label: "Team Visits Today",
       value: loading ? "—" : feedCount ?? 0,
@@ -49,16 +65,18 @@ const IndicatorCards = () => {
       value: loading ? "—" : pendingCount ?? 0,
       sub: "Awaiting your approval",
       icon: LuClipboardCheck,
-      gradient: pendingCount != null && pendingCount > 0
-        ? "from-orange-500 to-red-500"
-        : "from-gray-400 to-gray-500",
-      shadow: pendingCount != null && pendingCount > 0
-        ? "shadow-orange-100"
-        : "shadow-gray-100",
+      gradient:
+        pendingCount != null && pendingCount > 0
+          ? "from-orange-500 to-red-500"
+          : "from-gray-400 to-gray-500",
+      shadow:
+        pendingCount != null && pendingCount > 0
+          ? "shadow-orange-100"
+          : "shadow-gray-100",
     },
     {
       label: "Active Supervisors",
-      value: "—",
+      value: loading ? "—" : supervisorCount ?? 0,
       sub: "Reporting to you",
       icon: FaUserGroup,
       gradient: "from-violet-500 to-violet-600",
@@ -66,11 +84,19 @@ const IndicatorCards = () => {
     },
     {
       label: "Cycle Adherence",
-      value: "—",
+      value: loading ? "—" : avgAdherence != null ? `${avgAdherence}%` : "N/A",
       sub: "Team average this month",
       icon: BsGraphUp,
-      gradient: "from-sky-500 to-sky-600",
-      shadow: "shadow-sky-100",
+      gradient:
+        avgAdherence != null && avgAdherence >= 70
+          ? "from-sky-500 to-sky-600"
+          : avgAdherence != null && avgAdherence >= 50
+          ? "from-amber-500 to-amber-600"
+          : "from-gray-400 to-gray-500",
+      shadow:
+        avgAdherence != null && avgAdherence >= 70
+          ? "shadow-sky-100"
+          : "shadow-gray-100",
     },
   ];
 

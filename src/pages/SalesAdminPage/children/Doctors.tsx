@@ -44,12 +44,12 @@ const Doctors = () => {
     finally { setSaving(null); }
   };
 
-  const filtered = q.length >= 2
-    ? doctors.filter(d => d.doctor_name.toLowerCase().includes(q.toLowerCase()) || d.town?.toLowerCase().includes(q.toLowerCase()))
-    : doctors;
+  const filtered = (q.length >= 2
+    ? doctors.filter(d => (d.doctor_name ?? "").toLowerCase().includes(q.toLowerCase()) || d.town?.toLowerCase().includes(q.toLowerCase()))
+    : doctors).filter(d => d.doctor_name?.trim());
 
   const tierCounts = { A: 0, B: 0, C: 0, none: 0 };
-  for (const d of doctors) {
+  for (const d of doctors.filter(d => d.doctor_name?.trim())) {
     const t = d.company_tier?.tier;
     if (t === "A" || t === "B" || t === "C") tierCounts[t]++;
     else tierCounts.none++;
@@ -92,10 +92,10 @@ const Doctors = () => {
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {filtered.map(d => {
+            {filtered.map((d, i) => {
               const tier = d.company_tier?.tier;
               return (
-                <div key={d.id} className="flex items-center gap-3 px-4 sm:px-5 py-3.5 hover:bg-gray-50/50">
+                <div key={d.id || String(i)} className="flex items-center gap-3 px-4 sm:px-5 py-3.5 hover:bg-gray-50/50">
                   <div className="w-8 h-8 rounded-full bg-[#16a34a]/10 flex items-center justify-center shrink-0">
                     <FaUserDoctor className="w-3.5 h-3.5 text-[#16a34a]" />
                   </div>
@@ -108,12 +108,12 @@ const Doctors = () => {
                   {/* Tier selector */}
                   <div className="flex gap-1 shrink-0">
                     {(["A","B","C"] as Tier[]).map(t => (
-                      <button key={t} disabled={saving === d.id}
+                      <button key={t} disabled={saving === d.id || !d.id}
                         onClick={() => handleTier(d.id, t)}
                         className={`w-8 h-8 rounded-lg text-xs font-black border focus-visible:outline-none disabled:opacity-50 ${
                           tier === t ? TIER_COLOR[t] : "bg-white text-gray-300 border-gray-200 hover:border-gray-400 hover:text-gray-600"
                         }`}
-                        style={{ transition: "all 0.1s" }}>
+                        style={{ transition: "background-color 0.1s, color 0.1s, border-color 0.1s" }}>
                         {t}
                       </button>
                     ))}

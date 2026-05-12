@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { LuPencil, LuCheck, LuX } from "react-icons/lu";
 import { TbChartBar } from "react-icons/tb";
 import { IoWarningOutline } from "react-icons/io5";
-import { getTeamPerformanceApi, getTeamTargetsApi, setTargetApi } from "../../../services/api";
+import { MdCampaign } from "react-icons/md";
+import { getTeamPerformanceApi, getTeamTargetsApi, setTargetApi, getCompanyFeedApi } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface RepPerf {
@@ -185,6 +186,101 @@ const TargetRowEdit = ({
   );
 };
 
+// ─── Campaign detailing types ─────────────────────────────────────────────────
+interface ProductDetailingRow {
+  product_name: string;
+  rep_ids: Set<string>;
+  detail_count: number;
+}
+
+// ─── Campaign Detailing Section ───────────────────────────────────────────────
+const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
+  const [rows, setRows] = useState<{ product_name: string; rep_count: number; detail_count: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getCompanyFeedApi({ days: 7 })
+      .then((res) => {
+        const summary: any[] = res.data?.summary ?? [];
+        const map = new Map<string, ProductDetailingRow>();
+
+        summary.forEach((s) => {
+          const userId: string = s.user?.id;
+          const activities: any[] = s.activities ?? [];
+          activities.forEach((a) => {
+            const name: string = a.focused_product?.product_name ?? "Unknown Product";
+            if (!map.has(name)) {
+              map.set(name, { product_name: name, rep_ids: new Set(), detail_count: 0 });
+            }
+            const row = map.get(name)!;
+            row.rep_ids.add(userId);
+            row.detail_count += 1;
+          });
+        });
+
+        const sorted = Array.from(map.values())
+          .filter((r) => r.product_name !== "Unknown Product")
+          .sort((a, b) => b.rep_ids.size - a.rep_ids.size)
+          .map((r) => ({ product_name: r.product_name, rep_count: r.rep_ids.size, detail_count: r.detail_count }));
+
+        setRows(sorted);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const total = Math.max(totalReps, 1);
+
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-4">
+        <h2 className="text-base font-bold text-[#1a1a1a]">Campaign Detailing Coverage</h2>
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">Last 7 days</span>
+      </div>
+
+      {loading ? (
+        <div className="py-12 flex justify-center">
+          <div className="w-8 h-8 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="py-12 text-center text-gray-400 bg-white rounded-2xl border border-gray-100">
+          <MdCampaign className="w-10 h-10 mx-auto mb-2 opacity-30" />
+          <p className="text-sm">No detailing activity recorded in the last 7 days</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] divide-y divide-gray-50">
+          {rows.map(({ product_name, rep_count, detail_count }) => {
+            const pct = Math.round((rep_count / total) * 100);
+            const barColor = pct >= 80 ? "#16a34a" : pct >= 50 ? "#f59e0b" : "#ef4444";
+            return (
+              <div key={product_name} className="px-5 py-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-[#1a1a1a] truncate flex-1 mr-4">{product_name}</p>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs text-gray-400">{detail_count} detailing{detail_count !== 1 ? "s" : ""}</span>
+                    <span className="text-sm font-bold" style={{ color: barColor }}>
+                      {rep_count}/{total} reps
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${pct}%`, backgroundColor: barColor, transition: "width 0.4s ease" }}
+                    />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-500 w-9 text-right">{pct}%</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+};
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 const Analysis = () => {
   const [perf, setPerf] = useState<RepPerf[]>([]);
@@ -257,7 +353,10 @@ const Analysis = () => {
         )}
       </section>
 
-      {/* ── Section 2: Sales Targets ── */}
+      {/* ── Section 2: Campaign Detailing Coverage ── */}
+      <CampaignDetailingSection totalReps={perf.length} />
+
+      {/* ── Section 3: Sales Targets ── */}
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-bold text-[#1a1a1a]">

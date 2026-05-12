@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { LuTrendingUp, LuClipboardList, LuMapPin, LuTriangleAlert } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
+import { LuTrendingUp, LuClipboardList, LuMapPin, LuTriangleAlert, LuChevronRight } from "react-icons/lu";
 import { BsGraphUp } from "react-icons/bs";
 import { getTeamPerformanceApi } from "../../../services/api";
 
@@ -32,6 +33,7 @@ const cycleBg = (pct: number | null): string => {
 };
 
 const Analytics = () => {
+  const navigate = useNavigate();
   const [reps, setReps] = useState<RepPerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -194,7 +196,8 @@ const Analytics = () => {
                 <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Week</th>
                 <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Cycle %</th>
                 <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">GPS Flags</th>
-                <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-6 py-3">Pending</th>
+                <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Pending</th>
+                <th className="w-8 pr-4" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -204,7 +207,8 @@ const Analytics = () => {
                 return (
                   <tr
                     key={rep.user.id}
-                    className="hover:bg-gray-50/60"
+                    onClick={() => navigate(`/manager/reps/${rep.user.id}`)}
+                    className="hover:bg-gray-50/60 cursor-pointer"
                     style={{ transition: "background-color 0.15s" }}
                   >
                     <td className="px-6 py-4 text-sm font-bold text-gray-400">{idx + 1}</td>
@@ -247,7 +251,7 @@ const Analytics = () => {
                         {rep.gps_anomaly_count_week ?? 0}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-4 text-right">
                       <span
                         className={`text-sm font-semibold ${
                           (rep.pending_reports ?? 0) > 0 ? "text-amber-500" : "text-gray-400"
@@ -255,6 +259,9 @@ const Analytics = () => {
                       >
                         {rep.pending_reports ?? 0}
                       </span>
+                    </td>
+                    <td className="pr-4 py-4 text-right">
+                      <LuChevronRight className="w-4 h-4 text-gray-300 ml-auto" />
                     </td>
                   </tr>
                 );

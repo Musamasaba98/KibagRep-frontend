@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaHouse, FaUserGroup } from "react-icons/fa6";
@@ -10,22 +11,25 @@ import { LuChartNoAxesCombined, LuStethoscope } from "react-icons/lu";
 import { GrTask } from "react-icons/gr";
 import { FiMapPin } from "react-icons/fi";
 import { logout } from "../../../store/authSlice";
-
-const NAV_LINKS = [
-  { to: "/manager",            end: true, icon: FaHouse,                       label: "Dashboard"     },
-  { to: "/manager/teams",                 icon: FaUserGroup,                   label: "My Teams"      },
-  { to: "/manager/tasks",                 icon: GrTask,                        label: "Tasks"         },
-  { to: "/manager/doctors",               icon: LuStethoscope,                 label: "HCP Directory" },
-  { to: "/manager/reports",               icon: TbReport,                      label: "Reports"       },
-  { to: "/manager/analytics",             icon: LuChartNoAxesCombined,         label: "Analytics"     },
-  { to: "/manager/messaging",             icon: IoChatbubbleEllipsesOutline,   label: "Messaging"     },
-  { to: "/manager/calendar",              icon: IoCalendarOutline,             label: "Calendar"      },
-  { to: "/manager/territories",           icon: FiMapPin,                      label: "Territories"   },
-];
+import { getPendingReportsApi, getPendingExpenseClaimsApi } from "../../../services/api";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    Promise.allSettled([
+      getPendingReportsApi(),
+      getPendingExpenseClaimsApi(),
+    ]).then(([reports, expenses]) => {
+      let total = 0;
+      if (reports.status === "fulfilled") total += (reports.value.data?.data ?? []).length;
+      if (expenses.status === "fulfilled") total += (expenses.value.data?.data ?? []).length;
+      setPendingCount(total);
+    });
+  }, []);
+
   const handleLogout = () => { dispatch(logout()); navigate("/login"); };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -34,6 +38,18 @@ const Sidebar = () => {
         ? "bg-[#f0fdf4] text-[#16a34a] font-semibold"
         : "text-[#444] hover:bg-gray-50 hover:text-[#16a34a]"
     }`;
+
+  const navLinks = [
+    { to: "/manager",             end: true,  icon: FaHouse,                     label: "Dashboard"     },
+    { to: "/manager/teams",                   icon: FaUserGroup,                 label: "My Teams"      },
+    { to: "/manager/tasks",                   icon: GrTask,                      label: "Tasks"         },
+    { to: "/manager/doctors",                 icon: LuStethoscope,               label: "HCP Directory" },
+    { to: "/manager/reports",                 icon: TbReport,                    label: "Reports",       showBadge: true },
+    { to: "/manager/analytics",               icon: LuChartNoAxesCombined,       label: "Analytics"     },
+    { to: "/manager/messaging",               icon: IoChatbubbleEllipsesOutline, label: "Messaging"     },
+    { to: "/manager/calendar",                icon: IoCalendarOutline,           label: "Calendar"      },
+    { to: "/manager/territories",             icon: FiMapPin,                    label: "Territories"   },
+  ];
 
   return (
     <div className="bg-white border-r border-gray-100 flex-none w-64 h-screen fixed flex flex-col shadow-[1px_0_12px_0_rgba(0,0,0,0.04)]">
@@ -45,24 +61,44 @@ const Sidebar = () => {
           <p className="text-xs text-gray-400 leading-none mt-0.5 font-medium">Manager Dashboard</p>
         </div>
       </div>
+
       <nav className="flex-1 py-5 flex flex-col gap-1 overflow-y-auto">
-        {NAV_LINKS.map(({ to, end, icon: Icon, label }) => (
+        {navLinks.map(({ to, end, icon: Icon, label, showBadge }) => (
           <NavLink key={to} to={to} end={end} className={navLinkClass}>
-            <Icon className="w-[18px] h-[18px] shrink-0" />
-            <span className="text-[15px]">{label}</span>
+            {({ isActive }) => (
+              <>
+                <Icon className="w-[18px] h-[18px] shrink-0" />
+                <span className="text-[15px] flex-1">{label}</span>
+                {showBadge && !isActive && pendingCount !== null && pendingCount > 0 && (
+                  <span className="min-w-[20px] h-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                    {pendingCount > 99 ? "99+" : pendingCount}
+                  </span>
+                )}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
+
       <div className="border-t border-gray-100 py-4 flex flex-col gap-1 shrink-0">
         <button
-          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left"
+          onClick={() => navigate("/manager/reports")}
+          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           style={{ transition: "background-color 0.15s, color 0.15s" }}
         >
-          <BsBell className="w-[18px] h-[18px] shrink-0" />
-          <span className="text-[15px]">Notifications</span>
+          <div className="relative flex-shrink-0">
+            <BsBell className="w-[18px] h-[18px]" />
+            {pendingCount !== null && pendingCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-orange-500 border-2 border-white" />
+            )}
+          </div>
+          <span className="text-[15px] flex-1">Notifications</span>
+          {pendingCount !== null && pendingCount > 0 && (
+            <span className="text-xs font-semibold text-orange-500">{pendingCount}</span>
+          )}
         </button>
         <button
-          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left"
+          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           style={{ transition: "background-color 0.15s, color 0.15s" }}
         >
           <GoGear className="w-[18px] h-[18px] shrink-0" />
@@ -70,7 +106,7 @@ const Sidebar = () => {
         </button>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-red-50 hover:text-red-600 w-full text-left"
+          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-red-50 hover:text-red-600 w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
           style={{ transition: "background-color 0.15s, color 0.15s" }}
         >
           <SlLogout className="w-[18px] h-[18px] shrink-0" />

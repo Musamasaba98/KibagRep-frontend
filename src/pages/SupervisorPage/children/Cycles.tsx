@@ -4,6 +4,29 @@ import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 import { format } from "date-fns";
 import { getPendingCyclesApi, approveCycleApi, rejectCycleApi } from "../../../services/api";
 
+const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("");
+  if (!open) return (
+    <button onClick={() => setOpen(true)}
+      className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+      style={{ transition: "background-color 0.15s" }}>
+      <FiXCircle className="w-3.5 h-3.5" /> Reject
+    </button>
+  );
+  return (
+    <div className="flex items-center gap-2">
+      <input autoFocus type="text" value={note} onChange={e => setNote(e.target.value)}
+        placeholder="Reason…"
+        className="flex-1 text-xs border border-red-300 rounded-lg px-2.5 py-1.5 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200 min-w-[120px]" />
+      <button onClick={() => { if (note.trim()) onConfirm(note.trim()); }}
+        className="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-600 text-white hover:bg-red-700"
+        style={{ transition: "opacity 0.15s" }}>Send</button>
+      <button onClick={() => setOpen(false)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+    </div>
+  );
+};
+
 interface PendingCycle {
   id: string;
   month: number;
@@ -40,9 +63,7 @@ const Cycles = () => {
     }
   };
 
-  const handleReject = async (id: string) => {
-    const note = window.prompt("Reason for rejection:");
-    if (!note) return;
+  const handleReject = async (id: string, note: string) => {
     setActioning(id);
     try {
       await rejectCycleApi(id, note);
@@ -113,13 +134,7 @@ const Cycles = () => {
                             <FiCheckCircle className="w-3.5 h-3.5" />
                             Approve
                           </button>
-                          <button
-                            onClick={() => handleReject(cycle.id)}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
-                          >
-                            <FiXCircle className="w-3.5 h-3.5" />
-                            Reject
-                          </button>
+                          <RejectInput onConfirm={(note) => handleReject(cycle.id, note)} />
                         </>
                       )}
                     </div>

@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { FaUserPlus, FaUsers, FaEllipsisVertical, FaTrash } from "react-icons/fa6";
-import { getCompanyUsersApi, getCompanyTeamsApi, createCompanyTeamApi, updateCompanyUserApi, removeUserFromCompanyApi } from "../../../services/api";
+import { FaUserPlus, FaUsers, FaEllipsisVertical, FaTrash, FaXmark, FaEnvelope, FaPhone, FaCalendarDays } from "react-icons/fa6";
+import { format } from "date-fns";
+import {
+  getCompanyUsersApi, getCompanyTeamsApi, createCompanyTeamApi,
+  updateCompanyUserApi, removeUserFromCompanyApi,
+} from "../../../services/api";
 import AddUserModal from "../../../componets/AddUserModal/AddUserModal";
 
 interface CompanyUser {
@@ -23,18 +27,168 @@ const ROLE_COLOR: Record<string, string> = {
   Supervisor: "bg-teal-100 text-teal-700", MedicalRep: "bg-green-100 text-[#16a34a]",
   USER: "bg-gray-100 text-gray-500",
 };
+const ROLE_OPTIONS = [
+  { value: "MedicalRep",  label: "Medical Rep" },
+  { value: "Supervisor",  label: "Supervisor" },
+  { value: "Manager",     label: "Manager" },
+  { value: "COUNTRY_MGR", label: "Country Manager" },
+  { value: "SALES_ADMIN", label: "Company Admin" },
+];
+
+// ── Profile Drawer ─────────────────────────────────────────────────────────
+
+const ProfileDrawer = ({
+  user, teams, onClose, onRemove, onRoleChange, onTeamChange,
+}: {
+  user: CompanyUser;
+  teams: Team[];
+  onClose: () => void;
+  onRemove: (id: string) => void;
+  onRoleChange: (id: string, role: string) => Promise<void>;
+  onTeamChange: (id: string, teamId: string) => Promise<void>;
+}) => {
+  const [roleVal, setRoleVal]   = useState(user.role);
+  const [teamVal, setTeamVal]   = useState(user.team?.id ?? "");
+  const [saving, setSaving]     = useState(false);
+
+  const initials = `${user.firstname[0] ?? ""}${user.lastname[0] ?? ""}`.toUpperCase();
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      if (roleVal !== user.role) await onRoleChange(user.id, roleVal);
+      if (teamVal !== (user.team?.id ?? "")) await onTeamChange(user.id, teamVal);
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <>
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 z-40 bg-black/30"
+        onClick={onClose}
+        style={{ backdropFilter: "blur(1px)" }}
+      />
+      {/* Drawer */}
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-sm bg-white shadow-[−4px_0_32px_0_rgba(0,0,0,0.15)] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <h2 className="font-black text-[#1a2530] text-base">Employee Profile</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
+            style={{ transition: "background-color 0.15s" }}
+          >
+            <FaXmark className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-5">
+          {/* Avatar + name */}
+          <div className="flex flex-col items-center gap-3 py-2">
+            <div className="w-16 h-16 rounded-2xl bg-[#16a34a]/10 border-2 border-[#16a34a]/20 flex items-center justify-center">
+              <span className="text-[#16a34a] font-black text-xl">{initials}</span>
+            </div>
+            <div className="text-center">
+              <p className="font-black text-[#1a2530] text-lg leading-tight">{user.firstname} {user.lastname}</p>
+              <p className="text-gray-400 text-sm">@{user.username}</p>
+              <span className={`inline-block mt-2 text-[10px] font-bold px-2.5 py-1 rounded-full ${ROLE_COLOR[user.role] ?? "bg-gray-100 text-gray-500"}`}>
+                {ROLE_LABEL[user.role] ?? user.role}
+              </span>
+            </div>
+          </div>
+
+          {/* Contact details */}
+          <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <FaEnvelope className="w-4 h-4 text-gray-400 shrink-0" />
+              <span className="text-sm text-gray-700 break-all">{user.email}</span>
+            </div>
+            {user.contact && (
+              <div className="flex items-center gap-3">
+                <FaPhone className="w-4 h-4 text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-700">{user.contact}</span>
+              </div>
+            )}
+            {user.date_of_joining && (
+              <div className="flex items-center gap-3">
+                <FaCalendarDays className="w-4 h-4 text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-700">
+                  Joined {format(new Date(user.date_of_joining), "dd MMM yyyy")}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Role change */}
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Role</label>
+            <select
+              value={roleVal}
+              onChange={(e) => setRoleVal(e.target.value)}
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
+            >
+              {ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+
+          {/* Team assignment */}
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Team</label>
+            <select
+              value={teamVal}
+              onChange={(e) => setTeamVal(e.target.value)}
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
+            >
+              <option value="">No team</option>
+              {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* Footer actions */}
+        <div className="px-5 py-4 border-t border-gray-100 flex flex-col gap-2">
+          <button
+            onClick={handleSave}
+            disabled={saving || (roleVal === user.role && teamVal === (user.team?.id ?? ""))}
+            className="w-full py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            style={{ transition: "background-color 0.15s" }}
+          >
+            {saving ? "Saving…" : "Save Changes"}
+          </button>
+          <button
+            onClick={() => { onRemove(user.id); onClose(); }}
+            className="w-full py-2.5 rounded-xl border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            style={{ transition: "background-color 0.15s" }}
+          >
+            <span className="flex items-center justify-center gap-2">
+              <FaTrash className="w-3 h-3" /> Remove from Company
+            </span>
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ── Main component ─────────────────────────────────────────────────────────
 
 const Users = () => {
   const actorRole = useSelector((s: any) => s.auth?.user?.role ?? "SALES_ADMIN");
-  const [users, setUsers]         = useState<CompanyUser[]>([]);
-  const [teams, setTeams]         = useState<Team[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [showAdd, setShowAdd]     = useState(false);
+  const [users, setUsers]           = useState<CompanyUser[]>([]);
+  const [teams, setTeams]           = useState<Team[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [showAdd, setShowAdd]       = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [newTeamName, setNewTeamName]     = useState("");
   const [teamSaving, setTeamSaving]       = useState(false);
-  const [menuOpen, setMenuOpen]   = useState<string | null>(null);
-  const [error, setError]         = useState("");
+  const [menuOpen, setMenuOpen]     = useState<string | null>(null);
+  const [drawerUser, setDrawerUser] = useState<CompanyUser | null>(null);
+  const [error, setError]           = useState("");
 
   const load = () => {
     setLoading(true);
@@ -57,7 +211,12 @@ const Users = () => {
     catch { alert("Failed to update team"); }
   };
 
-  const handleCreateTeam = async (e: React.FormEvent) => {
+  const handleRoleChange = async (userId: string, role: string) => {
+    try { await updateCompanyUserApi(userId, { role }); load(); }
+    catch { alert("Failed to update role"); }
+  };
+
+  const handleCreateTeam = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!newTeamName.trim()) return;
     setTeamSaving(true);
@@ -85,7 +244,8 @@ const Users = () => {
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setShowTeamModal(true)}
-            className="flex items-center gap-2 border border-gray-200 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]">
+            className="flex items-center gap-2 border border-gray-200 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
+            style={{ transition: "background-color 0.15s" }}>
             + New Team
           </button>
           <button onClick={() => setShowAdd(true)}
@@ -133,26 +293,23 @@ const Users = () => {
               </div>
               <div className="divide-y divide-gray-50">
                 {list.map((u) => (
-                  <div key={u.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50/50">
+                  <div
+                    key={u.id}
+                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50/50 cursor-pointer"
+                    onClick={() => setDrawerUser(u)}
+                  >
                     <div className="w-9 h-9 rounded-full bg-[#16a34a]/10 flex items-center justify-center shrink-0">
                       <span className="text-[#16a34a] font-black text-xs">{u.firstname[0]}{u.lastname[0]}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-[#1a2530] truncate">{u.firstname} {u.lastname}</p>
-                      <p className="text-xs text-gray-400 truncate">@{u.username} · {u.email}</p>
+                      <p className="text-xs text-gray-400 truncate">@{u.username} · {u.team?.team_name ?? "No team"}</p>
                     </div>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${ROLE_COLOR[u.role] ?? "bg-gray-100 text-gray-500"}`}>
                       {ROLE_LABEL[u.role] ?? u.role}
                     </span>
-                    {/* Team assign */}
-                    <select value={u.team?.id ?? ""}
-                      onChange={(e) => handleTeamChange(u.id, e.target.value)}
-                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-[#16a34a] bg-white text-gray-600 shrink-0 hidden sm:block">
-                      <option value="">No team</option>
-                      {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
-                    </select>
-                    {/* Menu */}
-                    <div className="relative shrink-0">
+                    {/* Overflow menu (stops propagation so it doesn't open drawer) */}
+                    <div className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
                       <button onClick={() => setMenuOpen(menuOpen === u.id ? null : u.id)}
                         className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]">
                         <FaEllipsisVertical className="w-3.5 h-3.5" />
@@ -161,6 +318,10 @@ const Users = () => {
                         <>
                           <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(null)} />
                           <div className="absolute right-0 top-8 z-20 bg-white border border-gray-100 rounded-xl shadow-[0_4px_16px_0_rgba(0,0,0,0.1)] py-1 min-w-[140px]">
+                            <button onClick={() => { setDrawerUser(u); setMenuOpen(null); }}
+                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus-visible:outline-none">
+                              View Profile
+                            </button>
                             <button onClick={() => { handleRemove(u.id); setMenuOpen(null); }}
                               className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus-visible:outline-none">
                               <FaTrash className="w-3 h-3" />Remove
@@ -175,6 +336,18 @@ const Users = () => {
             </div>
           );
         })
+      )}
+
+      {/* Profile drawer */}
+      {drawerUser && (
+        <ProfileDrawer
+          user={drawerUser}
+          teams={teams}
+          onClose={() => setDrawerUser(null)}
+          onRemove={(id) => { handleRemove(id); setDrawerUser(null); }}
+          onRoleChange={handleRoleChange}
+          onTeamChange={handleTeamChange}
+        />
       )}
 
       {showAdd && (

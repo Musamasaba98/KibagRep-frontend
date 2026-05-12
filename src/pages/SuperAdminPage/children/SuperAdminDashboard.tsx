@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaBuilding, FaUsers, FaStethoscope, FaUserSlash, FaUserPlus } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-import { getPlatformStatsApi, getUnassignedUsersApi, addUserToCompanyApi, getAllCompaniesApi } from "../../../services/api";
+import { getPlatformStatsApi, getUnassignedUsersApi, getAllCompaniesApi } from "../../../services/api";
 import AddUserModal from "../../../componets/AddUserModal/AddUserModal";
 
 interface Stats { companies: number; totalUsers: number; totalReps: number; unassigned: number; }
@@ -40,18 +40,15 @@ const SuperAdminDashboard = () => {
 
   const load = () => {
     setLoading(true);
-    Promise.all([
+    Promise.allSettled([
       getPlatformStatsApi(),
       getUnassignedUsersApi(),
       getAllCompaniesApi(),
-    ])
-      .then(([s, u, c]) => {
-        setStats(s.data.data);
-        setUnassigned(u.data.data ?? []);
-        setCompanies(c.data.data ?? []);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    ]).then(([s, u, c]) => {
+      if (s.status === "fulfilled") setStats(s.value.data.data);
+      if (u.status === "fulfilled") setUnassigned(u.value.data.data ?? []);
+      if (c.status === "fulfilled") setCompanies(c.value.data.data ?? []);
+    }).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);

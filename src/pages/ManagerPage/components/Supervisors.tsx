@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { BiSearch } from "react-icons/bi";
 import { LuTrendingUp, LuTrendingDown } from "react-icons/lu";
 import { getCompanyFeedApi } from "../../../services/api";
@@ -11,6 +12,7 @@ interface SupervisorRow {
 }
 
 const Supervisors = () => {
+  const navigate = useNavigate();
   const [supervisors, setSupervisors] = useState<SupervisorRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -87,7 +89,9 @@ const Supervisors = () => {
             return (
               <div
                 key={sup.id}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 transition-colors cursor-pointer"
+                onClick={() => navigate("/manager/teams")}
+                className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 cursor-pointer"
+                style={{ transition: "background-color 0.15s" }}
               >
                 {/* Avatar */}
                 <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center shrink-0">

@@ -36,6 +36,7 @@ import ManagerDoctors from "./pages/ManagerPage/children/Doctors";
 import ManagerReports from "./pages/ManagerPage/children/ManagerReports";
 import ManagerAnalytics from "./pages/ManagerPage/children/Analytics";
 import ManagerCalendar from "./pages/ManagerPage/children/ManagerCalendar";
+import ManagerRepDetail from "./pages/ManagerPage/children/ManagerRepDetail";
 import TerritoryManagement from "./pages/shared/TerritoryManagement";
 
 // Supervisor
@@ -49,11 +50,16 @@ import SupervisorReports from "./pages/SupervisorPage/children/SupervisorReports
 import SupervisorDoctors from "./pages/SupervisorPage/children/Doctors";
 import SupervisorTeamMap from "./pages/SupervisorPage/children/TeamMap";
 import SupervisorAnalysis from "./pages/SupervisorPage/children/Analysis";
+import SupervisorRepDetail from "./pages/SupervisorPage/children/RepDetail";
 
 // Admin
 import AdminPage from "./pages/AdminPage/AdminPage";
 import AdminDashboard from "./pages/AdminPage/children/Dashboard";
 import AdminDoctors from "./pages/AdminPage/children/Doctors";
+import AdminCompliance from "./pages/AdminPage/children/Compliance";
+import AdminTeams from "./pages/AdminPage/children/Teams";
+import AdminExpenses from "./pages/AdminPage/children/Expenses";
+import AdminLeave from "./pages/AdminPage/children/Leave";
 
 // Country Manager
 import CountryPage from "./pages/CountryPage/CountryPage";
@@ -72,6 +78,7 @@ import SalesAdminUsers from "./pages/SalesAdminPage/children/Users";
 import SalesAdminProducts from "./pages/SalesAdminPage/children/Products";
 import SalesAdminSamples from "./pages/SalesAdminPage/children/Samples";
 import SalesAdminDoctors from "./pages/SalesAdminPage/children/Doctors";
+import SalesAdminPharmacies from "./pages/SalesAdminPage/children/Pharmacies";
 import SalesAdminFacilities from "./pages/SalesAdminPage/children/Facilities";
 import SalesAdminBulkUpload from "./pages/SalesAdminPage/children/BulkUpload";
 import SalesAdminCycles from "./pages/SalesAdminPage/children/Cycles";
@@ -140,6 +147,7 @@ const router = createBrowserRouter([
           { path: "messaging", element: <Messaging /> },
           { path: "calendar", element: <ManagerCalendar /> },
           { path: "territories", element: <TerritoryManagement /> },
+          { path: "reps/:id", element: <ManagerRepDetail /> },
         ],
       },
     ],
@@ -155,6 +163,7 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <SupervisorDashboard /> },
           { path: "reps", element: <SupervisorReps /> },
+          { path: "reps/:id", element: <SupervisorRepDetail /> },
           { path: "approvals", element: <SupervisorApprovals /> },
           { path: "cycles", element: <SupervisorCycles /> },
           { path: "map", element: <SupervisorTeamMap /> },
@@ -162,21 +171,6 @@ const router = createBrowserRouter([
           { path: "doctors", element: <SupervisorDoctors /> },
           { path: "jfw", element: <SupervisorJfw /> },
           { path: "reports", element: <SupervisorReports /> },
-        ],
-      },
-    ],
-  },
-
-  // Admin (HR)
-  {
-    element: <ProtectedRoute allowedRoles={["Supervisor", "SUPER_ADMIN"]} />,
-    children: [
-      {
-        path: "/admin",
-        element: <AdminPage />,
-        children: [
-          { index: true, element: <AdminDashboard /> },
-          { path: "doctors", element: <AdminDoctors /> },
         ],
       },
     ],
@@ -202,12 +196,12 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Sales Admin (Company Admin)
+  // Admin (Company Admin — master data + HR)
   {
     element: <ProtectedRoute allowedRoles={["SALES_ADMIN", "SUPER_ADMIN"]} />,
     children: [
       {
-        path: "/sales-admin",
+        path: "/admin",
         element: <SalesAdminPage />,
         children: [
           { index: true, element: <SalesAdminDashboard /> },
@@ -215,10 +209,15 @@ const router = createBrowserRouter([
           { path: "products", element: <SalesAdminProducts /> },
           { path: "samples", element: <SalesAdminSamples /> },
           { path: "doctors", element: <SalesAdminDoctors /> },
+          { path: "pharmacies", element: <SalesAdminPharmacies /> },
           { path: "facilities", element: <SalesAdminFacilities /> },
           { path: "upload", element: <SalesAdminBulkUpload /> },
           { path: "cycles", element: <SalesAdminCycles /> },
           { path: "reports", element: <SalesAdminReports /> },
+          { path: "compliance", element: <AdminCompliance /> },
+          { path: "teams", element: <AdminTeams /> },
+          { path: "expenses", element: <AdminExpenses /> },
+          { path: "leave", element: <AdminLeave /> },
         ],
       },
     ],

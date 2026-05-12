@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaBuilding, FaPlus, FaXmark, FaUserPlus, FaChevronDown, FaChevronUp, FaTrash } from "react-icons/fa6";
+import { FaBuilding, FaPlus, FaXmark, FaUserPlus, FaChevronDown, FaChevronUp, FaTrash, FaMagnifyingGlass } from "react-icons/fa6";
 import { getAllCompaniesApi, createCompanyApi, getCompanyUsersByIdApi, removeUserFromCompanyApi, toggleCompanyActiveApi } from "../../../services/api";
 import AddUserModal from "../../../componets/AddUserModal/AddUserModal";
 
@@ -144,6 +144,7 @@ const Companies = () => {
   const [companies, setCompanies]   = useState<Company[]>([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState("");
+  const [q, setQ]                   = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm]             = useState({ company_name: "", location: "" });
   const [saving, setSaving]         = useState(false);
@@ -185,6 +186,17 @@ const Companies = () => {
 
       {error && <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">{error}</div>}
 
+      {/* Search */}
+      <div className="relative">
+        <FaMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+        <input
+          value={q}
+          onChange={e => setQ(e.target.value)}
+          placeholder="Search companies…"
+          className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#16a34a] placeholder-gray-400"
+        />
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="w-8 h-8 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />
@@ -197,7 +209,9 @@ const Companies = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {companies.map(c => <CompanyCard key={c.id} c={c} onRefresh={load} />)}
+          {companies
+            .filter(c => !q.trim() || c.company_name.toLowerCase().includes(q.trim().toLowerCase()) || c.location?.toLowerCase().includes(q.trim().toLowerCase()))
+            .map(c => <CompanyCard key={c.id} c={c} onRefresh={load} />)}
         </div>
       )}
 
