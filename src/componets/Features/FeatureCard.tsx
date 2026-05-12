@@ -19,10 +19,10 @@ const FeatureCard = ({ major_icon, title, description, card_features }: CardProp
       </div>
 
       {/* Title */}
-      <h3 className="font-bold text-[#1a1a1a] text-[17px] leading-tight mb-2">{title}</h3>
+      <h3 className="font-poppins-bold text-[#1a1a1a] text-[17px] leading-tight mb-2">{title}</h3>
 
       {/* Description */}
-      <p className="text-gray-500 text-sm leading-relaxed mb-4 flex-1">{description}</p>
+      <p className="text-gray-500 font-poppins text-sm leading-relaxed mb-4 flex-1">{description}</p>
 
       {/* Feature tags */}
       <div className="flex flex-col gap-2.5 mt-auto">
@@ -31,7 +31,7 @@ const FeatureCard = ({ major_icon, title, description, card_features }: CardProp
             <div className="w-5 h-5 rounded-full bg-[#dcfce7] flex items-center justify-center shrink-0">
               <BiCheck className="text-[#16a34a] w-3.5 h-3.5" />
             </div>
-            <p className="text-sm text-gray-600 font-medium">{item}</p>
+            <p className="text-sm text-gray-600 font-poppins-semibold">{item}</p>
           </div>
         ))}
       </div>
