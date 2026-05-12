@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { FaRotate, FaCircleCheck, FaCircleXmark, FaHourglass } from "react-icons/fa6";
+import { FaRotate, FaCircleCheck, FaHourglass } from "react-icons/fa6";
 import api from "../../../services/api";
 
-type CycleStatus = "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED";
+// Backend enum: DRAFT | SUBMITTED | APPROVED | LOCKED
+// Approve action → sets LOCKED (not APPROVED); Reject action → back to DRAFT
+type CycleStatus = "DRAFT" | "SUBMITTED" | "APPROVED" | "LOCKED";
 
 interface CallCycle {
   id: string;
@@ -15,10 +17,10 @@ interface CallCycle {
 }
 
 const STATUS_CONFIG: Record<CycleStatus, { label: string; color: string; icon: any }> = {
-  DRAFT:     { label: "Draft",     color: "bg-gray-100 text-gray-600",       icon: FaRotate },
-  SUBMITTED: { label: "Pending",   color: "bg-amber-100 text-amber-700",     icon: FaHourglass },
-  APPROVED:  { label: "Approved",  color: "bg-green-100 text-[#16a34a]",     icon: FaCircleCheck },
-  REJECTED:  { label: "Rejected",  color: "bg-red-100 text-red-600",         icon: FaCircleXmark },
+  DRAFT:     { label: "Draft",    color: "bg-gray-100 text-gray-600",   icon: FaRotate },
+  SUBMITTED: { label: "Pending",  color: "bg-amber-100 text-amber-700", icon: FaHourglass },
+  APPROVED:  { label: "Approved", color: "bg-green-100 text-[#16a34a]", icon: FaCircleCheck },
+  LOCKED:    { label: "Locked",   color: "bg-green-100 text-[#16a34a]", icon: FaCircleCheck },
 };
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -26,7 +28,7 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 const Cycles = () => {
   const [cycles, setCycles]   = useState<CallCycle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter]   = useState<CycleStatus | "ALL">("ALL");
+  const [filter, setFilter]   = useState<CycleStatus | "ALL">("SUBMITTED");
   const [acting, setActing]   = useState<string | null>(null);
 
   const load = () => {
@@ -50,8 +52,8 @@ const Cycles = () => {
 
   const filtered = filter === "ALL" ? cycles : cycles.filter(c => c.status === filter);
 
-  const counts = { ALL: cycles.length, SUBMITTED: 0, APPROVED: 0, REJECTED: 0, DRAFT: 0 };
-  for (const c of cycles) counts[c.status]++;
+  const counts = { ALL: cycles.length, SUBMITTED: 0, APPROVED: 0, LOCKED: 0, DRAFT: 0 };
+  for (const c of cycles) { if (c.status in counts) counts[c.status as keyof typeof counts]++; }
 
   return (
     <div className="p-4 sm:p-6 flex flex-col gap-4">
@@ -62,7 +64,7 @@ const Cycles = () => {
 
       {/* Filter tabs */}
       <div className="flex gap-2 flex-wrap">
-        {(["ALL", "SUBMITTED", "APPROVED", "REJECTED", "DRAFT"] as const).map(s => (
+        {(["ALL", "SUBMITTED", "LOCKED", "DRAFT"] as const).map(s => (
           <button key={s} onClick={() => setFilter(s)}
             className={`text-xs font-semibold px-3 py-1.5 rounded-lg border focus-visible:outline-none ${
               filter === s

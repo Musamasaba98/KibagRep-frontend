@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUserGroup } from "react-icons/fa6";
 import { LuTrendingUp, LuTrendingDown } from "react-icons/lu";
 import { getCompanyFeedApi } from "../../../services/api";
@@ -11,6 +12,7 @@ interface RepRow {
 }
 
 const Reps = () => {
+  const navigate = useNavigate();
   const [reps, setReps] = useState<RepRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -67,7 +69,7 @@ const Reps = () => {
               const trendColor = pct >= 60 ? "text-[#16a34a]" : "text-red-500";
 
               return (
-                <div key={rep.id} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 transition-colors cursor-pointer">
+                <div key={rep.id} onClick={() => navigate(`/supervisor/reps/${rep.id}`)} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 transition-colors cursor-pointer">
                   <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center shrink-0">
                     <span className="text-[#16a34a] font-black text-xs">
                       {rep.name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase()}

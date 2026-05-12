@@ -7,7 +7,7 @@ import { SlLogout } from 'react-icons/sl';
 
 const navBase = 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium';
 const active  = 'bg-[#16a34a]/10 text-[#16a34a] font-semibold';
-const inactive = 'text-gray-600 hover:bg-gray-100';
+const inactive = 'text-gray-600 hover:bg-gray-100 [transition:background-color_0.15s,color_0.15s]';
 
 const NAV = [
   { to: '/super-admin',           end: true,  icon: FaHouse,    label: 'Dashboard' },

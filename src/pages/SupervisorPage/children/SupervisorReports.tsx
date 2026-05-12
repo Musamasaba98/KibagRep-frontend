@@ -2,7 +2,31 @@ import { useEffect, useState, useCallback } from "react";
 import { LuFileText, LuChevronDown, LuChevronUp, LuCheck, LuX } from "react-icons/lu";
 import { MdOutlineWarningAmber } from "react-icons/md";
 import { TbActivityHeartbeat } from "react-icons/tb";
+import { FiXCircle } from "react-icons/fi";
 import { getCompanyReportsApi, approveReportApi, rejectReportApi, getDailyReportActivitiesApi } from "../../../services/api";
+
+const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("");
+  if (!open) return (
+    <button onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+      className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 focus-visible:outline-none"
+      style={{ transition: "background-color 0.15s" }}>
+      <LuX className="w-3.5 h-3.5" /> Reject
+    </button>
+  );
+  return (
+    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+      <input autoFocus type="text" value={note} onChange={e => setNote(e.target.value)}
+        placeholder="Reason…"
+        className="flex-1 text-xs border border-red-300 rounded-lg px-2.5 py-1.5 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200 min-w-[120px]" />
+      <button onClick={() => { if (note.trim()) onConfirm(note.trim()); }}
+        className="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-600 text-white hover:bg-red-700"
+        style={{ transition: "opacity 0.15s" }}>Send</button>
+      <button onClick={() => setOpen(false)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+    </div>
+  );
+};
 
 interface Report {
   id: string; report_date: string;
@@ -78,9 +102,7 @@ const SupervisorReports = () => {
     finally { setActioning(null); }
   };
 
-  const handleReject = async (id: string) => {
-    const reason = window.prompt("Reason for rejection:");
-    if (!reason?.trim()) return;
+  const handleReject = async (id: string, reason: string) => {
     setActioning(id);
     try {
       await rejectReportApi(id, { reason });
@@ -216,9 +238,7 @@ const SupervisorReports = () => {
                               <button onClick={(e) => { e.stopPropagation(); handleApprove(rep.id); }}
                                 className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white focus-visible:outline-none"
                                 style={{ transition: "background-color 0.15s" }}><LuCheck className="w-3.5 h-3.5" />Approve</button>
-                              <button onClick={(e) => { e.stopPropagation(); handleReject(rep.id); }}
-                                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 focus-visible:outline-none"
-                                style={{ transition: "background-color 0.15s" }}><LuX className="w-3.5 h-3.5" />Reject</button>
+                              <RejectInput onConfirm={(note) => handleReject(rep.id, note)} />
                             </>
                           )}
                         </div>

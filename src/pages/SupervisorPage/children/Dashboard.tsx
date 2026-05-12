@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { FaUserCheck, FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 import { MdOutlineHistory, MdOutlineWarningAmber, MdOutlineGpsOff } from "react-icons/md";
@@ -147,6 +148,7 @@ const RejectRow = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [summary, setSummary] = useState<RepSummary[]>([]);
   const [teamPerf, setTeamPerf] = useState<TeamPerf[]>([]);
   const [feed, setFeed] = useState<Activity[]>([]);
@@ -1096,6 +1098,7 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <button
+                  onClick={() => navigate("/supervisor/reports")}
                   className="flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-lg border border-orange-300 text-orange-600 hover:bg-orange-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-400"
                   style={{ transition: "background-color 0.15s" }}
                 >

@@ -79,6 +79,8 @@ export const updateCompanyUserApi = (userId: string, data: { role?: string; team
   api.put(`/user/company/${userId}`, data);
 export const removeUserFromCompanyApi = (userId: string) => api.delete(`/user/company/${userId}`);
 export const getUnassignedUsersApi = () => api.get("/user/unassigned");
+export const getAllPlatformUsersApi = (params?: { q?: string; role?: string; company_id?: string }) =>
+  api.get("/user/all", { params });
 export const searchUsersApi = (q: string) => api.get(`/user/search?q=${encodeURIComponent(q)}`);
 
 // ─── HCP Doctor List (company-scoped) ─────────────────────────────────────────
@@ -94,7 +96,8 @@ export const addDoctorActivityApi = (data: unknown) => api.post('/field-doctor/a
 export const addNcaApi = (data: unknown) => api.post('/field-doctor/add-nca', data);
 export const getActivityHistoryApi = (params?: string) => api.get(`/field-doctor/history${params ? '?' + params : ''}`);
 export const getTodayActivitiesApi = () => api.get('/field-doctor/today');
-export const getCompanyFeedApi = () => api.get('/field-doctor/company-feed');
+export const getCompanyFeedApi = (params?: { days?: number }) =>
+  api.get('/field-doctor/company-feed', { params });
 
 // ─── Pharmacy Activities ──────────────────────────────────────────────────────
 export const addPharmacyActivityApi = (data: unknown) => api.post('/field-pharmacy/add-pharmacy-activity', data);
@@ -123,6 +126,8 @@ export const rejectReportApi = (id: string, data: { reason: string }) => api.put
 export const getCompanyObserversApi = () => api.get('/daily-report/observers');
 export const getCompanyReportsApi = (params?: string) => api.get(`/daily-report/company${params ? '?' + params : ''}`);
 export const getJfwReportsApi = () => api.get('/daily-report/jfw');
+export const submitJfwScoreApi = (reportId: string, data: { criteria: Record<string, number>; notes: string; overall_score: number }) =>
+  api.post(`/daily-report/${reportId}/jfw-score`, data);
 
 // ─── Tour Plan ────────────────────────────────────────────────────────────────
 export const getTodayTourPlanApi = () => api.get('/tour-plan/today');
