@@ -89,7 +89,7 @@ const DoctorCard = ({
 }) => (
   <div
     onClick={onClick}
-    className="flex items-start gap-3 bg-white rounded-xl p-3 shadow-[0_1px_6px_0_rgba(0,0,0,0.06)] hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.10)] cursor-pointer transition-shadow"
+    className="flex items-start gap-3 bg-white rounded-xl p-3 border-solid border border-gray-200 cursor-pointer transition-shadow"
   >
     <div
       className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
@@ -101,12 +101,12 @@ const DoctorCard = ({
       />
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-xs font-bold text-[#222f36] truncate">{doc.doctor_name}</p>
-      <p className="text-[10px] text-gray-400 truncate mt-0.5">
+      <p className="text-xs font-poppins-bold text-[#222f36] truncate">{doc.doctor_name}</p>
+      <p className="text-[10px] font-poppins text-gray-400 truncate mt-0.5">
         {[doc.location, doc.town].filter(Boolean).join(" · ") || "—"}
       </p>
       {doc.speciality && doc.speciality.length > 0 && (
-        <p className="text-[10px] text-[#16a34a] font-medium truncate mt-0.5">
+        <p className="text-[10px] font-poppins text-[#16a34a] font-medium truncate mt-0.5">
           {doc.speciality.slice(0, 2).join(", ")}
         </p>
       )}
@@ -236,19 +236,19 @@ const NearMe = () => {
             placeholder="Search HCPs…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 transition-colors bg-white"
+            className="w-full pl-9 font-poppins pr-3 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 transition-colors bg-white"
           />
         </div>
 
         {/* Radius filter */}
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold text-gray-500 shrink-0">Radius:</span>
+          <span className="text-[11px] font-poppins-semibold text-gray-500 shrink-0">Radius:</span>
           <div className="flex gap-1.5">
             {RADIUS_OPTIONS.map((r) => (
               <button
                 key={r}
                 onClick={() => setRadius(r)}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+                className={`px-2.5 py-1 rounded-full text-[11px] font-poppins-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                   radius === r
                     ? "bg-[#16a34a] text-white"
                     : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -276,12 +276,12 @@ const NearMe = () => {
         {gpsError && (
           <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-700">
             <FiAlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-            <span>GPS unavailable. Showing all doctors. {gpsError}</span>
+            <span className="font-poppins">GPS unavailable. Showing all doctors. {gpsError}</span>
           </div>
         )}
 
         {/* Count */}
-        <p className="text-[11px] font-semibold text-gray-400">
+        <p className="text-[11px] font-poppins-semibold text-gray-400">
           {loading ? "Loading…" : `${filtered.length} HCPs ${userPos ? `within ${radius}km` : "on your list"}`}
         </p>
 
@@ -298,8 +298,8 @@ const NearMe = () => {
           {!loading && filtered.length === 0 && (
             <div className="flex flex-col items-center py-10 text-gray-300 text-center">
               <FaLocationCrosshairs className="w-8 h-8 mb-2 opacity-40" />
-              <p className="text-sm font-semibold text-gray-400">No HCPs in range</p>
-              <p className="text-xs text-gray-300 mt-1">Try increasing the radius</p>
+              <p className="text-sm font-poppins-semibold text-gray-400">No HCPs in range</p>
+              <p className="text-xs font-poppins text-gray-300 mt-1">Try increasing the radius</p>
             </div>
           )}
         </div>

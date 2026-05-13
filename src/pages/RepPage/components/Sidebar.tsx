@@ -47,14 +47,12 @@ const NavItem = ({ to, icon: Icon, label, end }: NavItemProps) => (
   <NavLink to={to} end={end} className="block">
     {({ isActive }) => (
       <div
-        className={`group relative flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-150 ${
-          isActive ? "bg-[#f0fdf4]" : "hover:bg-gray-100"
-        }`}
+        className={`group relative flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-150 ${isActive ? "bg-[#f0fdf4]" : "hover:bg-gray-100"
+          }`}
       >
         <Icon
-          className={`w-[22px] h-[22px] transition-colors duration-150 ${
-            isActive ? "text-[#16a34a]" : "text-gray-400 group-hover:text-[#222f36]"
-          }`}
+          className={`w-[22px] h-[22px] transition-colors duration-150 ${isActive ? "text-[#16a34a]" : "text-gray-400 group-hover:text-[#222f36]"
+            }`}
         />
         <span
           className="pointer-events-none absolute left-12 z-[60] hidden group-hover:flex items-center bg-[#222f36] text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg whitespace-nowrap"
@@ -121,16 +119,13 @@ const DoctorTile = ({
     <div className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50">
       <Initials name={name} />
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold text-[#222f36] truncate">{name}</p>
+        <p className="text-xs font-poppins-semibold text-[#222f36] truncate">{name}</p>
         {town && <p className="text-[10px] text-gray-400 truncate">{town}</p>}
         {label && (
           <span className={
-            `inline-block text-[9px] font-bold uppercase tracking-wide mt-0.5 px-1.5 py-px rounded-full ${
-              label === "unplanned" ? "bg-amber-50 text-amber-600" : "bg-[#f0fdf4] text-[#16a34a]"
+            `inline-block text-[9px] font-poppins-bold uppercase tracking-wide mt-0.5 px-1.5 py-px rounded-full ${label === "unplanned" ? "bg-amber-50 text-amber-600" : "bg-[#f0fdf4] text-[#16a34a]"
             }`
-          }>
-            {label}
-          </span>
+          }>{label}</span>
         )}
       </div>
 
@@ -154,7 +149,7 @@ const DoctorTile = ({
               {onLogVisit && (
                 <button
                   onClick={() => { onLogVisit(); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-[#16a34a] hover:bg-[#f0fdf4] focus-visible:outline-none"
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-poppins-semibold text-[#16a34a] hover:bg-[#f0fdf4] focus-visible:outline-none"
                 >
                   <MdCheckCircle className="w-3.5 h-3.5 shrink-0" />
                   Log Visit
@@ -163,7 +158,7 @@ const DoctorTile = ({
               {onNca && (
                 <button
                   onClick={() => { onNca(); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-amber-600 hover:bg-amber-50 focus-visible:outline-none border-t border-gray-50"
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-poppins-semibold text-amber-600 hover:bg-amber-50 focus-visible:outline-none border-t border-gray-50"
                 >
                   <IoWarningOutline className="w-3.5 h-3.5 shrink-0" />
                   Flag NCA
@@ -172,7 +167,7 @@ const DoctorTile = ({
               {onViewProfile && (
                 <button
                   onClick={() => { onViewProfile(); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 focus-visible:outline-none border-t border-gray-50"
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-poppins-semibold text-gray-600 hover:bg-gray-50 focus-visible:outline-none border-t border-gray-50"
                 >
                   <FaUserDoctor className="w-3.5 h-3.5 shrink-0" />
                   View Profile
@@ -217,11 +212,11 @@ const PharmacyTile = ({
     <div className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50">
       <TbPill className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold text-[#222f36] truncate">{name}</p>
+        <p className="text-xs font-poppins-semibold text-[#222f36] truncate">{name}</p>
         {town && <p className="text-[10px] text-gray-400 truncate">{town}</p>}
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
-        <span className="text-[9px] font-semibold text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-full">
+        <span className="text-[9px] font-poppins-semibold text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded-full">
           {slot === "MORNING" ? "AM" : "PM"}
         </span>
         {visited ? (
@@ -237,10 +232,10 @@ const PharmacyTile = ({
             </button>
             {menuOpen && (
               <div className="absolute right-0 top-7 z-50 bg-white rounded-xl border border-gray-100 overflow-hidden w-36 py-0.5"
-                   style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.10)" }}>
+                style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.10)" }}>
                 <button
                   onClick={() => { onLogPharmacy(); setMenuOpen(false); }}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-violet-600 hover:bg-violet-50 focus-visible:outline-none"
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-poppins-semibold text-violet-600 hover:bg-violet-50 focus-visible:outline-none"
                 >
                   <TbPill className="w-3.5 h-3.5 shrink-0" />
                   Log Visit
@@ -309,8 +304,8 @@ const AddEntryModal = ({
         {/* header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
           <div>
-            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">Add Entry</p>
-            <h2 className="text-sm font-bold text-[#222f36]">{format(day, "dd MMM — EEEE")}</h2>
+            <p className="text-[11px] font-poppins text-gray-400 font-medium uppercase tracking-wide">Add Entry</p>
+            <h2 className="text-sm font-poppins-bold text-[#222f36]">{format(day, "dd MMM — EEEE")}</h2>
           </div>
           <button
             onClick={onClose}
@@ -326,11 +321,10 @@ const AddEntryModal = ({
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-none ${
-                tab === t
+              className={`flex-1 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-none ${tab === t
                   ? "text-[#16a34a] border-b-2 border-[#16a34a]"
                   : "text-gray-400 hover:text-gray-600"
-              }`}
+                }`}
             >
               {t === "unplanned" ? "Unplanned Visit" : "Leave / NCA"}
             </button>
@@ -432,8 +426,8 @@ interface DayRowProps {
   activities: DayActivity[];
   todayPlanEntries: TodayPlanEntry[];  // tour plan entries for today (empty for other days)
   onAddClick: (day: Date) => void;
-  onLogVisit?:    (doctorId: string, doctorName: string) => void;
-  onNca?:         (doctorId: string, doctorName: string) => void;
+  onLogVisit?: (doctorId: string, doctorName: string) => void;
+  onNca?: (doctorId: string, doctorName: string) => void;
   onViewProfile?: (doctorId: string, doctorName: string) => void;
   onLogPharmacy?: (pharmacyId: string, pharmacyName: string, location?: string) => void;
 }
@@ -461,25 +455,25 @@ const DayRow = ({ day, activities, todayPlanEntries, onAddClick, onLogVisit, onN
   // Past: show all logged activities only
   const plannedTiles = isToday
     ? todayPlanEntries.map((entry) => ({
-        key: entry.id,
-        doctorId:   entry.entry_type === "CLINICIAN" ? (entry.doctor_id ?? "") : "",
-        pharmacyId: entry.entry_type === "PHARMACY"  ? (entry.pharmacy_id ?? "") : "",
-        name: entry.entry_type === "CLINICIAN"
-          ? (entry.doctor?.doctor_name ?? "Unknown")
-          : (entry.pharmacy?.pharmacy_name ?? entry.pharmacy_name ?? "Unknown Pharmacy"),
-        location: entry.entry_type === "PHARMACY"
-          ? [entry.pharmacy?.location, entry.pharmacy?.town].filter(Boolean).join(" · ")
-          : undefined,
-        town: entry.entry_type === "CLINICIAN"
-          ? entry.doctor?.town
-          : [entry.pharmacy?.location, entry.pharmacy?.town].filter(Boolean).join(" · "),
-        visited: entry.entry_type === "CLINICIAN"
-          ? visitedDoctorIds.has(entry.doctor_id ?? "")
-          : visitedPharmacyIds.includes(entry.pharmacy_id ?? ""),
-        label: "planned" as const,
-        entryType: entry.entry_type,
-        slot: entry.slot,
-      }))
+      key: entry.id,
+      doctorId: entry.entry_type === "CLINICIAN" ? (entry.doctor_id ?? "") : "",
+      pharmacyId: entry.entry_type === "PHARMACY" ? (entry.pharmacy_id ?? "") : "",
+      name: entry.entry_type === "CLINICIAN"
+        ? (entry.doctor?.doctor_name ?? "Unknown")
+        : (entry.pharmacy?.pharmacy_name ?? entry.pharmacy_name ?? "Unknown Pharmacy"),
+      location: entry.entry_type === "PHARMACY"
+        ? [entry.pharmacy?.location, entry.pharmacy?.town].filter(Boolean).join(" · ")
+        : undefined,
+      town: entry.entry_type === "CLINICIAN"
+        ? entry.doctor?.town
+        : [entry.pharmacy?.location, entry.pharmacy?.town].filter(Boolean).join(" · "),
+      visited: entry.entry_type === "CLINICIAN"
+        ? visitedDoctorIds.has(entry.doctor_id ?? "")
+        : visitedPharmacyIds.includes(entry.pharmacy_id ?? ""),
+      label: "planned" as const,
+      entryType: entry.entry_type,
+      slot: entry.slot,
+    }))
     : [];
 
   const activityTiles = activities
@@ -501,9 +495,8 @@ const DayRow = ({ day, activities, todayPlanEntries, onAddClick, onLogVisit, onN
     <div className="border-b border-gray-200">
       {/* header row */}
       <div
-        className={`w-full px-2.5 flex items-center h-[50px] gap-2 ${
-          isFuture ? "bg-[#f8f6f6]" : "bg-white hover:bg-gray-50 cursor-pointer transition-colors"
-        }`}
+        className={`w-full px-2.5 flex items-center h-[50px] gap-2 ${isFuture ? "bg-[#f8f6f6]" : "bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+          }`}
         onClick={() => !isFuture && setExpanded((x) => !x)}
       >
         {/* expand chevron — only on accessible days */}
@@ -518,13 +511,12 @@ const DayRow = ({ day, activities, todayPlanEntries, onAddClick, onLogVisit, onN
         )}
 
         <h1
-          className={`flex-1 font-semibold text-sm truncate ${
-            isToday ? "text-[#16a34a]" : isFuture ? "text-gray-400" : "text-[#222f36]"
-          }`}
+          className={`flex-1 font-poppins-semibold text-[13px] truncate ${isToday ? "text-[#16a34a]" : isFuture ? "text-gray-400" : "text-[#222f36]"
+            }`}
         >
           {label}
           {visitCount > 0 && (
-            <span className="ml-1.5 text-[10px] font-bold text-gray-400">({visitCount})</span>
+            <span className="ml-1.5 text-[10px] font-poppins-bold text-gray-400">({visitCount})</span>
           )}
         </h1>
 
@@ -599,9 +591,9 @@ const Sidebar = () => {
   const [activitiesByDay, setActivitiesByDay] = useState<Record<string, DayActivity[]>>({});
   const [todayPlanEntries, setTodayPlanEntries] = useState<TodayPlanEntry[]>([]);
   const [modalDay, setModalDay] = useState<Date | null>(null);
-  const [visitModal,  setVisitModal]  = useState<{ doctorId: string; doctorName: string } | null>(null);
-  const [ncaModal,    setNcaModal]    = useState<{ doctorId: string; doctorName: string } | null>(null);
-  const [pharmModal,  setPharmModal]  = useState<{ pharmacyId: string; pharmacyName: string; location?: string } | null>(null);
+  const [visitModal, setVisitModal] = useState<{ doctorId: string; doctorName: string } | null>(null);
+  const [ncaModal, setNcaModal] = useState<{ doctorId: string; doctorName: string } | null>(null);
+  const [pharmModal, setPharmModal] = useState<{ pharmacyId: string; pharmacyName: string; location?: string } | null>(null);
   const [visitedPharmacyIds, setVisitedPharmacyIds] = useState<string[]>([]);
   const todayRowRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);

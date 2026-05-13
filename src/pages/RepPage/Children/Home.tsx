@@ -112,12 +112,12 @@ const MonthlyProgress = () => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_16px_0_rgba(0,0,0,0.06)] overflow-hidden">
+    <div className="bg-white rounded-2xl border-solid border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <div>
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Monthly Progress</p>
-          <p className="text-[11px] text-gray-400 mt-0.5">{format(now, 'MMMM yyyy')} — cumulative</p>
+          <p className="text-xs font-poppins-bold text-gray-500 uppercase tracking-widest">Monthly Progress</p>
+          <p className="text-[11px] font-poppins text-gray-400 mt-0.5">{format(now, 'MMMM yyyy')} — cumulative</p>
         </div>
         {loading && (
           <div className="w-3.5 h-3.5 rounded-full border-2 border-gray-200 border-t-[#16a34a] animate-spin" />
@@ -134,9 +134,9 @@ const MonthlyProgress = () => {
                 <Icon className={`w-4 h-4 ${s.color}`} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className={`text-xl font-black leading-none ${s.color}`}>{s.value}</p>
-                <p className="text-[10px] font-bold text-gray-500 mt-0.5 uppercase tracking-wide">{s.label}</p>
-                <p className="text-[10px] text-gray-400 mt-0.5 truncate">{s.sub}</p>
+                <p className={`text-xl font-poppins-extrabold leading-none ${s.color}`}>{s.value}</p>
+                <p className="text-[10px] font-poppins-bold text-gray-500 mt-0.5 uppercase tracking-wide">{s.label}</p>
+                <p className="text-[10px] font-poppins text-gray-400 mt-0.5 truncate">{s.sub}</p>
                 {s.pct !== null && (
                   <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden mt-1.5">
                     <div

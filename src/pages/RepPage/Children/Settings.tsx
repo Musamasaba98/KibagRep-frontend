@@ -37,34 +37,34 @@ const ProfilePanel = ({ onClose }: { onClose: () => void }) => {
     <div className="flex flex-col gap-4 p-1">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">First name</label>
+          <label className="block text-xs font-poppins-semibold text-gray-600 mb-1">First name</label>
           <input value={firstname} onChange={(e) => setFirstname(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
+            className="w-full border font-poppins border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
             placeholder="First name" />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Last name</label>
+          <label className="block text-xs font-poppins-semibold text-gray-600 mb-1">Last name</label>
           <input value={lastname} onChange={(e) => setLastname(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
+            className="w-full border border-gray-200 font-poppins rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
             placeholder="Last name" />
         </div>
       </div>
       <div>
-        <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+        <label className="block text-xs font-poppins-semibold text-gray-600 mb-1">Email</label>
         <input value={user?.email ?? ""} disabled
           className="w-full border border-gray-100 rounded-xl px-3 py-2.5 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
-        <p className="text-[10px] text-gray-400 mt-1">Email cannot be changed here</p>
+        <p className="text-[10px] font-poppins text-gray-400 mt-1">Email cannot be changed here</p>
       </div>
       <div>
         <label className="block text-xs font-semibold text-gray-600 mb-1">Contact / Phone</label>
         <input value={contact} onChange={(e) => setContact(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
+          className="w-full font-poppins border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
           placeholder="07xx xxx xxx" />
       </div>
       {error   && <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
       {success && <p className="text-xs text-[#16a34a] bg-green-50 px-3 py-2 rounded-lg flex items-center gap-1"><MdCheck className="w-4 h-4" /> Profile updated</p>}
       <button onClick={handleSave} disabled={saving}
-        className="bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+        className="bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-poppins-semibold py-2.5 rounded-xl text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
         style={{ transition: "opacity 0.15s" }}>
         {saving ? "Saving…" : "Save Changes"}
       </button>
@@ -102,27 +102,27 @@ const SecurityPanel = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="flex flex-col gap-4 p-1">
       <div>
-        <label className="block text-xs font-semibold text-gray-600 mb-1">Current password</label>
+        <label className="block text-xs font-poppins-semibold text-gray-600 mb-1">Current password</label>
         <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
+          className="w-full font-poppins border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
           placeholder="Enter current password" />
       </div>
       <div>
-        <label className="block text-xs font-semibold text-gray-600 mb-1">New password</label>
+        <label className="block text-xs font-poppins-semibold text-gray-600 mb-1">New password</label>
         <input type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
+          className="w-full font-poppins border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
           placeholder="Min 8 characters" />
       </div>
       <div>
-        <label className="block text-xs font-semibold text-gray-600 mb-1">Confirm new password</label>
+        <label className="block text-xs font-poppins-semibold text-gray-600 mb-1">Confirm new password</label>
         <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
+          className="w-full font-poppins border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20"
           placeholder="Repeat new password" />
       </div>
-      {error   && <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
-      {success && <p className="text-xs text-[#16a34a] bg-green-50 px-3 py-2 rounded-lg flex items-center gap-1"><MdCheck className="w-4 h-4" /> Password changed successfully</p>}
+      {error   && <p className="text-xs font-poppins text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+      {success && <p className="text-xs font-poppins text-[#16a34a] bg-green-50 px-3 py-2 rounded-lg flex items-center gap-1"><MdCheck className="w-4 h-4" /> Password changed successfully</p>}
       <button onClick={handleChange} disabled={saving || !current || !newPwd || !confirm}
-        className="bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+        className="bg-[#16a34a] font-poppins hover:bg-[#15803d] disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
         style={{ transition: "opacity 0.15s" }}>
         {saving ? "Changing…" : "Change Password"}
       </button>
@@ -166,8 +166,8 @@ const Settings = () => {
   return (
     <div className="max-w-2xl">
       <div className="mb-7">
-        <h1 className="text-2xl font-black text-[#222f36] tracking-tight">Settings</h1>
-        <p className="text-sm text-gray-400 mt-1">Manage your account and field preferences</p>
+        <h1 className="text-2xl font-poppins-extrabold text-[#222f36] tracking-tight">Settings</h1>
+        <p className="text-sm text-gray-400 font-poppins mt-1">Manage your account and field preferences</p>
       </div>
 
       <div className="space-y-2">
@@ -179,7 +179,7 @@ const Settings = () => {
               key={g.label}
               onClick={() => clickable && setActivePanel(g.key as Panel)}
               disabled={!clickable}
-              className={`w-full flex items-center gap-4 bg-white rounded-2xl px-5 py-4 shadow-[0_1px_8px_0_rgba(0,0,0,0.05)] text-left group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+              className={`w-full flex items-center gap-4 bg-white rounded-2xl px-5 py-4 border-solid border border-gray-200 text-left group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                 clickable ? "hover:shadow-[0_3px_16px_0_rgba(0,0,0,0.09)] cursor-pointer" : "cursor-default opacity-70"
               }`}
               style={{ transition: "box-shadow 0.15s" }}
@@ -189,12 +189,12 @@ const Settings = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-[#222f36]">{g.label}</p>
+                  <p className="text-sm font-poppins-bold text-[#222f36]">{g.label}</p>
                   {"badge" in g && g.badge && (
                     <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">{g.badge}</span>
                   )}
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5 truncate">{g.description}</p>
+                <p className="text-xs font-poppins text-gray-400 mt-0.5 truncate">{g.description}</p>
               </div>
               {clickable && <MdChevronRight className="w-5 h-5 text-gray-300 group-hover:text-gray-400 shrink-0" style={{ transition: "color 0.15s" }} />}
             </button>

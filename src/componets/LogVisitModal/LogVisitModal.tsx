@@ -128,30 +128,30 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
 
   const gpsIndicator = () => {
     if (gpsStatus === "acquiring") return (
-      <span className="flex items-center gap-1 text-[11px] text-amber-600 font-medium">
+      <span className="flex items-center gap-1 text-[11px] text-amber-600 font-poppins-semibold">
         <FiLoader className="w-3 h-3 animate-spin" /> Acquiring GPS…
       </span>
     );
     if (gpsStatus === "acquired") return (
-      <span className="flex items-center gap-1 text-[11px] text-[#16a34a] font-medium">
+      <span className="flex items-center gap-1 text-[11px] text-[#16a34a] font-poppins-semibold">
         <FiMapPin className="w-3 h-3" /> GPS acquired
       </span>
     );
     return (
-      <span className="flex items-center gap-1 text-[11px] text-gray-400 font-medium">
+      <span className="flex items-center gap-1 text-[11px] text-gray-400 font-poppins-semibold">
         <FiAlertTriangle className="w-3 h-3" /> GPS unavailable
       </span>
     );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50">
       <div className="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden">
 
         {/* Header */}
         <div className="flex items-center justify-between bg-[#16a34a] px-6 py-4">
           <div>
-            <h2 className="text-white font-bold text-xl">Log Doctor Visit</h2>
+            <h2 className="text-white font-poppins-bold text-xl">Log Doctor Visit</h2>
             <div className="mt-0.5">{gpsIndicator()}</div>
           </div>
           <button type="button" onClick={onClose}
@@ -171,21 +171,21 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
 
           {/* Doctor search */}
           <div className="relative">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-poppins-semibold text-gray-700 mb-1">
               Doctor <span className="text-red-500">*</span>
             </label>
             <input type="text" placeholder="Search by name or town…"
               value={doctorLabel || doctorSearch}
               onChange={(e) => { setDoctorLabel(""); setDoctorId(""); setDoctorSearch(e.target.value); setShowDoctorList(true); }}
               onFocus={() => setShowDoctorList(true)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
+              className="w-full font-poppins border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]"
             />
             {showDoctorList && filteredDoctors.length > 0 && (
-              <ul className="absolute z-10 bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-48 overflow-y-auto custom-scrollbar shadow-lg">
+              <ul className="absolute z-10 font-poppins bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-48 overflow-y-auto custom-scrollbar shadow-lg">
                 {filteredDoctors.map((doc) => (
                   <li key={doc.id} className="px-4 py-2.5 hover:bg-green-50 cursor-pointer text-sm"
                     onMouseDown={() => { setDoctorId(doc.id); setDoctorLabel(`${doc.doctor_name} — ${doc.town}`); setDoctorSearch(""); setShowDoctorList(false); }}>
-                    <span className="font-medium">{doc.doctor_name}</span>
+                    <span className="font-poppins-semibold">{doc.doctor_name}</span>
                     {doc.town && <span className="text-gray-400 ml-2 text-xs">{doc.town}</span>}
                   </li>
                 ))}
@@ -198,12 +198,12 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
 
           {/* Focused product */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-poppins-semibold text-gray-700 mb-1">
               Focused Product <span className="text-red-500">*</span>
             </label>
             <select value={focusedProductId}
               onChange={(e) => { setFocusedProductId(e.target.value); setFocusedSamples(0); }}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]">
+              className="w-full font-poppins border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]">
               <option value="">Select product…</option>
               {products.map((p) => <option key={p.id} value={p.id}>{p.product_name}</option>)}
             </select>
@@ -211,13 +211,13 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
             {/* Inline sample qty for focused product */}
             {focusedProductId && (
               <div className="flex items-center gap-3 mt-2 pl-1">
-                <span className="text-xs text-gray-500 shrink-0">Samples of <span className="font-semibold text-[#16a34a]">{focusedProductName}</span></span>
+                <span className="text-xs font-poppins text-gray-500 shrink-0">Samples of <span className="font-semibold text-[#16a34a]">{focusedProductName}</span></span>
                 <div className="flex items-center gap-1">
                   <button type="button" onClick={() => setFocusedSamples((n) => Math.max(0, n - 1))}
                     className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-base flex items-center justify-center focus-visible:outline-none">−</button>
-                  <span className="w-8 text-center font-bold text-[#16a34a] text-sm">{focusedSamples}</span>
+                  <span className="w-8 text-center font-poppins-bold text-[#16a34a] text-sm">{focusedSamples}</span>
                   <button type="button" onClick={() => setFocusedSamples((n) => n + 1)}
-                    className="w-7 h-7 rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-base flex items-center justify-center focus-visible:outline-none">+</button>
+                    className="w-7 h-7 rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white font-poppins-bold text-base flex items-center justify-center focus-visible:outline-none">+</button>
                 </div>
               </div>
             )}
@@ -226,13 +226,13 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
           {/* All products detailed */}
           {products.length > 0 && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">All Products Detailed</label>
+              <label className="block text-sm font-poppins-semibold text-gray-700 mb-2">All Products Detailed</label>
               <div className="flex flex-wrap gap-2">
                 {products.map((p) => {
                   const selected = productsDetailed.includes(p.id);
                   return (
                     <button key={p.id} type="button" onClick={() => toggleProduct(p.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${selected ? "bg-[#16a34a] border-[#16a34a] text-white" : "bg-white border-gray-300 text-gray-600 hover:border-[#16a34a]"}`}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-poppins-semibold border ${selected ? "bg-[#16a34a] border-[#16a34a] text-white" : "bg-white border-gray-300 text-gray-600 hover:border-[#16a34a]"}`}
                       style={{ transition: "background-color 0.15s, color 0.15s" }}>
                       {selected && <FaCheck className="w-3 h-3" />}
                       {p.product_name}
@@ -249,11 +249,11 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
               onClick={() => extraSamples.length > 0 ? setShowExtraSamples((v) => !v) : addExtraRow()}
               className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50 focus-visible:outline-none"
               style={{ transition: "background-color 0.15s" }}>
-              <span className="flex items-center gap-2">
+              <span className="flex font-poppins items-center gap-2">
                 <FaPlus className="w-3 h-3 text-[#16a34a]" />
                 Samples for other products
                 {extraSamples.length > 0 && (
-                  <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-[#f0fdf4] text-[#16a34a] font-bold border border-[#dcfce7]">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-[#f0fdf4] text-[#16a34a] font-poppins-bold border border-[#dcfce7]">
                     {extraSamples.reduce((s,r) => s + r.qty, 0)} units
                   </span>
                 )}
@@ -279,8 +279,8 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
                     </select>
                     <div className="flex items-center gap-1 shrink-0">
                       <button type="button" onClick={() => updateExtraRow(idx, "qty", Math.max(0, row.qty - 1))}
-                        className="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm flex items-center justify-center">−</button>
-                      <span className="w-7 text-center font-bold text-sm text-[#16a34a]">{row.qty}</span>
+                        className="w-6 h-6 font-poppins rounded bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm flex items-center justify-center">−</button>
+                      <span className="w-7 text-center font-poppins-bold text-sm text-[#16a34a]">{row.qty}</span>
                       <button type="button" onClick={() => updateExtraRow(idx, "qty", row.qty + 1)}
                         className="w-6 h-6 rounded bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm flex items-center justify-center">+</button>
                     </div>
@@ -293,7 +293,7 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
                 ))}
                 {availableForExtra.length > 0 && (
                   <button type="button" onClick={addExtraRow}
-                    className="flex items-center gap-1 text-xs text-[#16a34a] font-semibold hover:underline mt-1 focus-visible:outline-none">
+                    className="flex items-center font-poppins-semibold gap-1 text-xs text-[#16a34a] hover:underline mt-1 focus-visible:outline-none">
                     <FaPlus className="w-3 h-3" /> Add another product
                   </button>
                 )}
@@ -304,28 +304,28 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
           {/* Samples total badge */}
           {totalSamples > 0 && (
             <div className="flex items-center gap-2 text-xs text-gray-500 -mt-2">
-              <span>Total samples this visit:</span>
-              <span className="font-black text-[#16a34a] text-sm">{totalSamples}</span>
+              <span className="font-poppins">Total samples this visit:</span>
+              <span className="font-poppins-extrabold text-[#16a34a] text-sm">{totalSamples}</span>
             </div>
           )}
 
           {/* Outcome */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Outcome / Notes</label>
+            <label className="block text-sm font-poppins-semibold text-gray-700 mb-1">Outcome / Notes</label>
             <textarea value={outcome} onChange={(e) => setOutcome(e.target.value)} rows={3}
               placeholder="How did the visit go? Any follow-up needed?"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] resize-none" />
+              className="w-full border font-poppins border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] resize-none" />
           </div>
 
           {/* Actions */}
           <div className="flex gap-3 pt-1">
             <button type="submit" disabled={loading}
-              className="flex-1 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              className="flex-1 bg-[#16a34a] font-poppins hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
               style={{ transition: "opacity 0.15s" }}>
               {loading ? "Saving…" : "Log Visit"}
             </button>
             <button type="button" onClick={onClose}
-              className="px-5 border border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100 font-semibold py-2.5 rounded-lg text-sm"
+              className="px-5 border font-poppins border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100 font-semibold py-2.5 rounded-lg text-sm"
               style={{ transition: "background-color 0.15s" }}>
               Cancel
             </button>

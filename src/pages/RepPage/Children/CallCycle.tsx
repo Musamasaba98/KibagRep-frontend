@@ -75,7 +75,7 @@ const CallCycle = () => {
     return (
       <div className="flex items-center gap-3 text-gray-400 py-10">
         <div className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-[#16a34a] animate-spin" />
-        <span className="text-sm">Loading call cycle…</span>
+        <span className="text-sm font-poppins">Loading call cycle…</span>
       </div>
     );
   }
@@ -111,17 +111,17 @@ const CallCycle = () => {
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-bold text-xl tracking-tight text-gray-800">
+          <h1 className="font-poppins-bold text-xl tracking-tight text-gray-800">
             Call Cycle — {MONTH_NAMES[cycle.month - 1]} {cycle.year}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="text-sm font-poppins text-gray-400 mt-0.5">
             {totalDoctors} doctors · {totalTargetVisits} target visits
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Status badge */}
-          <span className={`flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
+          <span className={`flex items-center gap-1.5 text-[12px] font-poppims-semibold px-3 py-1 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
             <StatusIcon className="w-3.5 h-3.5" />
             {statusCfg.label}
           </span>
@@ -131,7 +131,7 @@ const CallCycle = () => {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex items-center gap-2 bg-[#16a34a] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#15803d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a] focus-visible:ring-offset-2 disabled:opacity-60"
+              className="flex items-center gap-2 bg-[#16a34a] text-white text-sm font-poppins-semibold px-4 py-2 rounded-lg hover:bg-[#15803d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a] focus-visible:ring-offset-2 disabled:opacity-60"
               style={{ transition: "opacity 0.15s" }}
             >
               <FiSend className="w-4 h-4" />
@@ -140,7 +140,7 @@ const CallCycle = () => {
           )}
 
           {isLocked && cycle.approved_at && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs font-poppins text-gray-400">
               Approved {format(new Date(cycle.approved_at), "dd MMM")}
             </span>
           )}
@@ -148,10 +148,10 @@ const CallCycle = () => {
       </div>
 
       {/* ── Progress bar ── */}
-      <div className="bg-white rounded-xl p-4 shadow-[0_1px_8px_0_rgba(0,0,0,0.06)]">
+      <div className="bg-white rounded-xl p-4 border-solid border border-gray-200">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-gray-700">Monthly progress</span>
-          <span className="text-sm font-bold text-[#16a34a]">{totalDone} / {totalTargetVisits} visits</span>
+          <span className="text-sm font-poppins-semibold text-gray-700">Monthly progress</span>
+          <span className="text-sm font-poppins-bold text-[#16a34a]">{totalDone} / {totalTargetVisits} visits</span>
         </div>
         <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
           <div
@@ -164,8 +164,8 @@ const CallCycle = () => {
           />
         </div>
         <div className="flex justify-between mt-1.5">
-          <span className="text-[11px] text-gray-400">{overallPct}% complete</span>
-          <span className="text-[11px] text-gray-400">{totalTargetVisits - totalDone} remaining</span>
+          <span className="text-[11px] font-poppins text-gray-400">{overallPct}% complete</span>
+          <span className="text-[11px] font-poppins text-gray-400">{totalTargetVisits - totalDone} remaining</span>
         </div>
       </div>
 
@@ -173,8 +173,8 @@ const CallCycle = () => {
       {cycle.items.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-200 rounded-xl">
           <BsClipboardCheck className="w-8 h-8 text-gray-300 mb-2" />
-          <p className="text-gray-500 font-medium">No doctors added to this cycle yet</p>
-          <p className="text-gray-400 text-sm mt-1">Go to the Doctors page and add doctors to your call cycle</p>
+          <p className="text-gray-500 font-poppinssemibold">No doctors added to this cycle yet</p>
+          <p className="text-gray-400 font-poppins text-sm mt-1">Go to the Doctors page and add doctors to your call cycle</p>
         </div>
       ) : (
         (["A", "B", "C"] as const).map((tier) => {
@@ -184,10 +184,10 @@ const CallCycle = () => {
           return (
             <div key={tier}>
               <div className="flex items-center gap-2 mb-2">
-                <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+                <span className={`text-[11px] font-poppins-bold px-2.5 py-0.5 rounded-full border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
                   {cfg.label}
                 </span>
-                <span className="text-[11px] text-gray-400">{cfg.freq} · {items.length} doctors</span>
+                <span className="text-[11px] font-poppins text-gray-400">{cfg.freq} · {items.length} doctors</span>
               </div>
 
               <div className="space-y-2">
@@ -197,25 +197,25 @@ const CallCycle = () => {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-4 bg-white rounded-xl px-4 py-3 shadow-[0_1px_8px_0_rgba(0,0,0,0.05)]"
+                      className="flex items-center gap-4 bg-white rounded-xl px-4 py-3 border-solid border border-gray-200"
                     >
                       {/* Done indicator */}
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${done ? "bg-[#16a34a]" : "bg-gray-100"}`}>
                         {done
                           ? <FiCheck className="w-4 h-4 text-white" />
-                          : <span className="text-[11px] font-bold text-gray-400">{item.visits_done}</span>
+                          : <span className="text-[11px] font-poppins-bold text-gray-400">{item.visits_done}</span>
                         }
                       </div>
 
                       {/* Doctor info */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-800 truncate text-sm">{item.doctor.doctor_name}</p>
-                        <p className="text-xs text-gray-400 truncate">{item.doctor.town}</p>
+                        <p className="font-poppins-semibold text-gray-800 truncate text-sm">{item.doctor.doctor_name}</p>
+                        <p className="text-xs font-poppins text-gray-400 truncate">{item.doctor.town}</p>
                       </div>
 
                       {/* Mini progress bar + count */}
                       <div className="shrink-0 flex flex-col items-end gap-1 w-24">
-                        <span className={`text-[11px] font-semibold ${done ? "text-[#16a34a]" : "text-gray-500"}`}>
+                        <span className={`text-[11px] font-poppins-semibold ${done ? "text-[#16a34a]" : "text-gray-500"}`}>
                           {item.visits_done}/{item.frequency}
                         </span>
                         <div className="w-full h-1 rounded-full bg-gray-100 overflow-hidden">

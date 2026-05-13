@@ -122,19 +122,19 @@ const AddUnplanned = ({ onClose, onSuccess }: AddUnplannedProps) => {
       );
     if (gpsStatus === "acquired")
       return (
-        <span className="flex items-center gap-1 text-[11px] text-[#16a34a] font-medium">
+        <span className="flex items-center font-poppins gap-1 text-[11px] text-[#16a34a] font-medium">
           <FiMapPin className="w-3 h-3" /> GPS acquired
         </span>
       );
     return (
-      <span className="flex items-center gap-1 text-[11px] text-gray-400 font-medium">
+      <span className="flex items-center font-poppins gap-1 text-[11px] text-gray-400 font-medium">
         <FiAlertTriangle className="w-3 h-3" /> GPS unavailable
       </span>
     );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50">
       <div className="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between bg-[#16a34a] px-6 py-4">
