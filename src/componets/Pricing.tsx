@@ -69,13 +69,13 @@ const Pricing = () => {
 
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-[#16a34a] font-bold text-sm tracking-widest uppercase mb-3">
+          <p className="text-[#16a34a] font-poppins-bold text-sm tracking-widest uppercase mb-3">
             Pricing
           </p>
-          <h2 className="font-black text-3xl md:text-4xl text-[#1a1a1a] tracking-tight leading-tight">
+          <h2 className="font-poppins-extrabold text-3xl md:text-4xl text-[#1a1a1a] tracking-tight leading-tight">
             Simple plans for every team size
           </h2>
-          <p className="text-gray-500 text-lg mt-4 leading-relaxed">
+          <p className="text-gray-500 font-poppins text-md mt-4 leading-relaxed">
             Pay per rep seat. No setup fees. Cancel any time. Pricing is tailored to Uganda and East Africa — not priced for Europe.
           </p>
         </div>
@@ -101,29 +101,29 @@ const Pricing = () => {
               )}
 
               {/* Plan name */}
-              <h3 className={`font-black text-xl mb-1 ${highlighted ? "text-white" : "text-[#1a1a1a]"}`}>
+              <h3 className={`font-poppins-extrabold text-xl mb-1 ${highlighted ? "text-white" : "text-[#1a1a1a]"}`}>
                 {name}
               </h3>
 
               {/* Price */}
               <div className="mb-1">
-                <span className={`font-black text-3xl ${highlighted ? "text-white" : "text-[#16a34a]"}`}>
+                <span className={`font-poppins-extrabold text-3xl ${highlighted ? "text-white" : "text-[#16a34a]"}`}>
                   {price}
                 </span>
               </div>
-              <p className={`text-sm font-medium mb-4 ${highlighted ? "text-white/70" : "text-gray-400"}`}>
+              <p className={`text-sm font-poppins mb-4 ${highlighted ? "text-white/70" : "text-gray-400"}`}>
                 {priceNote}
               </p>
 
               {/* Description */}
-              <p className={`text-[14px] leading-relaxed mb-6 ${highlighted ? "text-white/80" : "text-gray-500"}`}>
+              <p className={`text-[14px] font-poppins leading-relaxed mb-6 ${highlighted ? "text-white/80" : "text-gray-500"}`}>
                 {description}
               </p>
 
               {/* CTA */}
               <Link
                 to={ctaTo}
-                className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-[15px] mb-7 focus-visible:outline focus-visible:outline-2 transition-colors ${
+                className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl font-poppins-bold text-[15px] mb-7 focus-visible:outline focus-visible:outline-2 transition-colors ${
                   highlighted
                     ? "bg-white text-[#16a34a] hover:bg-[#f0fdf4] active:bg-[#dcfce7] focus-visible:outline-white"
                     : "bg-[#16a34a] text-white hover:bg-[#15803d] active:bg-[#166534] focus-visible:outline-[#16a34a] shadow-sm shadow-green-700/20"
@@ -142,7 +142,7 @@ const Pricing = () => {
                     }`}>
                       <BiCheck className={`w-3.5 h-3.5 ${highlighted ? "text-white" : "text-[#16a34a]"}`} />
                     </div>
-                    <p className={`text-sm leading-snug ${highlighted ? "text-white/90" : "text-gray-600"}`}>
+                    <p className={`text-sm font-poppins leading-snug ${highlighted ? "text-white/90" : "text-gray-600"}`}>
                       {f}
                     </p>
                   </div>
@@ -153,7 +153,7 @@ const Pricing = () => {
         </div>
 
         {/* Bottom note */}
-        <p className="text-center text-gray-400 text-sm mt-10">
+        <p className="text-center font-poppins text-gray-400 text-sm mt-10">
           All plans include the verified Uganda HCP database. Volume discounts available for 50+ reps.{" "}
           <a href="mailto:support@kibagrep.com" className="text-[#16a34a] font-semibold hover:underline">
             Contact us

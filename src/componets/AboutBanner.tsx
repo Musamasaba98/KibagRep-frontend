@@ -28,7 +28,7 @@ const POINTS = [
 
 const AboutBanner = () => {
   return (
-    <section id="about" className="w-full bg-gradient-to-br from-[#16a34a] to-[#14532d] relative overflow-hidden py-24">
+    <section id="about" className="w-full bg-gradient-to-br from-[#16a34a] to-[#14532d] relative overflow-hidden py-16">
 
       {/* Subtle dot texture */}
       <div
@@ -44,13 +44,13 @@ const AboutBanner = () => {
 
           {/* Left — copy */}
           <div className="flex-1 w-full">
-            <p className="text-[#4ade80] font-bold text-sm tracking-widest uppercase mb-4">
+            <p className="text-[#4ade80] font-poppins-bold text-sm tracking-widest uppercase mb-4">
               Why KibagRep
             </p>
-            <h2 className="font-black text-3xl md:text-4xl text-white tracking-tight leading-tight max-w-lg">
+            <h2 className="font-poppins-bold text-4xl md:text-4xl text-white tracking-tight leading-tight max-w-lg">
               Built specifically for Africa's healthcare challenges
             </h2>
-            <p className="text-white/70 text-lg mt-4 leading-relaxed max-w-lg">
+            <p className="text-white/70 font-poppins text-md mt-4 leading-relaxed max-w-lg">
               Phyzii captured inputs. KibagRep enforces outcomes. Every feature is designed around the real problems of field sales in East Africa.
             </p>
 
@@ -62,8 +62,8 @@ const AboutBanner = () => {
                     <Icon className="w-5 h-5 text-[#4ade80]" />
                   </div>
                   <div>
-                    <h3 className="text-white font-bold text-[15px] leading-tight">{title}</h3>
-                    <p className="text-white/65 text-sm leading-relaxed mt-1">{body}</p>
+                    <h3 className="text-white font-poppins-bold text-[15px] leading-tight">{title}</h3>
+                    <p className="text-white/65 font-poppins text-sm leading-relaxed mt-1">{body}</p>
                   </div>
                 </div>
               ))}

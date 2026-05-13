@@ -62,3 +62,38 @@ html, body {
 .kk {
   color: rgb(14, 6, 31);
 }
+
+/* --------------------ADDING THE CUSTOM FONT---(Poppins) */
+@font-face {
+    font-family: 'poppins';
+    src: url('./assets/fonts/Poppins-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'poppins-semibold';
+    src: url('./assets/fonts/Poppins-Semibold.ttf');
+}
+
+@font-face {
+    font-family: 'poppins-light';
+    src: url('./assets/fonts/Poppins-Light.ttf');
+}
+
+@font-face {
+    font-family: 'poppins-bold';
+    src: url('./assets/fonts/Poppins-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'poppins-extrabold';
+    src: url('./assets/fonts/Poppins-Extrabold.ttf');
+}
+
+@font-face {
+    font-family: 'poppins-medium';
+    src: url('./assets/fonts/Poppins-Medium.ttf');
+}
+
+*{
+    scroll-behavior: smooth
+}
