@@ -123,12 +123,12 @@ export const KpiCards = ({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-bold text-xl tracking-tight text-gray-800">Today's call activity</h1>
+        <h1 className="font-poppins-bold text-xl tracking-tight text-gray-800">Today's call activity</h1>
         {onRefresh && (
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-500 bg-white border border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-poppins-semibold text-gray-500 bg-white border border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
             aria-label="Refresh data"
           >
             <FiRefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -145,15 +145,15 @@ export const KpiCards = ({
           return (
             <div
               key={card.label}
-              className={`flex flex-col justify-between min-h-[110px] sm:min-h-[130px] p-3.5 sm:p-4 rounded-xl bg-gradient-to-br ${card.gradient} shadow-[0_2px_12px_0_rgba(0,0,0,0.07)] hover:shadow-[0_4px_20px_0_rgba(0,0,0,0.12)] cursor-pointer`}
+              className={`flex flex-col bg-white justify-between min-h-[110px] sm:min-h-[130px] p-3.5 sm:p-4 rounded-xl border-solid border border-gray-200 cursor-pointer`}
               style={{ transition: "box-shadow 0.2s, opacity 0.2s" }}
             >
               <div className="flex items-center justify-between">
                 <div className={`p-2 rounded-lg ${card.iconBg}`}>
-                  <Icon className={`w-4 h-4 ${card.iconColor}`} />
+                  <Icon className={`w-5 h-5 ${card.iconColor}`} />
                 </div>
                 {pct !== null && (
-                  <span className="text-[11px] font-semibold text-gray-400 tracking-wide">
+                  <span className="text-[11px] font-poppins-semibold text-gray-400 tracking-wide">
                     {pct}% of target
                   </span>
                 )}
@@ -163,10 +163,10 @@ export const KpiCards = ({
                 <div className="w-8 h-8 rounded-full border-[3px] border-gray-200 border-t-green-500 animate-spin" />
               ) : (
                 <div>
-                  <p className={`font-black text-4xl leading-none ${card.valueColor}`}>
+                  <p className={`font-poppins-extrabold pt-2 text-4xl leading-none ${card.valueColor}`}>
                     {card.value}
                   </p>
-                  <p className="text-[13px] font-semibold text-gray-500 mt-1">{card.label}</p>
+                  <p className="text-[13px] font-poppins-semibold text-gray-500 mt-1">{card.label}</p>
                 </div>
               )}
 
@@ -191,7 +191,7 @@ export const KpiCards = ({
   );
 };
 
-// ─── Today's visit log section ────────────────────────────────────────────────
+// ─── Today's visit log section ──────────────────────────────────────────────
 export const TodayVisitLog = ({
   activities,
   loading,
@@ -200,7 +200,7 @@ export const TodayVisitLog = ({
   loading: boolean;
 }) => (
   <div>
-    <h2 className="font-bold text-xl tracking-tight text-gray-800 mb-3">Today's visits</h2>
+    <h2 className="font-poppins-bold text-xl tracking-tight text-gray-800 mb-3">Today's visits</h2>
 
     {loading ? (
       <div className="flex items-center gap-3 text-gray-400">

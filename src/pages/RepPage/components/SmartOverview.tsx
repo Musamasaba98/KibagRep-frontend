@@ -100,7 +100,7 @@ const PriorityFlag = ({ level }: { level: Priority }) => {
   return (
     <div className="flex flex-col items-center shrink-0 gap-0.5">
       <FaFlag className={`w-3 h-3 ${color}`} />
-      <p className={`text-[9px] font-semibold leading-none ${color}`}>{label}</p>
+      <p className={`text-[9px] font-poppins-semibold leading-none ${color}`}>{label}</p>
     </div>
   );
 };
@@ -109,13 +109,13 @@ const TaskRow = ({ task }: { task: Task }) => (
   <div className="flex items-start gap-2.5 px-2 py-2 rounded-lg hover:bg-white transition-colors">
     <PriorityFlag level={task.priority} />
     <div className="flex-1 min-w-0">
-      <p className="text-xs font-semibold text-[#222f36] leading-snug truncate">{task.description}</p>
+      <p className="text-xs font-poppins-semibold text-[#222f36] leading-snug truncate">{task.description}</p>
       <div className="flex items-center justify-between mt-0.5 gap-2 flex-wrap">
         <div className="flex items-center gap-1">
-          <span className="text-[10px] font-bold text-[#16a34a] uppercase tracking-wide">Status</span>
-          <span className="text-[10px] text-gray-500">{task.status}</span>
+          <span className="text-[10px] font-poppins-bold text-[#16a34a] uppercase tracking-wide">Status</span>
+          <span className="text-[10px] font-poppins text-gray-500">{task.status}</span>
         </div>
-        <span className="text-[10px] text-gray-300 shrink-0">{task.date}</span>
+        <span className="text-[10px] font-poppins text-gray-300 shrink-0">{task.date}</span>
       </div>
     </div>
   </div>
@@ -127,13 +127,13 @@ const CatchupRow = ({ entry }: { entry: CatchupEntry }) => {
     <div className="flex items-start gap-2.5 px-2 py-2 rounded-lg hover:bg-white transition-colors">
       <FaFlag className="w-3 h-3 text-gray-300 mt-0.5 shrink-0" />
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-gray-500 leading-snug truncate">{entry.hint}</p>
+        <p className="text-xs text-gray-500 font-poppins leading-snug truncate">{entry.hint}</p>
         <div className="flex items-center justify-between mt-0.5 gap-2 flex-wrap">
           <div className="flex items-center gap-1 min-w-0">
-            <span className="text-[10px] font-bold text-[#16a34a] uppercase tracking-wide shrink-0">Name</span>
-            <span className="text-[10px] text-gray-600 font-semibold truncate max-w-[110px]">{entry.name}</span>
+            <span className="text-[10px] font-poppins-bold text-[#16a34a] uppercase tracking-wide shrink-0">Name</span>
+            <span className="text-[10px] text-gray-600 font-poppins-semibold truncate max-w-[110px]">{entry.name}</span>
             <span
-              className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+              className={`text-[9px] font-poppins-bold px-1.5 py-0.5 rounded-full shrink-0 ${
                 entry.tier === "A"
                   ? "bg-[#dcfce7] text-[#16a34a]"
                   : entry.tier === "B"
@@ -144,7 +144,7 @@ const CatchupRow = ({ entry }: { entry: CatchupEntry }) => {
               Tier {entry.tier}
             </span>
           </div>
-          <span className="text-[10px] text-gray-300 shrink-0">{pct}% done</span>
+          <span className="text-[10px] font-poppins text-gray-300 shrink-0">{pct}% done</span>
         </div>
         <div className="w-full h-0.5 bg-gray-100 rounded-full mt-1.5 overflow-hidden">
           <div
@@ -160,7 +160,7 @@ const CatchupRow = ({ entry }: { entry: CatchupEntry }) => {
 const EmptyState = ({ label, sub }: { label: string; sub?: string }) => (
   <div className="flex flex-col items-center py-8 text-gray-300">
     <MdCheckCircleOutline className="w-8 h-8 mb-1.5" />
-    <p className="text-xs font-semibold text-gray-400">{label}</p>
+    <p className="text-xs font-poppins-semibold text-gray-400">{label}</p>
     {sub && <p className="text-[11px] text-gray-300 mt-0.5 text-center max-w-[200px]">{sub}</p>}
   </div>
 );
@@ -188,8 +188,8 @@ const ShortcutCard = ({
       <Icon className={`w-4 h-4 ${color}`} />
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-xs font-bold text-[#222f36]">{label}</p>
-      <p className="text-[10px] text-gray-400 truncate">{description}</p>
+      <p className="text-xs font-poppins-bold text-[#222f36]">{label}</p>
+      <p className="text-[10px] font-poppins text-gray-400 truncate">{description}</p>
     </div>
     <MdArrowForwardIos className="w-3 h-3 text-gray-300 group-hover:text-gray-400 transition-colors shrink-0" />
   </NavLink>
@@ -234,22 +234,22 @@ const TodayTab = ({
             <span className="text-[#16a34a] font-bold text-[10px]">{idx + 1}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-gray-800 truncate">
+            <p className="text-xs font-poppins-semibold text-gray-800 truncate">
               {activity.doctor?.doctor_name ?? "—"}
             </p>
-            <p className="text-[10px] text-gray-400 truncate">{activity.doctor?.town ?? ""}</p>
+            <p className="text-[10px] font-poppins text-gray-400 truncate">{activity.doctor?.town ?? ""}</p>
           </div>
           {activity.focused_product && (
-            <span className="shrink-0 text-[10px] font-semibold text-[#16a34a] bg-[#dcfce7] px-2 py-0.5 rounded-full">
+            <span className="shrink-0 text-[10px] font-poppins-semibold text-[#16a34a] bg-[#dcfce7] px-2 py-0.5 rounded-full">
               ★ {activity.focused_product.product_name}
             </span>
           )}
           {activity.samples_given > 0 && (
-            <span className="shrink-0 text-[10px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+            <span className="shrink-0 text-[10px] font-poppins-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
               {activity.samples_given} samples
             </span>
           )}
-          <span className="shrink-0 text-[10px] text-gray-300 font-mono">
+          <span className="shrink-0 font-poppins text-[10px] text-gray-300">
             {format(new Date(activity.date), "HH:mm")}
           </span>
         </div>
@@ -278,15 +278,15 @@ const CycleTab = ({ cycle, loading }: { cycle: CycleData | null; loading: boolea
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-bold text-[#222f36]">
+          <p className="text-sm font-poppins-bold text-[#222f36]">
             {format(new Date(cycle.year, cycle.month - 1), "MMMM yyyy")} Cycle
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs font-poppins text-gray-400 mt-0.5">
             {done} / {total} doctors fully visited
           </p>
         </div>
         <span
-          className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+          className={`text-[10px] font-poppins-bold px-2.5 py-1 rounded-full ${
             cycle.status === "LOCKED"
               ? "bg-[#dcfce7] text-[#16a34a]"
               : cycle.status === "SUBMITTED"
@@ -313,17 +313,17 @@ const CycleTab = ({ cycle, loading }: { cycle: CycleData | null; loading: boolea
           const tierDone = items.filter((i) => i.visits_done >= i.frequency).length;
           return (
             <div key={tier} className="bg-gray-50 rounded-xl p-3 text-center">
-              <p className="text-lg font-black text-[#222f36]">
+              <p className="text-lg font-poppins-extrabold text-[#222f36]">
                 {tierDone}/{items.length}
               </p>
-              <p className="text-[10px] text-gray-400 font-semibold">Tier {tier}</p>
+              <p className="text-[10px] text-gray-400 font-poppins-semibold">Tier {tier}</p>
             </div>
           );
         })}
       </div>
       <NavLink
         to="/rep-page/call-cycle"
-        className="flex items-center justify-between w-full text-xs font-semibold text-[#16a34a] hover:text-[#15803d] transition-colors"
+        className="flex items-center justify-between w-full text-xs font-poppins-semibold text-[#16a34a] hover:text-[#15803d] transition-colors"
       >
         View full cycle <MdArrowForwardIos className="w-3 h-3" />
       </NavLink>
@@ -340,7 +340,7 @@ const SamplesTab = ({ balances, loading }: { balances: SampleBalance[]; loading:
     return (
       <div className="flex items-center gap-3 py-6 px-2 text-gray-400">
         <div className="w-4 h-4 rounded-full border-2 border-gray-200 border-t-[#16a34a] animate-spin" />
-        <span className="text-sm">Loading sample balances…</span>
+        <span className="text-sm font-poppins">Loading sample balances…</span>
       </div>
     );
   }
@@ -362,18 +362,18 @@ const SamplesTab = ({ balances, loading }: { balances: SampleBalance[]; loading:
       {/* Summary row */}
       <div className="flex gap-3">
         <div className="flex-1 bg-sky-50 rounded-xl p-3 text-center">
-          <p className="text-xl font-black text-sky-600">{totalRemaining}</p>
-          <p className="text-[10px] font-semibold text-sky-400 uppercase tracking-wide mt-0.5">Remaining</p>
+          <p className="text-xl font-poppins-extrabold text-sky-600">{totalRemaining}</p>
+          <p className="text-[10px] font-poppins-semibold text-sky-400 uppercase tracking-wide mt-0.5">Remaining</p>
         </div>
         <div className="flex-1 bg-gray-50 rounded-xl p-3 text-center">
-          <p className="text-xl font-black text-gray-600">{totalIssued}</p>
+          <p className="text-xl font-poppins-extrabold text-gray-600">{totalIssued}</p>
           <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mt-0.5">Issued Total</p>
         </div>
         <div className="flex-1 bg-amber-50 rounded-xl p-3 text-center">
-          <p className="text-xl font-black text-amber-600">
+          <p className="text-xl font-poppins-extrabold text-amber-600">
             {totalIssued > 0 ? Math.round(((totalIssued - totalRemaining) / totalIssued) * 100) : 0}%
           </p>
-          <p className="text-[10px] font-semibold text-amber-400 uppercase tracking-wide mt-0.5">Distributed</p>
+          <p className="text-[10px] font-poppins-semibold text-amber-400 uppercase tracking-wide mt-0.5">Distributed</p>
         </div>
       </div>
 
@@ -388,13 +388,13 @@ const SamplesTab = ({ balances, loading }: { balances: SampleBalance[]; loading:
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                  <p className="text-xs font-semibold text-[#222f36] truncate max-w-[150px]">
+                  <p className="text-xs font-poppins-semibold text-[#222f36] truncate max-w-[150px]">
                     {b.product.product_name}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] text-gray-400">{b.given}/{b.issued} given</span>
-                  <span className="text-xs font-bold" style={{ color }}>
+                  <span className="text-[10px] font-[poppins] text-gray-400">{b.given}/{b.issued} given</span>
+                  <span className="text-xs font-poppins-bold" style={{ color }}>
                     {remaining} left
                   </span>
                 </div>
@@ -488,7 +488,7 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
     : [];
 
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_16px_0_rgba(0,0,0,0.06)] overflow-hidden">
+    <div className="bg-white rounded-2xl border-solid border border-gray-200 overflow-hidden">
 
       {/* ── Tab nav ── */}
       <div className="flex items-center border-b border-gray-100 overflow-x-auto scrollbar-none">
@@ -496,22 +496,22 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3 sm:px-4 py-2 sm:py-3.5 text-xs sm:text-sm font-semibold whitespace-nowrap focus-visible:outline-none transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3.5 text-xs sm:text-sm font-poppins-semibold whitespace-nowrap focus-visible:outline-none transition-colors ${
               activeTab === tab.id
-                ? "text-[#16a34a] border-b-[3px] border-[#16a34a]"
+                ? "text-[#16a34a] font-poppins border-b-[3px] border-[#16a34a]"
                 : "text-gray-400 hover:text-gray-600 border-b-[3px] border-transparent"
             }`}
           >
             {tab.label}
             {/* Badge for today's visit count on the Today tab */}
             {tab.id === "today" && activities.length > 0 && (
-              <span className="ml-1.5 text-[10px] font-bold text-white bg-[#16a34a] px-1.5 py-0.5 rounded-full">
+              <span className="ml-1.5 text-[10px] font-poppins-bold text-white bg-[#16a34a] px-1.5 py-0.5 rounded-full">
                 {activities.length}
               </span>
             )}
             {/* Badge for total samples remaining on the Samples tab */}
             {tab.id === "samples" && !balancesLoading && balances.length > 0 && (
-              <span className="ml-1.5 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded-full">
+              <span className="ml-1.5 text-[10px] font-poppins-bold text-white bg-sky-500 px-1.5 py-0.5 rounded-full">
                 {balances.reduce((s, b) => s + Math.max(0, b.issued - b.given), 0)}
               </span>
             )}
@@ -531,7 +531,7 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
         {activeTab === "tasks" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="pb-4 md:pb-0 md:pr-4 md:border-r border-gray-200">
-              <h3 className="text-[11px] font-bold text-[#222f36] uppercase tracking-widest mb-2 px-2">
+              <h3 className="text-[14px] font-poppins-bold text-[#222f36] uppercase tracking-widest mb-2 px-2">
                 My Tasks
               </h3>
               {cycleLoading ? (
@@ -547,7 +547,7 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
               )}
             </div>
             <div className="pt-4 md:pt-0 md:pl-4 border-t md:border-t-0 border-gray-200">
-              <h3 className="text-[11px] font-bold text-[#222f36] uppercase tracking-widest mb-2 px-2">
+              <h3 className="text-[14px] font-poppins-bold text-[#222f36] uppercase tracking-widest mb-2 px-2">
                 Catching Up
               </h3>
               {cycleLoading ? (
@@ -577,7 +577,7 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
             {/* Monthly target card */}
             {target ? (
               <div className="bg-white rounded-xl p-3.5 shadow-[0_1px_6px_0_rgba(0,0,0,0.05)]">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2.5">Monthly Target</p>
+                <p className="text-[11px] font--poppins-bold text-gray-400 uppercase tracking-widest mb-2.5">Monthly Target</p>
                 <div className="space-y-3">
                   {[
                     {
@@ -601,15 +601,15 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
                     return (
                       <div key={label}>
                         <div className="flex justify-between text-xs mb-1">
-                          <span className="font-semibold text-[#1a1a1a]">{label}</span>
+                          <span className="font-poppins-semibold text-[#1a1a1a]">{label}</span>
                           <span className="text-gray-400">{format(actual)} / {format(t)}</span>
                         </div>
                         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color, transition: "width 0.4s" }} />
                         </div>
                         <div className="flex justify-between mt-1">
-                          <span className="text-[10px] font-bold" style={{ color }}>{pct}%</span>
-                          <span className="text-[10px] rounded-full px-1.5 font-semibold" style={{ background: bg, color }}>target {format(t)}</span>
+                          <span className="text-[10px] font-poppins-bold" style={{ color }}>{pct}%</span>
+                          <span className="text-[10px] rounded-full px-1.5 font-poppins-semibold" style={{ background: bg, color }}>target {format(t)}</span>
                         </div>
                       </div>
                     );
@@ -617,7 +617,7 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
                 </div>
               </div>
             ) : (
-              <div className="bg-gray-50 rounded-xl px-3.5 py-3 text-xs text-gray-400 text-center">
+              <div className="bg-gray-50 font-poppins rounded-xl px-3.5 py-3 text-xs text-gray-400 text-center">
                 No target set for this month yet
               </div>
             )}
