@@ -28,10 +28,10 @@ const Highlights = () => {
 
         {/* Header */}
         <div className="text-center mb-14">
-          <p className="text-[#16a34a] font-bold text-sm tracking-widest uppercase mb-3">
+          <p className="text-[#16a34a] font-poppins-bold text-sm tracking-widest uppercase mb-3">
             By the numbers
           </p>
-          <h2 className="font-black text-3xl md:text-4xl text-[#1a1a1a] tracking-tight">
+          <h2 className="font-poppins-extrabold text-3xl md:text-4xl text-[#1a1a1a] tracking-tight">
             The platform that moves the needle
           </h2>
         </div>
@@ -44,13 +44,13 @@ const Highlights = () => {
               className="flex flex-col items-center text-center p-6 rounded-2xl bg-[#f0fdf4] border border-[#dcfce7] cursor-pointer hover:-translate-y-1 hover:shadow-[0_8px_32px_0_rgba(22,163,74,0.12)]"
               style={{ transition: "transform 0.25s ease, box-shadow 0.25s ease" }}
             >
-              <span className="font-black text-4xl md:text-5xl text-[#16a34a] leading-none tracking-tight">
+              <span className="font-poppins-extrabold text-4xl md:text-5xl text-[#16a34a] leading-none tracking-tight">
                 {value}
               </span>
-              <span className="font-bold text-[#1a1a1a] text-[15px] mt-3 leading-tight">
+              <span className="font-poppins-bold text-[#1a1a1a] text-[15px] mt-3 leading-tight">
                 {label}
               </span>
-              <span className="text-gray-500 text-xs mt-1.5 leading-snug">
+              <span className="text-gray-500 font-poppins text-xs mt-1.5 leading-snug">
                 {sub}
               </span>
             </div>

@@ -69,13 +69,13 @@ const Features = () => {
 
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-[#16a34a] font-bold text-sm tracking-widest uppercase mb-3">
+          <p className="text-[#16a34a] font-poppins-bold text-sm tracking-widest uppercase mb-3">
             Platform capabilities
           </p>
-          <h2 className="font-black text-3xl md:text-4xl text-[#1a1a1a] tracking-tight leading-tight">
+          <h2 className="font-poppins-extrabold text-3xl md:text-4xl text-[#1a1a1a] tracking-tight leading-tight">
             Powerful features built for Africa's healthcare field teams
           </h2>
-          <p className="text-gray-500 text-lg mt-4 leading-relaxed">
+          <p className="text-gray-500 font-poppins text-md mt-4 leading-relaxed">
             Everything your reps, supervisors, and country managers need — in one platform that actually enforces accountability.
           </p>
         </div>

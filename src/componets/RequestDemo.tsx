@@ -21,13 +21,13 @@ const RequestDemo = () => {
 
         {/* Header */}
         <div className="text-center max-w-xl mx-auto mb-14">
-          <p className="text-[#16a34a] font-bold text-sm tracking-widest uppercase mb-3">
+          <p className="text-[#16a34a] font-poppins-bold text-sm tracking-widest uppercase mb-3">
             Get started
           </p>
-          <h2 className="font-black text-3xl md:text-4xl text-[#1a1a1a] tracking-tight leading-tight">
+          <h2 className="font-poppins-extrabold text-3xl md:text-4xl text-[#1a1a1a] tracking-tight leading-tight">
             Ready to transform your field operations?
           </h2>
-          <p className="text-gray-500 text-lg mt-4 leading-relaxed">
+          <p className="text-gray-500 font-poppins text-md mt-4 leading-relaxed">
             Book a personalised demo and see KibagRep running on your team's territory in 20 minutes.
           </p>
         </div>
@@ -50,9 +50,9 @@ const RequestDemo = () => {
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-[#dcfce7] flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-[#16a34a] text-xs font-black">✓</span>
+                    <span className="text-[#16a34a] text-xs font-poppins-extrabold">✓</span>
                   </div>
-                  <p className="text-[15px] text-gray-700 font-medium leading-snug">{item}</p>
+                  <p className="text-[15px] text-gray-700 font-poppins-semibold leading-snug">{item}</p>
                 </div>
               ))}
             </div>
@@ -65,8 +65,8 @@ const RequestDemo = () => {
                 <div className="w-16 h-16 rounded-full bg-[#dcfce7] flex items-center justify-center mb-4">
                   <span className="text-[#16a34a] text-3xl font-black">✓</span>
                 </div>
-                <h3 className="font-black text-[#1a1a1a] text-xl mb-2">Request received!</h3>
-                <p className="text-gray-500 text-[15px] leading-relaxed">
+                <h3 className="font-poppins-extrabold text-[#1a1a1a] text-xl mb-2">Request received!</h3>
+                <p className="text-gray-500 font-poppins text-[15px] leading-relaxed">
                   We'll reach out within 24 hours to schedule your demo.
                 </p>
               </div>
@@ -75,7 +75,7 @@ const RequestDemo = () => {
                 onSubmit={handleSubmit}
                 className="bg-white rounded-2xl p-7 border border-gray-100 shadow-[0_4px_24px_0_rgba(0,0,0,0.06)] flex flex-col gap-4"
               >
-                <h3 className="font-black text-[#1a1a1a] text-xl mb-1">Request a demo</h3>
+                <h3 className="font-poppins-extrabold text-center text-[#1a1a1a] text-2xl mb-1">Request a demo</h3>
 
                 {[
                   { name: "name", label: "Full name", type: "text", placeholder: "Dr. Kato Brian" },
@@ -83,7 +83,7 @@ const RequestDemo = () => {
                   { name: "company", label: "Company / organisation", type: "text", placeholder: "Mega Lifesciences Uganda" },
                 ].map(({ name, label, type, placeholder }) => (
                   <div key={name}>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+                    <label className="block text-sm font-poppins-semibold text-gray-700 mb-1.5">{label}</label>
                     <input
                       type={type}
                       name={name}
@@ -91,13 +91,13 @@ const RequestDemo = () => {
                       onChange={handleChange}
                       placeholder={placeholder}
                       required
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 text-[15px] text-gray-800 placeholder:text-gray-400 outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/15 transition-colors"
+                      className="w-full px-4 py-3 rounded-xl border font-poppins border-gray-200 text-[15px] text-gray-800 placeholder:text-gray-400 outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/15 transition-colors"
                     />
                   </div>
                 ))}
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  <label className="block text-sm font-poppins-semibold text-gray-700 mb-1.5">
                     Question or comment <span className="text-gray-400 font-normal">(optional)</span>
                   </label>
                   <textarea
@@ -106,19 +106,19 @@ const RequestDemo = () => {
                     onChange={handleChange}
                     placeholder="Tell us about your team size or current challenges…"
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-[15px] text-gray-800 placeholder:text-gray-400 outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/15 resize-none transition-colors"
+                    className="w-full px-4 py-3 font-poppins rounded-xl border border-gray-200 text-[15px] text-gray-800 placeholder:text-gray-400 outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/15 resize-none transition-colors"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-bold text-[15px] py-3.5 rounded-xl shadow-sm shadow-green-700/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] transition-colors mt-1"
+                  className="w-full flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white font-poppins-bold text-[15px] py-3.5 rounded-xl shadow-sm shadow-green-700/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] transition-colors mt-1"
                 >
                   Book my demo
                   <MdKeyboardArrowRight className="w-5 h-5" />
                 </button>
 
-                <p className="text-center text-xs text-gray-400 mt-1">
+                <p className="text-center font-poppins text-xs text-gray-400 mt-1">
                   No credit card required · Free to start
                 </p>
               </form>
