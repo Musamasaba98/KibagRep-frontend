@@ -36,9 +36,9 @@ const Footer = () => {
               <div className="w-8 h-8 bg-[#16a34a] rounded-xl flex items-center justify-center shadow-sm shadow-green-700/30">
                 <span className="text-white font-black text-sm tracking-tight">K</span>
               </div>
-              <span className="font-black text-white text-xl tracking-tight">KibagRep</span>
+              <span className="font-poppins-extrabold text-white text-xl tracking-tight">KibagRep</span>
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed max-w-[220px]">
+            <p className="text-gray-400 font-poppins text-sm leading-relaxed max-w-[220px]">
               Uganda's verified HCP database and medical SFA platform. Accountability by design.
             </p>
 
@@ -59,13 +59,13 @@ const Footer = () => {
 
           {/* Quick links */}
           <div>
-            <h4 className="text-white font-bold text-[15px] mb-5">Quick links</h4>
+            <h4 className="text-white font-poppins-bold text-[15px] mb-5">Quick links</h4>
             <ul className="flex flex-col gap-3">
               {QUICK_LINKS.map((link) => (
                 <li key={link}>
                   <a
                     href={`#${link.toLowerCase()}`}
-                    className="text-gray-400 text-sm hover:text-[#4ade80] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors cursor-pointer"
+                    className="text-gray-400 text-sm font-poppins hover:text-[#4ade80] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors cursor-pointer"
                   >
                     {link}
                   </a>
@@ -76,13 +76,13 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h4 className="text-white font-bold text-[15px] mb-5">Support</h4>
+            <h4 className="text-white font-poppins-bold text-[15px] mb-5">Support</h4>
             <ul className="flex flex-col gap-3">
               {SUPPORT_LINKS.map((link) => (
                 <li key={link}>
                   <a
                     href="#"
-                    className="text-gray-400 text-sm hover:text-[#4ade80] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors cursor-pointer"
+                    className="text-gray-400 font-poppins text-sm hover:text-[#4ade80] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors cursor-pointer"
                   >
                     {link}
                   </a>
@@ -93,24 +93,24 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="text-white font-bold text-[15px] mb-5">Contact info</h4>
+            <h4 className="text-white font-poppins-bold text-[15px] mb-5">Contact info</h4>
             <div className="flex flex-col gap-4">
               <div className="flex items-start gap-3">
                 <MdEmail className="w-4 h-4 text-[#16a34a] shrink-0 mt-0.5" />
                 <a
                   href="mailto:support@kibagrep.com"
-                  className="text-gray-400 text-sm hover:text-[#4ade80] transition-colors cursor-pointer"
+                  className="text-gray-400 font-poppins text-sm hover:text-[#4ade80] transition-colors cursor-pointer"
                 >
                   support@kibagrep.com
                 </a>
               </div>
               <div className="flex items-start gap-3">
                 <MdPhone className="w-4 h-4 text-[#16a34a] shrink-0 mt-0.5" />
-                <span className="text-gray-400 text-sm">+256 775 345 245</span>
+                <span className="text-gray-400 font-poppins text-sm">+256 775 345 245</span>
               </div>
               <div className="flex items-start gap-3">
                 <MdLocationOn className="w-4 h-4 text-[#16a34a] shrink-0 mt-0.5" />
-                <span className="text-gray-400 text-sm">Kampala, Uganda</span>
+                <span className="text-gray-400 font-poppins text-sm">Kampala, Uganda</span>
               </div>
             </div>
           </div>
@@ -118,14 +118,14 @@ const Footer = () => {
 
         {/* Bottom row */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8">
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 font-poppins text-sm">
             &copy; {new Date().getFullYear()} KibagRep. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-gray-500 text-sm hover:text-[#4ade80] transition-colors cursor-pointer">
+            <a href="#" className="text-gray-500 font-poppins text-sm hover:text-[#4ade80] transition-colors cursor-pointer">
               Privacy Policy
             </a>
-            <a href="#" className="text-gray-500 text-sm hover:text-[#4ade80] transition-colors cursor-pointer">
+            <a href="#" className="text-gray-500 font-poppins text-sm hover:text-[#4ade80] transition-colors cursor-pointer">
               Terms of Service
             </a>
           </div>

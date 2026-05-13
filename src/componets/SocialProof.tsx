@@ -37,10 +37,10 @@ const SocialProof = () => {
 
         {/* Header */}
         <div className="text-center mb-14">
-          <p className="text-[#16a34a] font-bold text-sm tracking-widest uppercase mb-3">
+          <p className="text-[#16a34a] font-poppins-bold text-sm tracking-widest uppercase mb-3">
             Trusted by field teams
           </p>
-          <h2 className="font-black text-3xl md:text-4xl text-[#1a1a1a] tracking-tight">
+          <h2 className="font-poppins-extrabold text-3xl md:text-4xl text-[#1a1a1a] tracking-tight">
             What managers say after switching
           </h2>
         </div>
@@ -61,18 +61,18 @@ const SocialProof = () => {
               </div>
 
               {/* Quote */}
-              <p className="text-gray-700 text-[15px] leading-relaxed flex-1 mb-6">
+              <p className="text-gray-700 font-[poppins] text-[15px] leading-relaxed flex-1 mb-6">
                 "{quote}"
               </p>
 
               {/* Author */}
               <div className="flex items-center gap-3 mt-auto">
                 <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center shrink-0`}>
-                  <span className="text-white font-black text-sm">{initials}</span>
+                  <span className="text-white font-poppins text-sm">{initials}</span>
                 </div>
                 <div>
-                  <p className="font-bold text-[#1a1a1a] text-sm leading-tight">{name}</p>
-                  <p className="text-gray-400 text-xs leading-tight mt-0.5">
+                  <p className="font-poppins-bold text-[#1a1a1a] text-sm leading-tight">{name}</p>
+                  <p className="text-gray-400 font-poppins text-xs leading-tight mt-0.5">
                     {title} · {company}
                   </p>
                 </div>
@@ -83,7 +83,7 @@ const SocialProof = () => {
 
         {/* Company strip */}
         <div className="mt-14 pt-10 border-t border-gray-200">
-          <p className="text-center text-gray-400 text-sm font-medium mb-7 tracking-wide uppercase">
+          <p className="text-center text-gray-400 text-sm font-poppins-semibold mb-7 tracking-wide uppercase">
             Used by pharma field teams across Uganda
           </p>
           <div className="flex flex-wrap justify-center gap-4">
@@ -97,10 +97,10 @@ const SocialProof = () => {
             ].map((name) => (
               <div
                 key={name}
-                className="px-5 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-500 text-sm font-semibold hover:border-[#16a34a] hover:text-[#16a34a] cursor-default"
+                className="px-5 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-500 text-sm hover:border-[#16a34a] hover:text-[#16a34a] cursor-default"
                 style={{ transition: "border-color 0.2s, color 0.2s" }}
               >
-                {name}
+              <p className="font-poppins">{name}</p>
               </div>
             ))}
           </div>

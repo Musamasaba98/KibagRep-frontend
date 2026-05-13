@@ -16,48 +16,44 @@ const Navbar = () => {
   return (
     <>
       <nav className="w-full sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100 shadow-[0_1px_12px_0_rgba(0,0,0,0.05)]">
-        <div className="w-[90%] 2xl:w-[70%] mx-auto h-16 flex items-center justify-between">
+      <div className="w-[90%] 2xl:w-[70%] mx-auto h-16 flex items-center justify-between">
 
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded-lg">
-            <div className="w-8 h-8 bg-[#16a34a] rounded-xl flex items-center justify-center shadow-sm shadow-green-700/20">
-              <span className="text-white font-black text-sm tracking-tight">K</span>
-            </div>
-            <span className="font-black text-[#1a1a1a] text-xl tracking-tight">
-              Kibag<span className="text-[#16a34a]">Rep</span>
-            </span>
-          </Link>
+      {/* Logo */}
+      <Link to="/" className="flex items-center gap-2 shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded-lg">
+      <div className="w-8 h-8 bg-[#16a34a] rounded-xl flex items-center justify-center shadow-sm shadow-green-700/20">
+      <span className="text-white font-poppins-extrabold text-sm tracking-tight">K</span>
+      </div>
+      <span className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">
+      Kibag<span className="text-[#16a34a]">Rep</span>
+      </span>
+      </Link>
 
           {/* Desktop nav */}
-          <ul className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <li key={link.label}>
-                <a
-                  href={link.href}
-                  className="text-[15px] font-medium text-gray-600 hover:text-[#16a34a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+      <ul className="hidden md:flex items-center gap-8">
+      {NAV_LINKS.map((link) => (
+      <li key={link.label}>
+      <a
+      href={link.href}
+      className="text-[16px] font-poppins text-gray-900 hover:text-[#16a34a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors">
+      {link.label}
+      </a>
+     </li>
+       ))}
+    </ul>
 
-          {/* Desktop CTAs */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link
-              to="/login"
-              className="text-[15px] font-semibold text-gray-700 hover:text-[#16a34a] px-4 py-2 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] transition-colors"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/signup"
-              className="flex items-center gap-1.5 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white text-[15px] font-semibold px-5 py-2.5 rounded-xl shadow-sm shadow-green-700/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] transition-colors"
-            >
-              Get started free
-              <MdKeyboardArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+    {/* Desktop CTAs */}
+    <div className="hidden md:flex items-center gap-3">
+    <Link
+    to="/login"
+    className="text-[15px] font-semibold text-gray-900 hover:text-[#16a34a] px-4 py-2 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] transition-colors"
+    >Log in</Link>
+      
+    <Link
+    to="/signup"
+    className="flex items-center gap-1.5 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white text-[15px] font-poppins px-5 py-2.5 rounded-xl shadow-sm shadow-green-700/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] transition-colors"
+    >Get started free<MdKeyboardArrowRight className="w-4 h-4" />
+    </Link>
+    </div>
 
           {/* Mobile hamburger */}
           <button

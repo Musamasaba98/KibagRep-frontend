@@ -35,14 +35,14 @@ const StickyBar = () => {
         <span className="w-2.5 h-2.5 rounded-full bg-[#4ade80] animate-pulse shrink-0" />
 
         {/* Message */}
-        <p className="text-sm font-medium text-white/90 flex-1 leading-snug">
+        <p className="text-sm font-poppins-semibold text-white/90 flex-1 leading-snug">
           Uganda's verified HCP database — your reps deserve better than Excel.
         </p>
 
         {/* CTA */}
         <Link
           to="/signup"
-          className="flex items-center gap-1 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white text-sm font-bold px-4 py-2 rounded-xl shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4ade80] transition-colors"
+          className="flex items-center gap-1 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white text-sm font-poppins-bold px-4 py-2 rounded-xl shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4ade80] transition-colors"
         >
           Start free
           <MdKeyboardArrowRight className="w-4 h-4" />
