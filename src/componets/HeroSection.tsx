@@ -14,15 +14,6 @@ const HeroSection = () => {
   return (
     <section className="w-full bg-gradient-to-br from-[#16a34a] via-[#15803d] to-[#14532d] relative overflow-hidden pb-28 pt-16 md:pt-16">
 
-      {/* Background texture dots */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-        }}
-      />
-
       <div className="w-[90%] 2xl:w-[70%] mx-auto relative z-10">
         <div className="flex w-full flex-col md:flex-row items-center gap-12 md:gap-8">
 
