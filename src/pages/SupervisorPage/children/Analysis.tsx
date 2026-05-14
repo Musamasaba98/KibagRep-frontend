@@ -41,23 +41,23 @@ const PerfCard = ({ rep }: { rep: RepPerf }) => {
   const overdue = rep.days_since_last_visit !== null && rep.days_since_last_visit > 3;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] p-4">
+    <div className="bg-white rounded-2xl border border-gray-100 p-4">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-full bg-[#f0fdf4] flex items-center justify-center text-xs font-bold text-[#16a34a] shrink-0">
+        <div className="w-9 h-9 rounded-full bg-[#f0fdf4] flex items-center justify-center text-xs font-poppins-bold text-[#16a34a] shrink-0">
           {rep.user.firstname[0]}{rep.user.lastname[0]}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-[#1a1a1a] truncate">{rep.user.firstname} {rep.user.lastname}</p>
-          <p className="text-xs text-gray-400">Medical Rep</p>
+          <p className="text-sm font-poppins-bold text-[#1a1a1a] truncate">{rep.user.firstname} {rep.user.lastname}</p>
+          <p className="text-xs font-poppins text-gray-400">Medical Rep</p>
         </div>
         <div className="flex gap-1 shrink-0">
           {rep.gps_anomaly_count_week > 0 && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600" title="GPS anomalies this week">
+            <span className="text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600" title="GPS anomalies this week">
               ⚠ {rep.gps_anomaly_count_week}
             </span>
           )}
           {rep.pending_reports > 0 && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700" title="Pending reports">
+            <span className="text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700" title="Pending reports">
               {rep.pending_reports} rpt
             </span>
           )}
@@ -72,8 +72,8 @@ const PerfCard = ({ rep }: { rep: RepPerf }) => {
           { label: "Month", value: rep.visits_this_month },
         ].map(({ label, value }) => (
           <div key={label} className="text-center bg-gray-50 rounded-xl py-2">
-            <p className="text-lg font-black text-[#1a1a1a] leading-none">{value}</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">{label}</p>
+            <p className="text-lg font-poppins-bold text-[#1a1a1a] leading-none">{value}</p>
+            <p className="text-[10px] font-poppins text-gray-400 mt-0.5">{label}</p>
           </div>
         ))}
       </div>
@@ -82,7 +82,7 @@ const PerfCard = ({ rep }: { rep: RepPerf }) => {
       <div className="mb-2">
         <div className="flex justify-between text-xs text-gray-500 mb-1">
           <span>Cycle adherence</span>
-          <span className="font-semibold text-[#1a1a1a]">
+          <span className="font-poppins-semibold text-[#1a1a1a]">
             {pct !== null ? `${pct}%` : "—"} ({rep.cycle_visits_done}/{rep.cycle_total_target})
           </span>
         </div>
@@ -93,7 +93,7 @@ const PerfCard = ({ rep }: { rep: RepPerf }) => {
       </div>
 
       {/* Last visit */}
-      <p className={`text-xs ${overdue ? "text-red-500 font-semibold" : "text-gray-400"}`}>
+      <p className={`text-xs ${overdue ? "text-red-500 font-poppins-semibold" : "text-gray-400"}`}>
         {rep.days_since_last_visit === null
           ? "No visits recorded"
           : rep.days_since_last_visit === 0
@@ -135,16 +135,16 @@ const TargetRowEdit = ({
           <div className="w-7 h-7 rounded-full bg-[#f0fdf4] flex items-center justify-center text-[10px] font-bold text-[#16a34a] shrink-0">
             {row.user.firstname[0]}{row.user.lastname[0]}
           </div>
-          <span className="text-sm font-medium text-[#1a1a1a]">{row.user.firstname} {row.user.lastname}</span>
+          <span className="text-sm font-poppins-bold text-[#1a1a1a]">{row.user.firstname} {row.user.lastname}</span>
         </div>
       </td>
       <td className="py-3 px-2 text-center">
         {editing ? (
           <input type="number" min={0} value={value} onChange={e => setValue(Number(e.target.value))}
-            className="w-28 text-center text-sm border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#dcfce7]"
+            className="w-28 text-center font-poppins text-sm border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#dcfce7]"
             placeholder="e.g. 5000000" />
         ) : (
-          <span className="text-sm text-[#1a1a1a] font-semibold">
+          <span className="text-sm text-[#1a1a1a] font-poppins-semibold">
             {row.target?.target_value ? `UGX ${row.target.target_value.toLocaleString()}` : <span className="text-gray-300">—</span>}
           </span>
         )}
@@ -152,9 +152,9 @@ const TargetRowEdit = ({
       <td className="py-3 px-2 text-center">
         {editing ? (
           <input type="number" min={0} value={units} onChange={e => setUnits(Number(e.target.value))}
-            className="w-20 text-center text-sm border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#dcfce7]" />
+            className="w-20 text-center font-poppins text-sm border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#dcfce7]" />
         ) : (
-          <span className="text-sm text-[#1a1a1a] font-semibold">
+          <span className="text-sm text-[#1a1a1a] font-poppins-semibold">
             {row.target?.target_units ?? <span className="text-gray-300">—</span>}
           </span>
         )}
@@ -163,7 +163,7 @@ const TargetRowEdit = ({
         {editing ? (
           <div className="flex items-center justify-end gap-1.5">
             <button onClick={save} disabled={saving}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] disabled:opacity-50"
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] disabled:opacity-50"
               style={{ transition: "background-color 0.15s" }}>
               {saving ? <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" /> : <LuCheck className="w-3.5 h-3.5" />}
               Save
@@ -234,8 +234,8 @@ const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
   return (
     <section>
       <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-base font-bold text-[#1a1a1a]">Campaign Detailing Coverage</h2>
-        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">Last 7 days</span>
+        <h2 className="text-base font-poppins-bold text-[#1a1a1a]">Campaign Detailing Coverage</h2>
+        <span className="text-xs font-poppins px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">Last 7 days</span>
       </div>
 
       {loading ? (
@@ -245,7 +245,7 @@ const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
       ) : rows.length === 0 ? (
         <div className="py-12 text-center text-gray-400 bg-white rounded-2xl border border-gray-100">
           <MdCampaign className="w-10 h-10 mx-auto mb-2 opacity-30" />
-          <p className="text-sm">No detailing activity recorded in the last 7 days</p>
+          <p className="text-sm font-poppins">No detailing activity recorded in the last 7 days</p>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] divide-y divide-gray-50">
@@ -255,10 +255,10 @@ const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
             return (
               <div key={product_name} className="px-5 py-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-[#1a1a1a] truncate flex-1 mr-4">{product_name}</p>
+                  <p className="text-sm font-poppins-semibold text-[#1a1a1a] truncate flex-1 mr-4">{product_name}</p>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="text-xs text-gray-400">{detail_count} detailing{detail_count !== 1 ? "s" : ""}</span>
-                    <span className="text-sm font-bold" style={{ color: barColor }}>
+                    <span className="text-sm font-poppins-bold" style={{ color: barColor }}>
                       {rep_count}/{total} reps
                     </span>
                   </div>
@@ -270,7 +270,7 @@ const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
                       style={{ width: `${pct}%`, backgroundColor: barColor, transition: "width 0.4s ease" }}
                     />
                   </div>
-                  <span className="text-xs font-semibold text-gray-500 w-9 text-right">{pct}%</span>
+                  <span className="text-xs font-poppins-semibold text-gray-500 w-9 text-right">{pct}%</span>
                 </div>
               </div>
             );
@@ -329,14 +329,14 @@ const Analysis = () => {
           <TbChartBar className="w-5 h-5 text-[#16a34a]" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-[#1a1a1a] tracking-tight">Team Analysis</h1>
-          <p className="text-sm text-gray-500">Performance metrics and monthly targets for your reps</p>
+          <h1 className="text-xl font-poppins-bold text-[#1a1a1a] tracking-tight">Team Analysis</h1>
+          <p className="text-sm font-poppins text-gray-500">Performance metrics and monthly targets for your reps</p>
         </div>
       </div>
 
       {/* ── Section 1: Performance ── */}
       <section>
-        <h2 className="text-base font-bold text-[#1a1a1a] mb-4">Rep Performance</h2>
+        <h2 className="text-base font-poppins-bold text-[#1a1a1a] mb-4">Rep Performance</h2>
         {loadingPerf ? (
           <div className="py-12 flex justify-center">
             <div className="w-8 h-8 rounded-full border-2 border-[#16a34a] border-t-transparent animate-spin" />
@@ -344,10 +344,10 @@ const Analysis = () => {
         ) : perf.length === 0 ? (
           <div className="py-12 text-center text-gray-400 bg-white rounded-2xl border border-gray-100">
             <TbChartBar className="w-10 h-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">No rep data available</p>
+            <p className="text-sm font-poppins">No rep data available</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 font-poppins sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {perf.map(rep => <PerfCard key={rep.user.id} rep={rep} />)}
           </div>
         )}
@@ -359,15 +359,15 @@ const Analysis = () => {
       {/* ── Section 3: Sales Targets ── */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-bold text-[#1a1a1a]">
+          <h2 className="text-base font-poppins-bold text-[#1a1a1a]">
             Sales Targets — {MONTHS[month]} {year}
           </h2>
         </div>
 
         {/* Info callout */}
-        <div className="flex items-start gap-2.5 bg-sky-50 border border-sky-200 rounded-xl px-4 py-3 mb-4">
+        <div className="flex items-start gap-2.5 bg-sky-50 border border-gray-100 rounded-xl px-4 py-3 mb-4">
           <IoWarningOutline className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
-          <p className="text-xs text-sky-700">
+          <p className="text-xs font-poppins text-sky-700">
             Targets you set here are visible to the rep in their dashboard. Each rep can track their
             monthly sales value and units progress against these targets.
           </p>
@@ -379,23 +379,23 @@ const Analysis = () => {
           </div>
         ) : targets.length === 0 ? (
           <div className="py-12 text-center text-gray-400 bg-white rounded-2xl border border-gray-100">
-            <p className="text-sm">No reps found in your company</p>
+            <p className="text-sm font-poppins">No reps found in your company</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
             {!hasAnyTarget && (
               <div className="px-4 py-2.5 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
                 <IoWarningOutline className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <p className="text-xs text-amber-700">No targets set for this month yet. Click "Set" on any row to add one.</p>
+                <p className="text-xs font-poppins text-amber-700">No targets set for this month yet. Click "Set" on any row to add one.</p>
               </div>
             )}
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50">
-                  <th className="py-2.5 pl-4 pr-2 text-left text-xs font-semibold text-gray-500">Rep</th>
-                  <th className="py-2.5 px-2 text-center text-xs font-semibold text-gray-500">Sales Value (UGX)</th>
-                  <th className="py-2.5 px-2 text-center text-xs font-semibold text-gray-500">Units Target</th>
-                  <th className="py-2.5 pl-2 pr-4 text-right text-xs font-semibold text-gray-500">Action</th>
+                  <th className="py-2.5 pl-4 pr-2 text-left text-xs font-poppins-semibold text-gray-500">Rep</th>
+                  <th className="py-2.5 px-2 text-center text-xs font-poppins-semibold text-gray-500">Sales Value (UGX)</th>
+                  <th className="py-2.5 px-2 text-center text-xs font-poppins-semibold text-gray-500">Units Target</th>
+                  <th className="py-2.5 pl-2 pr-4 text-right text-xs font-poppins-semibold text-gray-500">Action</th>
                 </tr>
               </thead>
               <tbody>

@@ -217,7 +217,7 @@ const Dashboard = () => {
   const handleRejectReport = async (id: string, note: string) => {
     setActioningReport(id);
     try {
-      await rejectReportApi(id, note);
+      await rejectReportApi(id, note as any);
       setPendingReports((p) => p.filter((r) => r.id !== id));
     } catch {
       setError("Failed to reject report.");
@@ -386,12 +386,12 @@ const Dashboard = () => {
 
       {/* ── Page header ── */}
       <div>
-        <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Supervisor Dashboard</h1>
-        <p className="text-gray-400 text-sm mt-0.5">Your team activity — last 7 days</p>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Supervisor Dashboard</h1>
+        <p className="text-[#454545] font-poppins text-sm mt-0.5">Your team activity — last 7 days</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+        <div className="bg-red-50 font-poppins border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
           <MdOutlineWarningAmber className="w-4 h-4 flex-shrink-0" />
           {error}
         </div>
@@ -417,9 +417,9 @@ const Dashboard = () => {
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                 )}
-                <p className="font-black text-white text-3xl leading-none">{card.value}</p>
-                <p className="text-white/90 font-bold text-[13px] mt-2 leading-tight">{card.label}</p>
-                <p className="text-white/60 text-xs mt-0.5">{card.sub}</p>
+                <p className="font-poppins-bold text-white text-3xl leading-none">{card.value}</p>
+                <p className="text-white/90 font-poppins-bold text-[13px] mt-2 leading-tight">{card.label}</p>
+                <p className="text-white/60 font-poppins text-xs mt-0.5">{card.sub}</p>
               </div>
             </div>
           );
@@ -434,10 +434,10 @@ const Dashboard = () => {
           <div className="flex items-center gap-3 px-6 py-4 border-b border-orange-100">
             <LuReceiptText className="w-5 h-5 text-orange-500" />
             <div className="flex-1">
-              <h2 className="font-bold text-[#1a1a1a] text-[15px]">Daily Reports</h2>
-              <p className="text-xs text-gray-400">Rep daily reports awaiting review</p>
+              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Daily Reports</h2>
+              <p className="text-xs font-poppins text-gray-300">Rep daily reports awaiting review</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-600">
+            <span className="px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-orange-100 text-orange-600">
               {pendingReports.length}
             </span>
           </div>
@@ -807,14 +807,14 @@ const Dashboard = () => {
       )}
 
       {/* ── Rep Performance Table ── */}
-      <div className="bg-white rounded-2xl shadow-sm shadow-gray-100 border border-gray-50">
+      <div className="bg-white rounded-2xl border border-gray-100">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
-            <h2 className="font-bold text-[#1a1a1a] text-[15px]">Rep Performance</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Cycle adherence, visit frequency &amp; field alerts — {new Date().toLocaleString("default", { month: "long", year: "numeric" })}</p>
+            <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Rep Performance</h2>
+            <p className="text-xs font-poppins text-[#454545] mt-0.5">Cycle adherence, visit frequency &amp; field alerts — {new Date().toLocaleString("default", { month: "long", year: "numeric" })}</p>
           </div>
           {!loading && teamPerf.length > 0 && (
-            <span className="text-xs font-semibold text-[#16a34a] bg-[#f0fdf4] px-3 py-1 rounded-full border border-[#dcfce7]">
+            <span className="text-xs font-poppins-semibold text-[#16a34a] bg-[#f0fdf4] px-3 py-1 rounded-full border border-[#dcfce7]">
               {teamPerf.length} rep{teamPerf.length !== 1 ? "s" : ""}
             </span>
           )}
@@ -826,21 +826,21 @@ const Dashboard = () => {
         ) : teamPerf.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <LuCircleCheck className="w-10 h-10 text-gray-300 mb-3" />
-            <p className="text-gray-500 font-semibold text-sm">No reps found</p>
-            <p className="text-gray-400 text-xs mt-1">Add reps to your company to see performance data</p>
+            <p className="text-gray-500 font-poppins-semibold text-sm">No reps found</p>
+            <p className="text-gray-400 font-poppins text-xs mt-1">Add reps to your company to see performance data</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="text-left px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Rep</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Today</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">MTD</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Cycle</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Last Seen</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Flags</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                  <th className="text-left px-6 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Rep</th>
+                  <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Today</th>
+                  <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">MTD</th>
+                  <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Cycle</th>
+                  <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Last Seen</th>
+                  <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Flags</th>
+                  <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -870,14 +870,14 @@ const Dashboard = () => {
                       <td className="px-6 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
-                            <span className="text-[#16a34a] font-black text-xs">
+                            <span className="text-[#16a34a] font-poppins-extrabold text-xs">
                               {row.user.firstname.charAt(0)}{row.user.lastname.charAt(0)}
                             </span>
                           </div>
                           <div>
-                            <p className="font-semibold text-[#1a1a1a] leading-tight">{row.user.firstname} {row.user.lastname}</p>
+                            <p className="font-poppins-semibold text-[#1a1a1a] leading-tight">{row.user.firstname} {row.user.lastname}</p>
                             {hasPending && (
-                              <p className="text-[10px] text-orange-500 font-semibold leading-tight">
+                              <p className="text-[10px] text-orange-500 font-poppins-semibold leading-tight">
                                 {[row.pending_reports > 0 && `${row.pending_reports} report${row.pending_reports > 1 ? "s" : ""}`, row.pending_expenses > 0 && `${row.pending_expenses} expense${row.pending_expenses > 1 ? "s" : ""}`].filter(Boolean).join(" · ")} pending
                               </p>
                             )}
@@ -885,11 +885,11 @@ const Dashboard = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`font-black text-lg leading-none ${row.visits_today > 0 ? "text-[#16a34a]" : "text-gray-300"}`}>
+                        <span className={`font-poppins-extrabold text-lg leading-none ${row.visits_today > 0 ? "text-[#16a34a]" : "text-gray-300"}`}>
                           {row.visits_today}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-bold text-gray-700">{row.visits_this_month}</td>
+                      <td className="px-4 py-3 font-poppins-bold text-gray-700">{row.visits_this_month}</td>
                       <td className="px-4 py-3">
                         {row.cycle_total_target > 0 ? (
                           <div className="flex items-center gap-2">
@@ -899,34 +899,34 @@ const Dashboard = () => {
                                 style={{ width: `${Math.min(100, pct)}%`, transition: "width 0.4s ease" }}
                               />
                             </div>
-                            <span className={`text-xs font-bold ${pct >= 70 ? "text-[#16a34a]" : pct >= 40 ? "text-amber-600" : "text-red-500"}`}>
+                            <span className={`text-xs font-poppins-bold ${pct >= 70 ? "text-[#16a34a]" : pct >= 40 ? "text-amber-600" : "text-red-500"}`}>
                               {pct}%
                             </span>
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-300">No cycle</span>
+                          <span className="text-xs font-poppins text-gray-300">No cycle</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs font-semibold ${daysSince === 0 ? "text-[#16a34a]" : daysSince !== null && daysSince <= 1 ? "text-gray-600" : "text-red-500"}`}>
+                        <span className={`text-xs font-poppins-semibold ${daysSince === 0 ? "text-[#16a34a]" : daysSince !== null && daysSince <= 1 ? "text-gray-600" : "text-red-500"}`}>
                           {lastSeenLabel}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5">
                           {hasGpsFlag && (
-                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-600 border border-red-200">
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-popppins-bold bg-red-100 text-red-600 border border-red-200">
                               <MdOutlineGpsOff className="w-3 h-3" />
                               {row.gps_anomaly_count_week}
                             </span>
                           )}
                           {!hasGpsFlag && !isInactive && (
-                            <span className="text-xs text-gray-300">—</span>
+                            <span className="text-xs font-poppins text-gray-300">—</span>
                           )}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${status.cls}`}>
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-poppins-semibold ${status.cls}`}>
                           <StatusIcon className={`w-3 h-3 ${status.iconCls}`} />
                           {status.label}
                         </div>
@@ -1025,10 +1025,10 @@ const Dashboard = () => {
 
       {/* ── Recent Activity Feed ── */}
       {!loading && feed.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-sm shadow-gray-100 border border-gray-50 p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5">
           <div className="mb-4">
-            <h2 className="font-bold text-[#1a1a1a] text-[15px]">Recent Activity</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Latest visits logged by your team</p>
+            <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Recent Activity</h2>
+            <p className="text-xs font-poppins text-gray-400 mt-0.5">Latest visits logged by your team</p>
           </div>
           <div className="flex flex-col gap-2">
             {feed.slice(0, 8).map((act) => (
@@ -1038,28 +1038,28 @@ const Dashboard = () => {
               >
                 <div className="flex flex-col gap-0.5 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-[#1a1a1a] truncate">
+                    <span className="font-poppins-bold text-sm text-[#1a1a1a] truncate">
                       {act.user.firstname} {act.user.lastname}
                     </span>
                     <span className="text-gray-300 text-xs">→</span>
-                    <span className="text-sm text-gray-600 truncate">{act.doctor.doctor_name}</span>
+                    <span className="text-sm text-gray-600 font-poppins truncate">{act.doctor.doctor_name}</span>
                     {act.gps_anomaly && (
-                      <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600">
+                      <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-poppins-bold bg-red-100 text-red-600">
                         GPS
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <span>{act.doctor.town}</span>
+                    <span className="font-poppins">{act.doctor.town}</span>
                     {act.focused_product && (
-                      <><span>·</span><span className="text-[#16a34a] font-medium">{act.focused_product.product_name}</span></>
+                      <><span>·</span><span className="text-[#16a34a] font-poppins-semibold">{act.focused_product.product_name}</span></>
                     )}
                     {act.samples_given > 0 && (
-                      <><span>·</span><span>{act.samples_given} samples</span></>
+                      <><span>·</span><span className="font-poppins text-sm">{act.samples_given} samples</span></>
                     )}
                   </div>
                 </div>
-                <span className="flex-shrink-0 text-xs text-gray-400 whitespace-nowrap">
+                <span className="flex-shrink-0 font-poppins text-xs text-gray-400 whitespace-nowrap">
                   {format(new Date(act.date), "MMM d, HH:mm")}
                 </span>
               </div>
@@ -1074,8 +1074,8 @@ const Dashboard = () => {
           <div className="flex items-center gap-2 mb-4">
             <MdOutlineWarningAmber className="w-5 h-5 text-orange-500" />
             <div>
-              <h2 className="font-bold text-[#1a1a1a] text-[15px]">Needs Attention</h2>
-              <p className="text-xs text-gray-400">No visits logged in the last 7 days</p>
+              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Needs Attention</h2>
+              <p className="text-xs font-poppins text-gray-400">No visits logged in the last 7 days</p>
             </div>
           </div>
           <div className="flex flex-col gap-2">
@@ -1086,20 +1086,20 @@ const Dashboard = () => {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
-                    <span className="text-orange-600 font-black text-xs">
+                    <span className="text-orange-600 font-poppins-extrabold text-xs">
                       {r.user.firstname.charAt(0)}{r.user.lastname.charAt(0)}
                     </span>
                   </div>
                   <div>
-                    <p className="font-bold text-[#1a1a1a] text-sm">
+                    <p className="font-poppins-bold text-[#1a1a1a] text-sm">
                       {r.user.firstname} {r.user.lastname}
                     </p>
-                    <p className="text-xs text-gray-400">0 visits this week</p>
+                    <p className="text-xs font-poppins text-gray-400">0 visits this week</p>
                   </div>
                 </div>
                 <button
                   onClick={() => navigate("/supervisor/reports")}
-                  className="flex-shrink-0 px-3 py-1.5 text-xs font-bold rounded-lg border border-orange-300 text-orange-600 hover:bg-orange-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-400"
+                  className="flex-shrink-0 px-3 py-1.5 text-xs font-poppins-bold rounded-lg border border-orange-300 text-orange-600 hover:bg-orange-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-400"
                   style={{ transition: "background-color 0.15s" }}
                 >
                   Review
@@ -1116,10 +1116,10 @@ const Dashboard = () => {
           <div className="flex items-center gap-3 px-6 py-4 border-b border-[#dcfce7]">
             <TbUserCheck className="w-5 h-5 text-[#16a34a]" />
             <div className="flex-1">
-              <h2 className="font-bold text-[#1a1a1a] text-[15px]">Doctor Recommendations</h2>
-              <p className="text-xs text-gray-400">Reps requesting to add doctors to your company list</p>
+              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Doctor Recommendations</h2>
+              <p className="text-xs font-poppins text-gray-400">Reps requesting to add doctors to your company list</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#f0fdf4] text-[#16a34a] border border-[#dcfce7]">
+            <span className="px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-[#f0fdf4] text-[#16a34a] border border-[#dcfce7]">
               {recommendations.length}
             </span>
           </div>

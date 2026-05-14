@@ -13,8 +13,8 @@ const Navbar = () => {
 
       {/* Left — page title */}
       <div className="hidden sm:block">
-        <p className="font-bold text-[#1a1a1a] text-[15px] leading-tight">Supervisor Dashboard</p>
-        <p className="text-xs text-gray-400 leading-tight">Team activity and approvals</p>
+        <p className="font-poppins-bold text-[#1a1a1a] text-[15px] leading-tight">Supervisor Dashboard</p>
+        <p className="text-xs text-gray-400 font-poppins leading-tight">Team activity and approvals</p>
       </div>
 
       {/* Right — actions + user */}
@@ -51,13 +51,13 @@ const Navbar = () => {
         {/* User chip */}
         <div className="flex items-center gap-2.5 pl-1 cursor-pointer group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#16a34a] to-[#15803d] flex items-center justify-center shadow-sm shadow-green-200 flex-shrink-0">
-            <span className="text-white font-black text-sm">{initial}</span>
+            <span className="text-white font-poppins-semibold text-sm">{initial}</span>
           </div>
           <div className="hidden md:block">
-            <p className="font-bold text-[#1a1a1a] text-sm leading-tight group-hover:text-[#16a34a]" style={{ transition: "color 0.15s" }}>
+            <p className="font-poppins-bold text-[#1a1a1a] text-sm leading-tight group-hover:text-[#16a34a]" style={{ transition: "color 0.15s" }}>
               {fullName}
             </p>
-            <p className="text-xs text-gray-400 leading-tight">Supervisor</p>
+            <p className="text-xs font-poppins text-gray-400 leading-tight">Supervisor</p>
           </div>
         </div>
 

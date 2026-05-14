@@ -112,12 +112,12 @@ const TeamMap = () => {
         <div className="px-4 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2 mb-3">
             <LuMapPin className="w-4 h-4 text-[#16a34a]" />
-            <h2 className="text-sm font-bold text-[#1a1a1a]">Team Map</h2>
+            <h2 className="text-sm font-poppins-bold text-[#1a1a1a]">Team Map</h2>
           </div>
           <div className="flex gap-1">
             {([1, 3, 7] as Days[]).map(d => (
               <button key={d} onClick={() => setDays(d)}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg ${
+                className={`flex-1 py-1.5 text-xs font-poppins-semibold rounded-lg ${
                   days === d ? "bg-[#16a34a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
                 style={{ transition: "background-color 0.15s" }}>
@@ -125,7 +125,7 @@ const TeamMap = () => {
               </button>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-2">{totalPins} GPS points visible</p>
+          <p className="text-xs font-poppins text-gray-400 mt-2">{totalPins} GPS points visible</p>
         </div>
 
         <div className="flex-1 overflow-y-auto py-2">
@@ -134,7 +134,7 @@ const TeamMap = () => {
               <div className="w-6 h-6 rounded-full border-2 border-[#16a34a] border-t-transparent animate-spin" />
             </div>
           ) : repData.length === 0 ? (
-            <p className="text-xs text-gray-400 px-4 py-6 text-center">No GPS data yet</p>
+            <p className="text-xs text-gray-400 font-poppins px-4 py-6 text-center">No GPS data yet</p>
           ) : (
             repData.map((r, i) => {
               const color = PALETTE[i % PALETTE.length];
@@ -149,10 +149,10 @@ const TeamMap = () => {
                   style={{ transition: "opacity 0.15s" }}>
                   <span className="w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-[#1a1a1a] truncate">
+                    <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate">
                       {r.user.firstname} {r.user.lastname}
                     </p>
-                    <p className="text-[10px] text-gray-400">
+                    <p className="text-[10px] font-poppins text-gray-400">
                       {count} visit{count !== 1 ? "s" : ""}
                       {anomalies > 0 && <span className="text-red-500 ml-1">· {anomalies} anomal{anomalies !== 1 ? "ies" : "y"}</span>}
                     </p>
@@ -174,8 +174,8 @@ const TeamMap = () => {
         {!loading && totalPins === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-400 bg-gray-50">
             <MdOutlineGpsOff className="w-14 h-14 opacity-25" />
-            <p className="text-sm font-medium">No GPS data in the last {days} day{days !== 1 ? "s" : ""}</p>
-            <p className="text-xs text-gray-400">GPS coordinates are captured when reps log visits</p>
+            <p className="text-sm font-poppins-semibold">No GPS data in the last {days} day{days !== 1 ? "s" : ""}</p>
+            <p className="text-xs font-poppins text-gray-400">GPS coordinates are captured when reps log visits</p>
           </div>
         ) : (
           <MapContainer
@@ -199,11 +199,11 @@ const TeamMap = () => {
                   >
                     <Popup>
                       <div className="text-xs min-w-[160px]">
-                        <p className="font-bold text-[#1a1a1a] mb-1">{r.user.firstname} {r.user.lastname}</p>
+                        <p className="font-poppins-bold text-[#1a1a1a] mb-1">{r.user.firstname} {r.user.lastname}</p>
                         {a.doctor && <p className="text-gray-700">{a.doctor.doctor_name}{a.doctor.town ? `, ${a.doctor.town}` : ""}</p>}
                         {a.focused_product && <p className="text-[#16a34a]">{a.focused_product.product_name}</p>}
                         <p className="text-gray-400 mt-1">{FMT_DT(a.date)}</p>
-                        {a.gps_anomaly && <p className="text-red-500 font-semibold mt-1">⚠ GPS anomaly</p>}
+                        {a.gps_anomaly && <p className="text-red-500 font-poppins-semibold mt-1">⚠ GPS anomaly</p>}
                       </div>
                     </Popup>
                   </Marker>

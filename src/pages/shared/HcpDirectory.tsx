@@ -217,8 +217,8 @@ const HcpDirectory = () => {
 
       {/* ── Header ── */}
       <div>
-        <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">HCP Directory</h1>
-        <p className="text-gray-400 text-sm mt-0.5">
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">HCP Directory</h1>
+        <p className="text-gray-400 font-poppins text-sm mt-0.5">
           Company doctor list, full KibagRep directory, and pending recommendations
         </p>
       </div>
@@ -243,7 +243,7 @@ const HcpDirectory = () => {
             <button
               key={key}
               onClick={() => { setTab(key); setSearch(""); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-semibold focus-visible:outline-none transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-poppins-semibold focus-visible:outline-none transition-colors ${
                 tab === key
                   ? "text-[#16a34a] border-b-2 border-[#16a34a] bg-[#f0fdf4]/50"
                   : "text-gray-400 hover:text-gray-600 hover:bg-gray-50/60"
@@ -252,7 +252,7 @@ const HcpDirectory = () => {
               {label}
               {count !== undefined && (
                 <span
-                  className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+                  className={`text-[11px] px-2 py-0.5 rounded-full font-poppins-bold ${
                     tab === key
                       ? "bg-[#16a34a] text-white"
                       : key === "recommendations" && count > 0
@@ -272,7 +272,7 @@ const HcpDirectory = () => {
           <div className="flex items-center gap-2 h-9 px-3 rounded-xl bg-gray-50 border border-gray-100 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/20">
             <LuSearch className="w-4 h-4 text-gray-400 shrink-0" />
             <input
-              className="flex-1 bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
+              className="flex-1 bg-transparent outline-none font-poppins text-sm text-gray-700 placeholder:text-gray-400"
               placeholder={
                 tab === "company"
                   ? "Search company doctors…"
@@ -304,10 +304,10 @@ const HcpDirectory = () => {
                   <DocAvatar name={d.doctor.doctor_name} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-[#1a1a1a] text-sm">{d.doctor.doctor_name}</p>
+                      <p className="font-poppins-semibold text-[#1a1a1a] text-sm">{d.doctor.doctor_name}</p>
                       <CadreChip cadre={d.doctor.cadre} />
                       {d.doctor.company_tier?.tier && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold border ${
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-poppins-bold border ${
                           d.doctor.company_tier.tier === "A"
                             ? "bg-[#f0fdf4] border-[#dcfce7] text-[#16a34a]"
                             : d.doctor.company_tier.tier === "B"
@@ -318,7 +318,7 @@ const HcpDirectory = () => {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs font-poppins text-gray-400 mt-0.5">
                       {[d.doctor.town, d.doctor.location].filter(Boolean).join(" · ") || "—"}
                     </p>
                     {d.doctor.speciality && d.doctor.speciality.length > 0 && (
@@ -357,21 +357,21 @@ const HcpDirectory = () => {
                   <DocAvatar name={d.doctor_name} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-[#1a1a1a] text-sm">{d.doctor_name}</p>
+                      <p className="font-poppins-semibold text-[#1a1a1a] text-sm">{d.doctor_name}</p>
                       <CadreChip cadre={d.cadre} />
                       {d.on_company_list && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#f0fdf4] border border-[#dcfce7] text-[#16a34a] font-bold">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#f0fdf4] border border-[#dcfce7] text-[#16a34a] font-poppins-bold">
                           ✓ On List
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs font-poppins text-gray-400 mt-0.5">
                       {[d.town, d.location].filter(Boolean).join(" · ") || "—"}
                     </p>
                     {d.speciality && d.speciality.length > 0 && (
                       <div className="flex gap-1 mt-1 flex-wrap">
                         {d.speciality.slice(0, 3).map((s) => (
-                          <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-500 font-medium">
+                          <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-500 font-poppins-semibold">
                             {s}
                           </span>
                         ))}
@@ -412,9 +412,9 @@ const HcpDirectory = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-[#1a1a1a] text-sm">{name}</p>
+                          <p className="font-poppins-semibold text-[#1a1a1a] text-sm">{name}</p>
                           {isNewClinician && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-600 font-bold">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-600 font-poppins-bold">
                               New Clinician
                             </span>
                           )}
@@ -424,25 +424,25 @@ const HcpDirectory = () => {
                         </div>
                         <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                           {(rec.doctor?.town ?? rec.clinician_location) && (
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs font-poppins text-gray-400">
                               {rec.doctor?.town ?? rec.clinician_location}
                             </p>
                           )}
                           {rec.clinician_contact && (
-                            <p className="text-xs text-gray-400">{rec.clinician_contact}</p>
+                            <p className="text-xs font-poppins text-gray-400">{rec.clinician_contact}</p>
                           )}
                         </div>
                         <div className="flex items-center gap-3 mt-1">
                           {rec.user && (
-                            <span className="text-[11px] text-gray-400">
+                            <span className="text-[11px] font-poppins text-gray-400">
                               Recommended by{" "}
-                              <span className="font-semibold text-gray-600">
+                              <span className="font-poppins-semibold text-gray-600">
                                 {rec.user.firstname} {rec.user.lastname}
                               </span>
                             </span>
                           )}
                           {rec.unplanned_visit_count > 0 && (
-                            <span className="text-[11px] text-sky-600 font-semibold">
+                            <span className="text-[11px] font-poppins text-sky-600 font-semibold">
                               {rec.unplanned_visit_count} unplanned visit{rec.unplanned_visit_count > 1 ? "s" : ""}
                             </span>
                           )}
@@ -468,7 +468,7 @@ const HcpDirectory = () => {
                           {isNewClinician && (
                             <button
                               onClick={() => handleForward(rec.id)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
+                              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-bold rounded-lg bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
                               style={{ transition: "background-color 0.15s" }}
                             >
                               <LuSendHorizontal className="w-3.5 h-3.5" />
@@ -477,7 +477,7 @@ const HcpDirectory = () => {
                           )}
                           <button
                             onClick={() => handleReject(rec.id)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 active:bg-red-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 active:bg-red-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
                             style={{ transition: "background-color 0.15s" }}
                           >
                             <FiXCircle className="w-3.5 h-3.5" />

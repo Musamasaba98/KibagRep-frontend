@@ -5,7 +5,7 @@ import Sidebar from "./components/Sidebar";
 
 const SupervisorPage = () => {
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="flex h-screen overflow-y-auto bg-gray-50">
       <Sidebar />
       {/* main content container */}
       <div className="w-full ml-64">
