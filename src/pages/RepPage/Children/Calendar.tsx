@@ -46,7 +46,7 @@ const DayCell = ({
       } ${!inMonth ? "opacity-35" : ""}`}
     >
       <div className="flex justify-end mb-0.5">
-        <span className={`w-5 h-5 sm:w-6 sm:h-6 text-[11px] sm:text-xs font-bold flex items-center justify-center rounded-full leading-none ${
+        <span className={`w-5 h-5 sm:w-6 sm:h-6 text-[11px] sm:text-xs font-poppins-bold flex items-center justify-center rounded-full leading-none ${
           today ? "bg-[#16a34a] text-white"
           : selected ? "text-[#16a34a] font-extrabold"
           : "text-[#222f36]"
@@ -69,8 +69,8 @@ const DayCell = ({
           <div key={a.id} className={`flex items-center gap-1 px-1.5 py-[2px] rounded-md text-[9px] font-semibold truncate ${
             a.type === "pharmacy" ? "bg-violet-50 text-violet-700" : "bg-[#dcfce7] text-[#15803d]"
           }`}>
-            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${a.type === "pharmacy" ? "bg-violet-500" : "bg-[#16a34a]"}`} />
-            <span className="truncate">
+            <span className={`w-1.5 h-1.5 font-poppins rounded-full shrink-0 ${a.type === "pharmacy" ? "bg-violet-500" : "bg-[#16a34a]"}`} />
+            <span className="truncate font-poppins">
               {a.type === "pharmacy" ? (a.pharmacy?.pharmacy_name ?? "Pharmacy") : (a.doctor?.doctor_name ?? "Visit")}
             </span>
           </div>
@@ -98,27 +98,27 @@ const DayPanel = ({
       {/* Header */}
       <div className={`px-4 py-4 flex items-start justify-between ${isTodays ? "bg-[#16a34a]" : "bg-[#1a2530]"}`}>
         <div>
-          <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-0.5">
+          <p className="text-white/60 text-[10px] font-poppins-bold uppercase tracking-widest mb-0.5">
             {day ? format(day, "EEEE") : "No day selected"}
           </p>
-          <p className="text-white text-2xl font-black leading-none">{day ? format(day, "d") : "—"}</p>
+          <p className="text-white text-2xl font-poppins-bold leading-none">{day ? format(day, "d") : "—"}</p>
           <p className="text-white/70 text-xs font-medium mt-0.5">{day ? format(day, "MMMM yyyy") : ""}</p>
           <div className="mt-2 flex items-center gap-1.5 flex-wrap">
             {doctorVisits.length > 0 && (
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white">
+              <span className="text-[10px] font-poppins-semibold px-2 py-0.5 rounded-full bg-white/20 text-white">
                 {doctorVisits.length} HCP
               </span>
             )}
             {pharmVisits.length > 0 && (
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-400/40 text-white">
+              <span className="text-[10px] font-poppins-semibold px-2 py-0.5 rounded-full bg-violet-400/40 text-white">
                 {pharmVisits.length} pharmacy
               </span>
             )}
             {activities.length === 0 && (
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-white/80">No visits</span>
+              <span className="text-[10px] font-poppins-semibold px-2 py-0.5 rounded-full bg-white/10 text-white/80">No visits</span>
             )}
             {isTodays && (
-              <span className="text-[9px] font-bold text-white/70 bg-white/15 px-2 py-0.5 rounded-full">TODAY</span>
+              <span className="text-[9px] font-poppins-bold text-white/70 bg-white/15 px-2 py-0.5 rounded-full">TODAY</span>
             )}
           </div>
         </div>
@@ -140,12 +140,12 @@ const DayPanel = ({
             {isFuture ? (
               <>
                 <MdCalendarToday className="w-7 h-7 text-gray-200 mb-2" />
-                <p className="text-xs text-gray-400 font-medium">Not yet reached</p>
+                <p className="text-xs font-poppins text-gray-400 font-medium">Not yet reached</p>
               </>
             ) : (
               <>
                 <FiActivity className="w-7 h-7 text-gray-200 mb-2" />
-                <p className="text-xs text-gray-400 font-medium">No activity logged</p>
+                <p className="text-xs text-gray-400 font-poppins-semibold">No activity logged</p>
               </>
             )}
           </div>
@@ -158,25 +158,25 @@ const DayPanel = ({
                 }`}>
                   {a.type === "pharmacy"
                     ? <TbPill className="w-3 h-3 text-violet-600" />
-                    : <span className="text-[#16a34a] text-[9px] font-bold">{i + 1}</span>
+                    : <span className="text-[#16a34a] font-poppins text-[9px] font-bold">{i + 1}</span>
                   }
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-[#222f36] truncate leading-tight">
+                  <p className="text-xs font-poppins-bold text-[#222f36] truncate leading-tight">
                     {a.type === "pharmacy" ? (a.pharmacy?.pharmacy_name ?? "Pharmacy") : (a.doctor?.doctor_name ?? "Unknown")}
                   </p>
-                  <p className="text-[10px] text-gray-400 truncate">
+                  <p className="text-[10px] font-poppins text-gray-400 truncate">
                     {a.type === "pharmacy" ? a.pharmacy?.town : a.doctor?.town}
                   </p>
                   {a.focused_product && (
-                    <span className="inline-block mt-0.5 text-[9px] font-bold text-[#16a34a] bg-[#dcfce7] px-1.5 py-0.5 rounded-md">
+                    <span className="inline-block mt-0.5 text-[9px] font-poppins-bold text-[#16a34a] bg-[#dcfce7] px-1.5 py-0.5 rounded-md">
                       ★ {a.focused_product.product_name}
                     </span>
                   )}
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[9px] text-gray-300 font-mono">{format(new Date(a.date), "HH:mm")}</span>
+                    <span className="text-[9px] font-poppins text-gray-300">{format(new Date(a.date), "HH:mm")}</span>
                     {(a.samples_given ?? 0) > 0 && (
-                      <span className="text-[9px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md">
+                      <span className="text-[9px] font-poppins-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md">
                         {a.samples_given} smp
                       </span>
                     )}
@@ -243,7 +243,7 @@ const Calendar = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <h1 className="text-lg sm:text-xl font-black text-[#222f36] tracking-tight">
+          <h1 className="text-lg sm:text-xl font-poppins-extrabold text-[#222f36] tracking-tight">
             {format(currentMonth, "MMMM yyyy")}
           </h1>
           <div className="flex items-center gap-0.5">
@@ -262,7 +262,7 @@ const Calendar = () => {
           </div>
           <button
             onClick={() => { setCurrentMonth(new Date()); setSelectedDay(new Date()); setPanelOpen(true); }}
-            className="text-xs font-semibold px-3 py-1 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            className="text-xs font-poppins-semibold px-3 py-1 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           >
             Today
           </button>
@@ -280,7 +280,7 @@ const Calendar = () => {
         <div className="flex-1 flex flex-col min-w-0">
           <div className="grid grid-cols-7 mb-1">
             {WEEKDAYS.map((d) => (
-              <div key={d} className="text-center text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider py-1.5">
+              <div key={d} className="text-center text-[10px] sm:text-[11px] font-poppins-bold text-gray-400 uppercase tracking-wider py-1.5">
                 {d}
               </div>
             ))}
@@ -306,17 +306,17 @@ const Calendar = () => {
           <div className="flex items-center gap-3 mt-3 flex-wrap">
             <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
-              <span className="text-[10px] text-gray-400 font-medium">Doctor visit</span>
+              <span className="text-[10px] text-gray-400 font-poppins-semibold">Doctor visit</span>
             </div>
             <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-violet-500" />
-              <span className="text-[10px] text-gray-400 font-medium">Pharmacy</span>
+              <span className="text-[10px] text-gray-400 font-poppins-semibold">Pharmacy</span>
             </div>
             <div className="flex items-center gap-1">
               <span className="w-4 h-4 rounded-full bg-[#16a34a] flex items-center justify-center">
                 <span className="w-1.5 h-1.5 rounded-full bg-white" />
               </span>
-              <span className="text-[10px] text-gray-400 font-medium">Today</span>
+              <span className="text-[10px] text-gray-400 font-poppins-semibold">Today</span>
             </div>
           </div>
         </div>

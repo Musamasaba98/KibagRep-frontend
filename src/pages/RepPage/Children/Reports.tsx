@@ -33,7 +33,7 @@ const StatusBadge = ({ status }: { status: DailyReport["status"] }) => {
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-poppins-semibold ${cfg.bg} ${cfg.text}`}>
       <Icon className="w-3 h-3" />
       {cfg.label}
     </span>
@@ -114,11 +114,11 @@ const Reports = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
-            <h2 className="font-bold text-gray-800 text-base">
+            <h2 className="font-poppins-bold text-gray-800 text-base">
               Today's Report — {format(new Date(), "dd MMM yyyy")}
             </h2>
             {today && (
-              <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+              <div className="flex font-poppins items-center gap-3 mt-1 text-xs text-gray-500">
                 <span>{today.visits_count} visits</span>
                 <span>·</span>
                 <span>{today.samples_count} samples</span>
@@ -130,24 +130,24 @@ const Reports = () => {
 
         <div className="px-5 py-4 flex flex-col gap-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3 py-2 rounded-md">
+            <div className="bg-red-50 font-poppins border border-red-200 text-red-600 text-sm px-3 py-2 rounded-md">
               {error}
             </div>
           )}
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-2 rounded-md">
+            <div className="bg-green-50 font-poppins border border-green-200 text-green-700 text-sm px-3 py-2 rounded-md">
               {success}
             </div>
           )}
 
           {today?.status === "REJECTED" && today.review_note && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-md">
-              <span className="font-semibold">Rejected: </span>{today.review_note}
+              <span className="font-poppins-semibold">Rejected: </span>{today.review_note}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-poppins-semibold text-gray-700 mb-1">
               Summary / Notes
             </label>
             <textarea
@@ -156,7 +156,7 @@ const Reports = () => {
               disabled={!canSubmit}
               rows={5}
               placeholder="How was your day? Key highlights, challenges, follow-ups needed…"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] resize-none disabled:bg-gray-50 disabled:text-gray-400"
+              className="w-full font-poppins  border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] resize-none disabled:bg-gray-50 disabled:text-gray-400"
             />
           </div>
 
@@ -173,13 +173,13 @@ const Reports = () => {
               </div>
               <div className="flex items-center gap-2">
                 <FiUsers className="w-4 h-4 text-[#16a34a]" />
-                <span className="text-sm font-semibold text-gray-700">Joint Field Work today</span>
+                <span className="text-sm font-poppins-semibold text-gray-700">Joint Field Work today</span>
               </div>
             </label>
 
             {jfwEnabled && (
               <div className="mt-3 flex flex-col gap-2">
-                <label className="text-xs font-semibold text-gray-500">
+                <label className="text-xs font-poppins-semibold text-gray-500">
                   Observers — who joined you in the field
                 </label>
 
@@ -190,7 +190,7 @@ const Reports = () => {
                       const obs = observers.find((o) => o.id === id);
                       return (
                         <span key={id}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#f0fdf4] text-[#16a34a] border border-[#dcfce7]">
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-poppins-semibold bg-[#f0fdf4] text-[#16a34a] border border-[#dcfce7]">
                           {obs ? `${obs.firstname} ${obs.lastname}` : 'Observer'}
                           {canSubmit && (
                             <button type="button"
@@ -219,7 +219,7 @@ const Reports = () => {
                           e.target.value = "";
                         }
                       }}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white">
+                      className="w-full font-poppins border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white">
                       <option value="">+ Add observer…</option>
                       {unselected.map((o) => (
                         <option key={o.id} value={o.id}>
@@ -231,7 +231,7 @@ const Reports = () => {
                 })()}
 
                 {jfwObserverIds.length === 0 && (
-                  <p className="text-xs text-gray-400">No observers added yet.</p>
+                  <p className="text-xs font-poppins text-gray-400">No observers added yet.</p>
                 )}
               </div>
             )}
@@ -241,7 +241,7 @@ const Reports = () => {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              className="flex items-center font-poppins justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-60 disabled:cursor-not-allowed text-white py-2.5 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
               style={{ transition: "opacity 0.15s" }}
             >
               <FiSend className="w-4 h-4" />
@@ -250,12 +250,12 @@ const Reports = () => {
           )}
 
           {today?.status === "SUBMITTED" && (
-            <p className="text-center text-sm text-amber-600 font-medium">
+            <p className="text-center text-sm text-amber-600 font-poppins-semibold">
               Awaiting supervisor review
             </p>
           )}
           {today?.status === "APPROVED" && (
-            <p className="text-center text-sm text-green-600 font-medium">
+            <p className="text-center font-poppins-semibold text-sm text-green-600">
               Report approved
             </p>
           )}
@@ -265,7 +265,7 @@ const Reports = () => {
       {/* History */}
       {history.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 px-1">
+          <h3 className="text-xs font-poppins-semibold uppercase tracking-wider text-gray-400 px-1">
             Past 30 days
           </h3>
           {history.map((r) => (
@@ -274,32 +274,32 @@ const Reports = () => {
               className="bg-white rounded-lg border border-gray-100 px-4 py-3 flex items-start justify-between gap-4 shadow-sm"
             >
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-700">
+                <p className="text-sm font-poppins-semibold text-gray-700">
                   {format(new Date(r.report_date), "dd MMM yyyy")}
                 </p>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs font-poppins text-gray-400 mt-0.5">
                   {r.visits_count} visits · {r.samples_count} samples
                 </p>
                 {r.summary && (
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">{r.summary}</p>
+                  <p className="text-xs text-gray-500 font-poppins mt-1 line-clamp-2">{r.summary}</p>
                 )}
                 {r.jfw_observer_id && (() => {
                   const obs = observers.find((o) => o.id === r.jfw_observer_id);
                   return obs ? (
-                    <p className="text-xs text-[#16a34a] mt-1 flex items-center gap-1">
+                    <p className="text-xs font-poppins text-[#16a34a] mt-1 flex items-center gap-1">
                       <FiUsers className="w-3 h-3" />
                       JFW — {obs.firstname} {obs.lastname}
                     </p>
                   ) : (
-                    <p className="text-xs text-[#16a34a] mt-1 flex items-center gap-1">
+                    <p className="text-xs text-[#16a34a] font-poppins mt-1 flex items-center gap-1">
                       <FiUsers className="w-3 h-3" />
                       JFW (observer)
                     </p>
                   );
                 })()}
                 {r.status === "REJECTED" && r.review_note && (
-                  <p className="text-xs text-red-600 mt-1">
-                    <span className="font-medium">Note: </span>{r.review_note}
+                  <p className="text-xs font-poppins text-red-600 mt-1">
+                    <span className="font-poppins-semibold">Note: </span>{r.review_note}
                   </p>
                 )}
               </div>

@@ -151,7 +151,7 @@ const AddClinicianDropdown = ({
           placeholder="Search cycle doctors…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="flex-1 text-sm outline-none text-gray-700"
+          className="flex-1 text-sm font-poppins outline-none text-gray-700"
         />
         <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
           <MdClose className="w-4 h-4" />
@@ -159,7 +159,7 @@ const AddClinicianDropdown = ({
       </div>
       <div className="max-h-56 overflow-y-auto">
         {filtered.length === 0 && (
-          <p className="text-xs text-gray-400 text-center py-6">No doctors found</p>
+          <p className="text-xs text-gray-400 font-poppins text-center py-6">No doctors found</p>
         )}
         {filtered.map((ci) => {
           const planned = usedCounts[ci.doctor_id] ?? 0;
@@ -173,16 +173,16 @@ const AddClinicianDropdown = ({
             >
               <FaUserDoctor className="w-3.5 h-3.5 text-gray-400 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#222f36] truncate">
+                <p className="text-xs font-poppins-semibold text-[#222f36] truncate">
                   {ci.doctor.doctor_name}
                 </p>
                 <p className="text-[10px] text-gray-400 truncate">{ci.doctor.town}</p>
               </div>
               <div className="shrink-0 flex flex-col items-end gap-0.5">
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
+                <span className={`text-[9px] font-poppins-bold px-1.5 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
                   Tier {ci.tier}
                 </span>
-                <span className={`text-[9px] font-medium ${over ? "text-red-500" : "text-gray-400"}`}>
+                <span className={`text-[9px] font-poppins-semibold ${over ? "text-red-500" : "text-gray-400"}`}>
                   {planned}/{ci.frequency} planned
                 </span>
               </div>
@@ -234,7 +234,7 @@ const AddPharmacyDropdown = ({
   }, [q]);
 
   return (
-    <div className="absolute z-50 mt-1 w-72 bg-white rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden">
+    <div className="absolute z-50 mt-1 w-72 bg-white rounded-2xl border-solid border border-gray-100 overflow-hidden">
       <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100">
         <MdSearch className="w-4 h-4 text-gray-400 shrink-0" />
         <input ref={inputRef} type="text" placeholder="Search pharmacies…" value={q}
@@ -333,14 +333,14 @@ const SlotSection = ({
         {isMorning
           ? <MdWbSunny className="w-3.5 h-3.5 text-amber-500 shrink-0" />
           : <MdNightsStay className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
-        <span className={`text-[10px] font-black uppercase tracking-widest ${isMorning ? "text-amber-600" : "text-slate-500"}`}>
+        <span className={`text-[10px] font-poppins-extrabold uppercase tracking-widest ${isMorning ? "text-amber-600" : "text-slate-500"}`}>
           {isMorning ? "Morning" : "Evening"}
         </span>
         <div className="ml-auto flex items-center gap-1.5 text-[10px] font-semibold">
-          <span className={`px-1.5 py-0.5 rounded-full ${totalHCPs >= TARGET_CLINICIANS ? "bg-green-100 text-[#16a34a]" : totalHCPs > 0 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-400"}`}>
+          <span className={`px-1.5 py-0.5 font-poppins rounded-full ${totalHCPs >= TARGET_CLINICIANS ? "bg-green-100 text-[#16a34a]" : totalHCPs > 0 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-400"}`}>
             {totalHCPs}/{TARGET_CLINICIANS} HCPs
           </span>
-          <span className={`px-1.5 py-0.5 rounded-full ${totalRx >= TARGET_PHARMACIES ? "bg-green-100 text-[#16a34a]" : totalRx > 0 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-400"}`}>
+          <span className={`px-1.5 py-0.5 font-poppins rounded-full ${totalRx >= TARGET_PHARMACIES ? "bg-green-100 text-[#16a34a]" : totalRx > 0 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-400"}`}>
             {totalRx}/{TARGET_PHARMACIES} Rx
           </span>
         </div>
@@ -359,7 +359,7 @@ const SlotSection = ({
             onBlur={() => onAreaSaved(areaVal)}
             onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
             placeholder={isMorning ? "Morning area (e.g. Mulago, Kibuli)" : "Evening area (e.g. Namirembe Rd pharmacies)"}
-            className="flex-1 text-xs outline-none bg-transparent text-gray-700 placeholder-gray-300"
+            className="flex-1 font-poppins text-xs outline-none bg-transparent text-gray-700 placeholder-gray-300"
           />
         )}
       </div>
@@ -373,13 +373,13 @@ const SlotSection = ({
             return (
               <div key={e.id} className="flex items-center gap-1.5 group">
                 <FaUserDoctor className="w-3 h-3 text-[#16a34a] shrink-0" />
-                <span className="flex-1 text-xs text-gray-700 truncate">
+                <span className="flex-1 font-poppins text-xs text-gray-700 truncate">
                   {e.doctor?.doctor_name ?? "Unknown"}
                   {e.doctor?.town && <span className="text-gray-400"> · {e.doctor.town}</span>}
                 </span>
-                {colors && <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${colors.bg} ${colors.text}`}>{ci?.tier}</span>}
+                {colors && <span className={`text-[9px] font-poppins-bold px-1.5 py-0.5 rounded-full shrink-0 ${colors.bg} ${colors.text}`}>{ci?.tier}</span>}
                 {!locked && (
-                  <button onClick={() => removeEntry(e.id)} className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600">
+                  <button onClick={() => removeEntry(e.id)} className="opacity-0 font-poppins group-hover:opacity-100 text-red-400 hover:text-red-600">
                     <FiTrash2 className="w-3 h-3" />
                   </button>
                 )}
@@ -396,13 +396,13 @@ const SlotSection = ({
             <div key={e.id} className="flex items-center gap-1.5 group">
               <TbPill className="w-3 h-3 text-violet-500 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-700 truncate">{e.pharmacy?.pharmacy_name ?? e.pharmacy_name}</p>
+                <p className="text-xs font-poppins text-gray-700 truncate">{e.pharmacy?.pharmacy_name ?? e.pharmacy_name}</p>
                 {(e.pharmacy?.location || e.pharmacy?.town) && (
-                  <p className="text-[9px] text-gray-400 truncate">{[e.pharmacy?.location, e.pharmacy?.town].filter(Boolean).join(" · ")}</p>
+                  <p className="text-[9px] font-poppins text-gray-400 truncate">{[e.pharmacy?.location, e.pharmacy?.town].filter(Boolean).join(" · ")}</p>
                 )}
               </div>
               {!locked && (
-                <button onClick={() => removeEntry(e.id)} className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600">
+                <button onClick={() => removeEntry(e.id)} className="opacity-0 group-hover:opacity-100 font-poppins text-red-400 hover:text-red-600">
                   <FiTrash2 className="w-3 h-3" />
                 </button>
               )}
@@ -416,7 +416,7 @@ const SlotSection = ({
         <div className="flex items-center gap-3 mt-1.5 flex-wrap">
           <div className="relative">
             <button onClick={() => setDocDrop(true)}
-              className="flex items-center gap-1 text-[11px] font-semibold text-[#16a34a] hover:text-[#15803d]">
+              className="flex items-center gap-1 text-[11px] font-poppins-semibold text-[#16a34a] hover:text-[#15803d]">
               <FiPlus className="w-3 h-3" /> Add HCP
             </button>
             {showDocDrop && (
@@ -426,7 +426,7 @@ const SlotSection = ({
           </div>
           <div className="relative">
             <button onClick={() => setShowPharmDrop(true)}
-              className="flex items-center gap-1 text-[11px] font-semibold text-violet-600 hover:text-violet-700">
+              className="flex items-center gap-1 text-[11px] font-poppins-semibold text-violet-600 hover:text-violet-700">
               <FiPlus className="w-3 h-3" /> Add Pharmacy
             </button>
             {showPharmDrop && (
@@ -506,28 +506,28 @@ const DayCard = ({
   const allRx   = entries.filter((e) => e.entry_type === "PHARMACY");
 
   return (
-    <div className={`bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_0_rgba(0,0,0,0.06)] ${isTD ? "ring-2 ring-[#16a34a]/40" : ""}`}>
+    <div className={`bg-white border-solid border-gray-200 border rounded-2xl overflow-hidden ${isTD ? "ring-2 ring-[#16a34a]/40" : ""}`}>
       {/* Day header */}
       <div className={`px-4 py-3 flex items-center justify-between ${isTD ? "bg-[#16a34a]" : isWE ? "bg-gray-50 border-b border-gray-100" : "bg-[#1a2530]"}`}>
         <div>
-          <p className={`text-[10px] font-bold uppercase tracking-widest ${isTD || !isWE ? "text-white/60" : "text-gray-400"}`}>
+          <p className={`text-[10px] font-poppins-bold uppercase tracking-widest ${isTD || !isWE ? "text-white/60" : "text-gray-400"}`}>
             {format(date, "EEEE")}{isTD && " · Today"}
           </p>
-          <p className={`text-xl font-black leading-none ${isTD || !isWE ? "text-white" : "text-gray-600"}`}>
+          <p className={`text-xl font-poppins-extrabold leading-none ${isTD || !isWE ? "text-white" : "text-gray-600"}`}>
             {format(date, "d MMM")}
           </p>
         </div>
         <div className="flex items-center gap-3">
           {!isOff && (
             <div className="flex items-center gap-1.5 text-[10px] font-bold">
-              <span className={`px-2 py-1 rounded-full ${allClin.length >= TARGET_CLINICIANS ? (isTD ? "bg-white/20 text-white" : "bg-[#16a34a]/20 text-[#16a34a]") : "bg-white/10 text-white/50"}`}>
+              <span className={`px-2 py-1 font-poppins rounded-full ${allClin.length >= TARGET_CLINICIANS ? (isTD ? "bg-white/20 text-white" : "bg-[#16a34a]/20 text-[#16a34a]") : "bg-white/10 text-white/50"}`}>
                 {allClin.length}/{TARGET_CLINICIANS}
               </span>
-              <span className={`px-2 py-1 rounded-full ${allRx.length >= TARGET_PHARMACIES ? (isTD ? "bg-white/20 text-white" : "bg-[#16a34a]/20 text-[#16a34a]") : "bg-white/10 text-white/50"}`}>
+              <span className={`px-2 py-1 font-poppins rounded-full ${allRx.length >= TARGET_PHARMACIES ? (isTD ? "bg-white/20 text-white" : "bg-[#16a34a]/20 text-[#16a34a]") : "bg-white/10 text-white/50"}`}>
                 {allRx.length} Rx
               </span>
               {totalExp > 0 && (
-                <span className="px-2 py-1 rounded-full bg-white/10 text-white/60">
+                <span className="px-2 py-1 font-poppins rounded-full bg-white/10 text-white/60">
                   {(totalExp / 1000).toFixed(0)}k UGX
                 </span>
               )}
@@ -536,7 +536,7 @@ const DayCard = ({
           {!locked && (
             <button onClick={() => saveDay({ is_off_day: !isOff })}
               title={isOff ? "Mark working day" : "Mark off day"}
-              className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isOff ? "bg-amber-400 text-white" : "bg-white/10 text-white/60 hover:bg-white/20"}`}>
+              className={`w-7 h-7font-poppins rounded-full flex items-center justify-center transition-colors ${isOff ? "bg-amber-400 text-white" : "bg-white/10 text-white/60 hover:bg-white/20"}`}>
               <MdOutlineBeachAccess className="w-4 h-4" />
             </button>
           )}
@@ -544,7 +544,7 @@ const DayCard = ({
       </div>
 
       {isOff ? (
-        <div className="px-4 py-3 text-xs text-gray-400 font-medium">Off day / Leave / Holiday</div>
+        <div className="px-4 py-3 text-xs font-poppins text-gray-400 font-medium">Off day / Leave / Holiday</div>
       ) : (
         <div className="p-3 space-y-3">
           {/* Morning slot */}
@@ -581,11 +581,11 @@ const DayCard = ({
           <div className="border-t border-gray-100 pt-2">
             <button onClick={() => setShowExp((v) => !v)}
               className="flex items-center justify-between w-full text-left group">
-              <span className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              <span className="flex items-center gap-1.5 text-[10px] font-poppins-bold text-gray-400 uppercase tracking-widest">
                 <FiDollarSign className="w-3 h-3" />
                 Expenses
                 {totalExp > 0 && (
-                  <span className="font-bold text-[#16a34a] normal-case tracking-normal ml-1">
+                  <span className="font-poppins-bold text-[#16a34a] normal-case tracking-normal ml-1">
                     {totalExp.toLocaleString()} UGX
                   </span>
                 )}
@@ -605,9 +605,9 @@ const DayCard = ({
                   ["Other",           "other_costs"],
                 ] as [string, keyof typeof exp][]).map(([label, key]) => (
                   <div key={key} className="flex items-center gap-3">
-                    <span className="text-[11px] text-gray-400 w-28 shrink-0">{label}</span>
+                    <span className="text-[11px] font-poppins text-gray-400 w-28 shrink-0">{label}</span>
                     {locked ? (
-                      <span className="text-xs font-semibold text-gray-600">{exp[key].toLocaleString()}</span>
+                      <span className="text-xs font-poppins-semibold text-gray-600">{exp[key].toLocaleString()}</span>
                     ) : (
                       <input
                         type="number" min={0}
@@ -615,14 +615,14 @@ const DayCard = ({
                         placeholder="0"
                         onChange={(e) => setExp((p) => ({ ...p, [key]: parseFloat(e.target.value) || 0 }))}
                         onBlur={() => saveDay(exp)}
-                        className="w-32 text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-[#16a34a] transition-colors"
+                        className="w-32 text-xs border font-poppins border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-[#16a34a] transition-colors"
                       />
                     )}
                   </div>
                 ))}
                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                  <span className="text-[11px] font-bold text-gray-500">Day Total</span>
-                  <span className="text-sm font-black text-[#16a34a]">{totalExp.toLocaleString()} UGX</span>
+                  <span className="text-[11px] font-poppins-bold text-gray-500">Day Total</span>
+                  <span className="text-sm font-poppins-extrabold text-[#16a34a]">{totalExp.toLocaleString()} UGX</span>
                 </div>
               </div>
             )}
@@ -650,8 +650,8 @@ const CycleCoveragePanel = ({
   return (
     <div className="bg-white rounded-2xl shadow-[0_2px_16px_0_rgba(0,0,0,0.06)] overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-100">
-        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Cycle Coverage</p>
-        <p className="text-[11px] text-gray-400 mt-0.5">{fullyPlanned.length}/{cycleItems.length} doctors fully planned</p>
+        <p className="text-xs font-poppins-bold text-gray-500 uppercase tracking-widest">Cycle Coverage</p>
+        <p className="text-[11px] font-poppins text-gray-400 mt-0.5">{fullyPlanned.length}/{cycleItems.length} doctors fully planned</p>
       </div>
 
       {/* Progress bar */}
@@ -667,9 +667,9 @@ const CycleCoveragePanel = ({
           />
         </div>
         <div className="flex justify-between mt-1">
-          <span className="text-[10px] text-gray-400">0%</span>
-          <span className="text-[10px] font-bold text-gray-600">{pct}%</span>
-          <span className="text-[10px] text-gray-400">100%</span>
+          <span className="text-[10px] font-poppins text-gray-400">0%</span>
+          <span className="text-[10px] font-poppins-bold text-gray-600">{pct}%</span>
+          <span className="text-[10px] font-poppins text-gray-400">100%</span>
         </div>
       </div>
 
@@ -678,7 +678,7 @@ const CycleCoveragePanel = ({
         <div className="px-4 py-2.5 border-b border-gray-100 bg-red-50">
           <div className="flex items-start gap-1.5">
             <FiAlertTriangle className="w-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" />
-            <p className="text-[11px] text-red-700 font-semibold">
+            <p className="text-[11px] text-red-700 font-poppins-semibold">
               {overPlanned.length} doctor{overPlanned.length > 1 ? "s" : ""} over-planned
             </p>
           </div>
@@ -708,17 +708,17 @@ const CycleCoveragePanel = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="text-xs font-semibold text-[#222f36] truncate">{ci.doctor.doctor_name}</p>
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${colors.bg} ${colors.text}`}>
+                    <p className="text-xs font-poppins-semibold text-[#222f36] truncate">{ci.doctor.doctor_name}</p>
+                    <span className={`text-[9px] font-poppins-bold px-1.5 py-0.5 rounded-full shrink-0 ${colors.bg} ${colors.text}`}>
                       {ci.tier}
                     </span>
                     {isOver && (
-                      <span className="text-[9px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">
+                      <span className="text-[9px] font-poppins-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">
                         Over!
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] text-gray-400 truncate mt-0.5">{ci.doctor.town}</p>
+                  <p className="text-[10px] text-gray-400 font-poppins truncate mt-0.5">{ci.doctor.town}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                       <div
@@ -730,7 +730,7 @@ const CycleCoveragePanel = ({
                         }}
                       />
                     </div>
-                    <span className={`text-[10px] font-bold shrink-0 ${
+                    <span className={`text-[10px] font-poppins-bold shrink-0 ${
                       isOver ? "text-red-500" : isFull ? "text-[#16a34a]" : "text-amber-600"
                     }`}>
                       {planned}/{ci.frequency}
@@ -745,8 +745,8 @@ const CycleCoveragePanel = ({
         {cycleItems.length === 0 && (
           <div className="flex flex-col items-center py-8 text-center px-4">
             <FiInfo className="w-6 h-6 text-gray-300 mb-2" />
-            <p className="text-xs text-gray-400 font-medium">No call cycle yet</p>
-            <p className="text-[11px] text-gray-300 mt-1">Set up your call cycle first, then plan your tour.</p>
+            <p className="text-xs text-gray-400 font-poppins-semibold">No call cycle yet</p>
+            <p className="text-[11px] font-poppins text-gray-300 mt-1">Set up your call cycle first, then plan your tour.</p>
           </div>
         )}
       </div>
@@ -889,17 +889,17 @@ const TourPlan = () => {
         {/* Header */}
         <div className="flex items-start justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-black text-[#222f36]">Tour Plan</h1>
-            <p className="text-sm text-gray-500 mt-0.5">{monthLabel} · ☀ Morning & 🌙 Evening sessions</p>
+            <h1 className="text-2xl font-poppins-extrabold text-[#222f36]">Tour Plan</h1>
+            <p className="text-sm font-poppins text-gray-500 mt-0.5">{monthLabel} · ☀ Morning & 🌙 Evening sessions</p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             {monthlyExpense > 0 && (
-              <span className="text-xs font-bold text-[#16a34a] bg-green-50 border border-green-100 px-3 py-1.5 rounded-full">
+              <span className="text-xs font-poppins-bold text-[#16a34a] bg-green-50 border border-green-100 px-3 py-1.5 rounded-full">
                 {monthlyExpense.toLocaleString()} UGX total expenses
               </span>
             )}
             {statusCfg && (
-              <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
+              <span className={`text-xs font-poppins-bold px-3 py-1.5 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
                 {statusCfg.label}
               </span>
             )}
@@ -919,7 +919,7 @@ const TourPlan = () => {
         {/* Validation banners */}
         {plan?.status === "REJECTED" && plan.review_note && (
           <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-            <span className="font-semibold">Rejected: </span>{plan.review_note}
+            <span className="font-poppins-semibold">Rejected: </span>{plan.review_note}
           </div>
         )}
         {submitError && (

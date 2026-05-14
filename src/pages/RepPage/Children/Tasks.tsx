@@ -31,11 +31,11 @@ interface RecentActivity {
 
 const PriorityBadge = ({ priority }: { priority: "HIGH" | "MEDIUM" }) =>
   priority === "HIGH" ? (
-    <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-red-50 text-red-500">
+    <span className="text-[10px] font-poppins-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-red-50 text-red-500">
       High
     </span>
   ) : (
-    <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">
+    <span className="text-[10px] font-poppins-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">
       Medium
     </span>
   );
@@ -49,7 +49,7 @@ const TierBadge = ({ tier }: { tier: string }) => {
     C: "bg-gray-100 text-gray-500",
   };
   return (
-    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${map[tier] ?? map.C}`}>
+    <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-md ${map[tier] ?? map.C}`}>
       {tier}
     </span>
   );
@@ -66,7 +66,7 @@ const Tasks = () => {
   useEffect(() => {
     Promise.all([
       getCurrentCycleApi(),
-      getActivityHistoryApi({ days: 14, limit: 50 }),
+      getActivityHistoryApi({ days: 14, limit: 50 } as any),
     ])
       .then(([cycleRes, histRes]) => {
         const items: CycleItem[] = cycleRes.data?.data?.items ?? [];
@@ -155,8 +155,8 @@ const Tasks = () => {
 
       {/* ── Page header ── */}
       <div>
-        <h1 className="text-2xl font-black text-[#222f36] tracking-tight">Tasks</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Derived from your active call cycle</p>
+        <h1 className="text-2xl font-poppins-extrabold text-[#222f36] tracking-tight">Tasks</h1>
+        <p className="text-sm font-poppins text-gray-400 mt-0.5">Derived from your active call cycle</p>
       </div>
 
       {/* ── Summary KPI cards ── */}
@@ -166,7 +166,7 @@ const Tasks = () => {
           return (
             <div
               key={card.label}
-              className={`flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-br ${card.gradient} shadow-[0_2px_12px_0_rgba(0,0,0,0.06)] hover:shadow-[0_4px_18px_0_rgba(0,0,0,0.10)]`}
+              className={`flex flex-col bg-white border-solid border border-gray-200 justify-between p-4 rounded-2xl`}
               style={{ transition: "box-shadow 0.2s" }}
             >
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${card.iconBg}`}>
@@ -176,10 +176,10 @@ const Tasks = () => {
                 <div className="w-8 h-8 mt-3 rounded-full border-[3px] border-gray-200 border-t-[#16a34a] animate-spin" />
               ) : (
                 <div className="mt-3">
-                  <p className={`text-3xl font-black leading-none ${card.valueColor}`}>
+                  <p className={`text-3xl font-poppins-extrabold leading-none ${card.valueColor}`}>
                     {card.value}
                   </p>
-                  <p className="text-xs font-semibold text-gray-500 mt-1">{card.label}</p>
+                  <p className="text-xs font-poppins-semibold text-gray-500 mt-1">{card.label}</p>
                 </div>
               )}
             </div>
@@ -191,16 +191,16 @@ const Tasks = () => {
       <div className="grid grid-cols-1 2xl:grid-cols-2 gap-5">
 
         {/* ── Task list ── */}
-        <div className="bg-white rounded-2xl shadow-[0_2px_16px_0_rgba(0,0,0,0.07)] overflow-hidden">
-          {/* header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <MdOutlineEventRepeat className="w-4 h-4 text-[#16a34a]" />
-              <h2 className="text-sm font-bold text-[#222f36]">Pending visits</h2>
-              {!loading && (
-                <span className="text-[10px] font-bold text-[#16a34a] bg-[#dcfce7] px-1.5 py-0.5 rounded-full">
-                  {tasks.length}
-                </span>
+        <div className="bg-white rounded-2xl border-solid border border-gray-200 overflow-hidden">
+        {/* header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div className="flex items-center gap-2">
+          <MdOutlineEventRepeat className="w-4 h-4 text-[#16a34a]" />
+          <h2 className="text-sm font-poppins-bold text-[#222f36]">Pending visits</h2>
+          {!loading && (
+            <span className="text-[10px] font-poppins-bold text-[#16a34a] bg-[#dcfce7] px-1.5 py-0.5 rounded-full">
+              {tasks.length}
+            </span>
               )}
             </div>
             <div className="flex gap-1">
@@ -208,7 +208,7 @@ const Tasks = () => {
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold capitalize transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-poppins-semibold capitalize transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                     filter === f
                       ? "bg-[#16a34a] text-white"
                       : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -229,8 +229,8 @@ const Tasks = () => {
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center py-12 text-center">
                 <MdCheckCircleOutline className="w-10 h-10 text-[#16a34a] opacity-30 mb-2" />
-                <p className="text-sm font-semibold text-gray-400">All caught up!</p>
-                <p className="text-xs text-gray-300 mt-1">No pending visits in this category</p>
+                <p className="text-sm font-poppins-semibold text-gray-400">All caught up!</p>
+                <p className="text-xs font-poppins text-gray-300 mt-1">No pending visits in this category</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
@@ -256,19 +256,19 @@ const Tasks = () => {
                       {/* doctor info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="text-sm font-semibold text-[#222f36] truncate">
+                          <p className="text-[15px] font-poppins-semibold text-[#222f36] truncate">
                             {task.doctor.doctor_name}
                           </p>
                           <TierBadge tier={task.tier} />
                         </div>
                         {task.doctor.town && (
-                          <p className="text-[11px] text-gray-400 truncate">{task.doctor.town}</p>
+                          <p className="text-[11px] font-poppins text-gray-400 truncate">{task.doctor.town}</p>
                         )}
                       </div>
 
                       {/* progress */}
                       <div className="text-right shrink-0">
-                        <p className="text-[11px] font-semibold text-gray-500">
+                        <p className="text-[11px] font-poppins-semibold text-gray-500">
                           {task.visits_done}/{task.frequency}
                         </p>
                         <div className="w-16 h-1 rounded-full bg-gray-100 mt-1 overflow-hidden">
@@ -292,13 +292,13 @@ const Tasks = () => {
           </div>
         </div>
 
-        {/* ── Recent activities ── */}
-        <div className="bg-white rounded-2xl shadow-[0_2px_16px_0_rgba(0,0,0,0.07)] overflow-hidden">
+        {/* ── ------------------Recent activities------ ── */}
+        <div className="bg-white rounded-2xl border-solid border border-gray-200 overflow-hidden">
           {/* header */}
           <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
             <FiActivity className="w-4 h-4 text-[#16a34a]" />
-            <h2 className="text-sm font-bold text-[#222f36]">Recent activity</h2>
-            <span className="text-[10px] text-gray-400 font-medium ml-auto">Last 14 days</span>
+            <h2 className="text-sm font-poppins-bold text-[#222f36]">Recent activity</h2>
+            <span className="text-[10px] font-poppins text-gray-400 font-medium ml-auto">Last 14 days</span>
           </div>
 
           {/* timeline */}
@@ -310,7 +310,7 @@ const Tasks = () => {
             ) : recentActivities.length === 0 ? (
               <div className="flex flex-col items-center py-12 text-center">
                 <FiActivity className="w-10 h-10 text-gray-200 mb-2" />
-                <p className="text-sm font-semibold text-gray-400">No recent activity</p>
+                <p className="text-sm font-poppins-semibold text-gray-400">No recent activity</p>
               </div>
             ) : (
               recentActivities.map((act, i) => (
@@ -327,25 +327,25 @@ const Tasks = () => {
 
                   {/* content */}
                   <div className="flex-1 pb-4">
-                    <p className="text-sm font-semibold text-[#222f36] leading-tight">
+                    <p className="text-sm font-poppins-semibold text-[#222f36] leading-tight">
                       {act.doctor?.doctor_name ?? "Unknown"}
                     </p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
+                    <p className="text-[11px] font-poppins text-gray-400 mt-0.5">
                       {act.doctor?.town && `${act.doctor.town} · `}
                       {formatDistanceToNow(new Date(act.date), { addSuffix: true })}
                     </p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       {act.focused_product && (
-                        <span className="text-[10px] font-bold text-[#16a34a] bg-[#dcfce7] px-1.5 py-0.5 rounded-md">
+                        <span className="text-[10px] font-poppins-bold text-[#16a34a] bg-[#dcfce7] px-1.5 py-0.5 rounded-md">
                           ★ {act.focused_product.product_name}
                         </span>
                       )}
                       {(act.samples_given ?? 0) > 0 && (
-                        <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md">
+                        <span className="text-[10px] font-poppins-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md">
                           {act.samples_given} samples
                         </span>
                       )}
-                      <span className="text-[10px] text-gray-300 font-mono ml-auto">
+                      <span className="text-[10px] text-gray-300 font-poppins ml-auto">
                         {format(new Date(act.date), "dd MMM HH:mm")}
                       </span>
                     </div>
