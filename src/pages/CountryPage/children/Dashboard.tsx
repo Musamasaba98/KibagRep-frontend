@@ -202,8 +202,8 @@ const Dashboard = () => {
 
       {/* ── Page header ── */}
       <div>
-        <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">National Overview</h1>
-        <p className="text-gray-400 text-sm mt-0.5">Country-wide field performance — last 30 days</p>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">National Overview</h1>
+        <p className="text-gray-400 font-poppins text-sm mt-0.5">Country-wide field performance — last 30 days</p>
       </div>
 
       {error && (
@@ -229,9 +229,9 @@ const Dashboard = () => {
                 <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
                   <Icon className="w-5 h-5 text-white" />
                 </div>
-                <p className="font-black text-white text-3xl leading-none">{card.value}</p>
-                <p className="text-white/90 font-bold text-[13px] mt-2 leading-tight">{card.label}</p>
-                <p className="text-white/60 text-xs mt-0.5">{card.sub}</p>
+                <p className="font-poppins-extrabold text-white text-3xl leading-none">{card.value}</p>
+                <p className="text-white/90 font-poppins-bold text-[13px] mt-2 leading-tight">{card.label}</p>
+                <p className="text-white/60 text-xs font-poppins mt-0.5">{card.sub}</p>
               </div>
             </div>
           );
@@ -242,26 +242,26 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Manager Performance */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm shadow-gray-100 border border-gray-50">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="font-bold text-[#1a1a1a] text-[15px]">Manager Performance</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Visit completion vs monthly target</p>
+              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Manager Performance</h2>
+              <p className="text-xs font-poppins text-gray-400 mt-0.5">Visit completion vs monthly target</p>
             </div>
           </div>
           <div className="flex flex-col gap-4">
             {MANAGERS.map((mgr) => (
               <div key={mgr.name} className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
-                  <span className="text-[#16a34a] font-black text-xs">{avatarInitials(mgr.name)}</span>
+                  <span className="text-[#16a34a] font-poppins-extrabold text-xs">{avatarInitials(mgr.name)}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-semibold text-[#1a1a1a] truncate">{mgr.name}</p>
+                    <p className="text-sm font-poppins-semibold text-[#1a1a1a] truncate">{mgr.name}</p>
                     <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
                       {mgr.trend === "up" && <FaArrowTrendUp className="w-3 h-3 text-[#16a34a]" />}
                       {mgr.trend === "down" && <FaArrowTrendDown className="w-3 h-3 text-red-500" />}
-                      <span className={`text-xs font-bold ${mgr.pct >= 75 ? "text-[#16a34a]" : mgr.pct >= 50 ? "text-amber-600" : "text-red-500"}`}>
+                      <span className={`text-xs font-poppins-semiboldbold ${mgr.pct >= 75 ? "text-[#16a34a]" : mgr.pct >= 50 ? "text-amber-600" : "text-red-500"}`}>
                         {mgr.pct}%
                       </span>
                     </div>
@@ -280,10 +280,10 @@ const Dashboard = () => {
         </div>
 
         {/* Product Performance */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm shadow-gray-100 border border-gray-50">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border-gray-200">
           <div className="mb-5">
-            <h2 className="font-bold text-[#1a1a1a] text-[15px]">Product Performance</h2>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Product Performance</h2>
+            <p className="text-xs font-poppins text-gray-400 mt-0.5">
               {!loading && derivedProducts.length > 0
                 ? "Detailing share from live feed data"
                 : "Detailing coverage this month"}
@@ -299,10 +299,10 @@ const Dashboard = () => {
                 <div key={p.name}>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
-                      <p className="text-sm font-medium text-[#1a1a1a]">{p.name}</p>
+                      <span className="w-2.5 h-2.5 font-poppins rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
+                      <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{p.name}</p>
                     </div>
-                    <p className="text-sm font-bold" style={{ color: p.color }}>{p.pct}%</p>
+                    <p className="text-sm font-poppins-bold" style={{ color: p.color }}>{p.pct}%</p>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                     <div
@@ -315,19 +315,19 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <p className="text-gray-400 text-sm font-medium">No product data yet</p>
-              <p className="text-gray-300 text-xs mt-1">Product detailing data will appear here as reps log visits</p>
+              <p className="text-gray-400 text-sm font-poppins-semibold">No product data yet</p>
+              <p className="text-gray-300 font-poppins text-xs mt-1">Product detailing data will appear here as reps log visits</p>
             </div>
           )}
         </div>
       </div>
 
       {/* ── Regional Coverage ── */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm shadow-gray-100 border border-gray-50">
+      <div className="bg-white rounded-2xl p-5 shadow-sm shadow-gray-100 border border-gray-200">
         <div className="flex items-start justify-between mb-5">
           <div>
-            <h2 className="font-bold text-[#1a1a1a] text-[15px]">Coverage by Region</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Territory heatmap — Phase 1 (Leaflet map coming)</p>
+            <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Coverage by Region</h2>
+            <p className="text-xs font-poppins text-gray-400 mt-0.5">Territory heatmap — Phase 1 (Leaflet map coming)</p>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -348,14 +348,14 @@ const Dashboard = () => {
                 }}
               >
                 <span
-                  className="font-black text-lg"
+                  className="font-poppins-extrabold text-lg"
                   style={{ color: r.pct >= 75 ? "#16a34a" : r.pct >= 50 ? "#d97706" : "#dc2626" }}
                 >
                   {r.pct}%
                 </span>
               </div>
-              <p className="font-bold text-[#1a1a1a] text-sm text-center">{r.name}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{r.visits} visits</p>
+              <p className="font-poppins-bold text-[#1a1a1a] text-sm text-center">{r.name}</p>
+              <p className="text-xs font-poppins text-gray-400 mt-0.5">{r.visits} visits</p>
             </div>
           ))}
         </div>
@@ -367,10 +367,10 @@ const Dashboard = () => {
           <div className="flex items-center gap-3 mb-4">
             <MdOutlineGpsOff className="w-5 h-5 text-red-500 flex-shrink-0" />
             <div className="flex-1">
-              <h2 className="font-bold text-[#1a1a1a] text-[15px]">GPS Anomalies — National</h2>
-              <p className="text-xs text-gray-400">Visits flagged for GPS mismatch across all regions</p>
+              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">GPS Anomalies — National</h2>
+              <p className="text-xs font-poppins text-gray-400">Visits flagged for GPS mismatch across all regions</p>
             </div>
-            <span className="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
+            <span className="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-red-100 text-red-600">
               {gpsAnomalies.length}
             </span>
           </div>
@@ -382,18 +382,18 @@ const Dashboard = () => {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sm text-[#1a1a1a]">
+                    <span className="font-poppins-semibold text-sm text-[#1a1a1a]">
                       {a.user.firstname} {a.user.lastname}
                     </span>
                     <span className="text-gray-300 text-xs">→</span>
-                    <span className="text-sm text-gray-600">{a.doctor.doctor_name}</span>
-                    <span className="text-xs text-gray-400">{a.doctor.town}</span>
+                    <span className="text-sm font-poppins text-gray-600">{a.doctor.doctor_name}</span>
+                    <span className="text-xs font-poppins text-gray-400">{a.doctor.town}</span>
                   </div>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {format(new Date(a.date), "dd MMM yyyy, HH:mm")}
                   </p>
                 </div>
-                <span className="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600 border border-red-200">
+                <span className="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-red-100 text-red-600 border border-red-200">
                   Anomaly
                 </span>
               </div>
@@ -405,8 +405,8 @@ const Dashboard = () => {
       {/* ── Active Campaigns ── */}
       <div className="bg-white rounded-2xl p-5 shadow-sm shadow-gray-100 border border-gray-50">
         <div className="mb-5">
-          <h2 className="font-bold text-[#1a1a1a] text-[15px]">Active Campaigns</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Rep delivery coverage per campaign</p>
+          <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Active Campaigns</h2>
+          <p className="text-xs font-poppins text-gray-400 mt-0.5">Rep delivery coverage per campaign</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {CAMPAIGNS.map((c) => {
@@ -418,9 +418,9 @@ const Dashboard = () => {
                 style={{ transition: "transform 0.2s ease" }}
               >
                 <div className="flex items-start justify-between gap-2 mb-3">
-                  <p className="font-bold text-[#1a1a1a] text-sm leading-snug">{c.name}</p>
+                  <p className="font-poppins-bold text-[#1a1a1a] text-sm leading-snug">{c.name}</p>
                   <span
-                    className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-bold border ${
+                    className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-poppins-bold border ${
                       c.status === "Active"
                         ? "bg-green-50 text-[#16a34a] border-green-200"
                         : "bg-orange-50 text-orange-600 border-orange-200"
@@ -429,16 +429,16 @@ const Dashboard = () => {
                     {c.status}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mb-3">{c.product} · Tier {c.tier}</p>
+                <p className="text-xs font-poppins text-gray-400 mb-3">{c.product} · Tier {c.tier}</p>
                 <div className="w-full bg-gray-100 rounded-full h-2 mb-2 overflow-hidden">
                   <div
                     className="h-2 rounded-full bg-[#16a34a]"
                     style={{ width: `${coveragePct}%`, transition: "width 0.6s ease" }}
                   />
                 </div>
-                <p className="text-xs text-gray-500">
-                  <span className="font-bold text-[#1a1a1a]">{c.repsDelivering}/{c.totalReps}</span> reps delivering
-                  <span className="ml-1 text-[#16a34a] font-semibold">({coveragePct}%)</span>
+                <p className="text-xs font-poppins text-gray-500">
+                  <span className="font-poppins-bold text-[#1a1a1a]">{c.repsDelivering}/{c.totalReps}</span> reps delivering
+                  <span className="ml-1 text-[#16a34a] font-poppins-semibold">({coveragePct}%)</span>
                 </p>
               </div>
             );
@@ -447,12 +447,12 @@ const Dashboard = () => {
       </div>
 
       {/* ── Competitor Intelligence ── */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm shadow-gray-100 border border-gray-50">
+      <div className="bg-white rounded-2xl p-5 border border-gray-100">
         <div className="flex items-center gap-2 mb-5">
           <LuShield className="w-5 h-5 text-[#16a34a]" />
           <div>
-            <h2 className="font-bold text-[#1a1a1a] text-[15px]">Competitor Intelligence</h2>
-            <p className="text-xs text-gray-400">Field observations logged by reps this month</p>
+            <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Competitor Intelligence</h2>
+            <p className="text-xs font-poppins text-gray-400">Field observations logged by reps this month</p>
           </div>
         </div>
         <div className="flex flex-col gap-3">
@@ -466,16 +466,16 @@ const Dashboard = () => {
                 <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1 ${colors.dot}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <p className="font-bold text-[#1a1a1a] text-sm">{item.company}</p>
+                    <p className="font-poppins-bold text-[#1a1a1a] text-sm">{item.company}</p>
                     <span className="text-gray-300">·</span>
-                    <p className="text-sm text-gray-500">{item.product}</p>
+                    <p className="text-sm font-poppins text-gray-500">{item.product}</p>
                     <span
-                      className={`ml-auto flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold border capitalize ${colors.badge}`}
+                      className={`ml-auto flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-poppins-semibold border capitalize ${colors.badge}`}
                     >
                       {item.threat} threat
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 leading-relaxed">{item.observation}</p>
+                  <p className="text-sm font-poppins text-gray-500 leading-relaxed">{item.observation}</p>
                 </div>
               </div>
             );

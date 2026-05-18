@@ -22,8 +22,8 @@ const Navabar = ({ onMenuToggle, pendingCount = 0 }: NavbarProps) => {
     : "Admin";
 
   return (
-    <div className="w-full sticky top-0 z-30 bg-white border-b border-gray-100 shadow-[0_1px_12px_0_rgba(0,0,0,0.05)]">
-      <div className="flex items-center justify-between h-16 px-5">
+    <div className="w-full sticky top-0 z-30 bg-white border-b border-gray-100">
+      <div className="flex items-center justify-between h-[60px] px-5">
 
         {/* Hamburger — mobile only */}
         {onMenuToggle && (

@@ -21,7 +21,7 @@ const SidebarContent = ({ onNav }: { onNav?: () => void }) => {
   return (
     <>
       <div className='px-5 py-4 border-b border-gray-100 shrink-0'>
-        <h1 className='font-black text-lg text-[#1a2530] tracking-tight'>
+        <h1 className='font-poppins-extrabold text-lg text-[#1a2530] tracking-tight'>
           KIBAG<span className='text-[#16a34a]'>REP</span>
         </h1>
         <p className='text-[11px] text-gray-400 mt-0.5 font-semibold uppercase tracking-wider'>Super Admin</p>

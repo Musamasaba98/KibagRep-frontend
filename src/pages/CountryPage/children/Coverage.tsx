@@ -111,8 +111,8 @@ const Coverage = () => {
       {/* ── Header ── */}
       <div className="px-6 pt-6 pb-4 flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Coverage Map</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Visit density by location — Uganda field coverage</p>
+          <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Coverage Map</h1>
+          <p className="text-gray-400 font-poppins text-sm mt-0.5">Visit density by location — Uganda field coverage</p>
         </div>
         {/* Period filter */}
         <div className="flex items-center gap-1 bg-gray-50 border border-gray-100 rounded-xl p-1">
@@ -120,7 +120,7 @@ const Coverage = () => {
             <button
               key={p.days}
               onClick={() => setPeriod(p.days)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-poppins-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                 period === p.days
                   ? "bg-white text-[#16a34a] shadow-sm border border-gray-100"
                   : "text-gray-500 hover:text-[#16a34a]"
@@ -153,8 +153,8 @@ const Coverage = () => {
               <k.icon className={`w-5 h-5 ${k.color}`} />
             </div>
             <div>
-              <p className="font-black text-[#1a1a1a] text-xl leading-none">{k.value}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{k.label}</p>
+              <p className="font-poppins-bold text-[#1a1a1a] text-xl leading-none">{k.value}</p>
+              <p className="text-xs font-poppins text-gray-400 mt-0.5">{k.label}</p>
             </div>
           </div>
         ))}
@@ -169,7 +169,7 @@ const Coverage = () => {
             <div className="w-full h-full flex items-center justify-center bg-[#f0fdf4]">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-[#16a34a] animate-spin" />
-                <p className="text-sm text-gray-400">Loading map data…</p>
+                <p className="text-sm font-poppins text-gray-400">Loading map data…</p>
               </div>
             </div>
           ) : (
@@ -202,11 +202,11 @@ const Coverage = () => {
                         <span>🩺 <b>{ts.visits}</b> visit{ts.visits !== 1 ? "s" : ""}</span>
                         <span>👤 <b>{ts.reps.size}</b> rep{ts.reps.size !== 1 ? "s" : ""}</span>
                         {ts.anomalies > 0 && (
-                          <span className="text-red-500">⚠ <b>{ts.anomalies}</b> GPS anomal{ts.anomalies !== 1 ? "ies" : "y"}</span>
+                          <span className="text-red-500 font-poppins">⚠ <b>{ts.anomalies}</b> GPS anomal{ts.anomalies !== 1 ? "ies" : "y"}</span>
                         )}
                         {Object.keys(ts.products).length > 0 && (
                           <div className="mt-1 pt-1 border-t border-gray-100">
-                            <p className="font-semibold text-gray-500 mb-0.5">Top products:</p>
+                            <p className="font-poppins-semibold text-gray-500 mb-0.5">Top products:</p>
                             {Object.entries(ts.products)
                               .sort((a, b) => b[1] - a[1])
                               .slice(0, 3)
@@ -229,7 +229,7 @@ const Coverage = () => {
 
           {/* Legend */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-            <p className="font-bold text-[#1a1a1a] text-sm mb-3">Visit Density</p>
+            <p className="font-poppins-bold text-[#1a1a1a] text-sm mb-3">Visit Density</p>
             <div className="flex flex-col gap-2">
               {[
                 { label: "High  (≥ 75%)", color: "#15803d" },
@@ -242,19 +242,19 @@ const Coverage = () => {
                     className="w-4 h-4 rounded-full flex-shrink-0 border-2 border-white shadow-sm"
                     style={{ backgroundColor: l.color }}
                   />
-                  <span className="text-xs text-gray-600">{l.label}</span>
+                  <span className="text-xs font-poppins text-gray-600">{l.label}</span>
                 </div>
               ))}
               <div className="flex items-center gap-2.5 mt-1">
-                <span className="w-4 h-4 rounded-full flex-shrink-0 border-2 border-white shadow-sm bg-[#16a34a] opacity-40" />
-                <span className="text-xs text-gray-400">Larger circle = more visits</span>
+                <span className="w-4 font-poppins h-4 rounded-full flex-shrink-0 border-2 border-white shadow-sm bg-[#16a34a] opacity-40" />
+                <span className="text-xs font-poppins text-gray-400">Larger circle = more visits</span>
               </div>
             </div>
           </div>
 
           {/* Town rankings */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex-1 overflow-auto">
-            <p className="font-bold text-[#1a1a1a] text-sm mb-3">By Location</p>
+            <p className="font-poppins-bold text-[#1a1a1a] text-sm mb-3">By Location</p>
             {loading ? (
               <div className="flex justify-center py-6">
                 <div className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-[#16a34a] animate-spin" />
@@ -262,7 +262,7 @@ const Coverage = () => {
             ) : townStats.length === 0 ? (
               <div className="text-center py-6">
                 <LuMapPin className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">No visit data for this period</p>
+                <p className="text-sm font-poppins text-gray-400">No visit data for this period</p>
               </div>
             ) : (
               <div className="flex flex-col gap-2.5">
@@ -272,15 +272,15 @@ const Coverage = () => {
                     <div key={ts.town}>
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-gray-300 w-4">{i + 1}</span>
-                          <span className="text-sm font-semibold text-[#1a1a1a]">{ts.town}</span>
+                          <span className="text-xs font-poppins-bold text-gray-300 w-4">{i + 1}</span>
+                          <span className="text-sm font-poppins-semibold text-[#1a1a1a]">{ts.town}</span>
                           {ts.anomalies > 0 && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-50 text-red-500 border border-red-200 font-semibold">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-50 text-red-500 border border-red-200 font-poppins-semibold">
                               {ts.anomalies} ⚠
                             </span>
                           )}
                         </div>
-                        <span className="text-xs font-bold text-[#16a34a]">{ts.visits}</span>
+                        <span className="text-xs font-poppins-bold text-[#16a34a]">{ts.visits}</span>
                       </div>
                       <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                         <div
@@ -292,7 +292,7 @@ const Coverage = () => {
                           }}
                         />
                       </div>
-                      <p className="text-[11px] text-gray-400 mt-0.5">
+                      <p className="text-[11px] font-poppins text-gray-400 mt-0.5">
                         {ts.reps.size} rep{ts.reps.size !== 1 ? "s" : ""}
                       </p>
                     </div>
