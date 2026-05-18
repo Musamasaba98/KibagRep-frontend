@@ -111,12 +111,12 @@ const Analytics = () => {
     return (
       <div className="w-full p-6 flex flex-col gap-6">
         <div>
-          <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Company-wide KPI analytics</p>
+          <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
+          <p className="text-gray-400 font-poppins text-sm mt-0.5">Company-wide KPI analytics</p>
         </div>
         <div className="flex items-center gap-3 py-16 justify-center">
           <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-[#16a34a] animate-spin" />
-          <span className="text-sm text-gray-400">Loading analytics…</span>
+          <span className="text-sm font-poppins text-gray-400">Loading analytics…</span>
         </div>
       </div>
     );
@@ -127,11 +127,11 @@ const Analytics = () => {
     return (
       <div className="w-full p-6 flex flex-col gap-6">
         <div>
-          <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Company-wide KPI analytics</p>
+          <h1 className="text-[#1a1a1a] font-poppins-extrabold text-2xl tracking-tight">Analytics</h1>
+          <p className="text-gray-400 font-poppins text-sm mt-0.5">Company-wide KPI analytics</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex items-center justify-center py-16">
-          <p className="text-red-400 text-sm">Failed to load analytics. Please try again.</p>
+          <p className="text-red-400 font-poppins text-sm">Failed to load analytics. Please try again.</p>
         </div>
       </div>
     );
@@ -142,11 +142,11 @@ const Analytics = () => {
     return (
       <div className="w-full p-6 flex flex-col gap-6">
         <div>
-          <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Company-wide KPI analytics</p>
+          <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
+          <p className="text-gray-400 font-poppins text-sm mt-0.5">Company-wide KPI analytics</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex items-center justify-center py-16">
-          <p className="text-gray-400 text-sm">No rep data available.</p>
+          <p className="text-gray-400 font-poppins text-sm">No rep data available.</p>
         </div>
       </div>
     );
@@ -156,8 +156,8 @@ const Analytics = () => {
     <div className="w-full p-6 flex flex-col gap-6">
       {/* Header */}
       <div>
-        <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
-        <p className="text-gray-400 text-sm mt-0.5">Company-wide KPI analytics</p>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
+        <p className="text-gray-400 font-poppins text-sm mt-0.5">Company-wide KPI analytics</p>
       </div>
 
       {/* ── Section 1: KPI Cards ───────────────────────────────────────────── */}
@@ -169,9 +169,9 @@ const Analytics = () => {
             style={{ borderLeftColor: "#16a34a" }}
           >
             <div className="flex-1 min-w-0">
-              <p className="text-2xl font-black text-[#1a1a1a] leading-none">{value}</p>
-              <p className="text-xs font-semibold text-gray-700 mt-2 leading-tight">{label}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
+              <p className="text-2xl font-poppins-extrabold text-[#1a1a1a] leading-none">{value}</p>
+              <p className="text-xs font-poppins-semibold text-gray-700 mt-2 leading-tight">{label}</p>
+              <p className="text-xs font-poppins text-gray-400 mt-0.5">{sub}</p>
             </div>
             <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] flex items-center justify-center shrink-0">
               <Icon className="w-4 h-4 text-[#16a34a]" />
@@ -181,22 +181,22 @@ const Analytics = () => {
       </div>
 
       {/* ── Section 2: Rep Leaderboard ─────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="font-bold text-[#1a1a1a] text-[15px]">Rep Leaderboard</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Ranked by visits this month</p>
+          <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Rep Leaderboard</h2>
+          <p className="text-xs font-poppins text-gray-400 mt-0.5">Ranked by visits this month</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead>
               <tr className="bg-gray-50/70">
-                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wide px-6 py-3 w-12">#</th>
-                <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Rep</th>
-                <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Month</th>
-                <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Week</th>
-                <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Cycle %</th>
-                <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">GPS Flags</th>
-                <th className="text-right text-xs font-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Pending</th>
+                <th className="text-left text-xs font-poppins-semibold text-gray-400 uppercase tracking-wide px-6 py-3 w-12">#</th>
+                <th className="text-left text-xs font-poppins-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Rep</th>
+                <th className="text-right text-xs font-poppins-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Month</th>
+                <th className="text-right text-xs font-poppins-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Week</th>
+                <th className="text-right text-xs font-poppins-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Cycle %</th>
+                <th className="text-right text-xs font-poppins-semibold text-gray-400 uppercase tracking-wide px-4 py-3">GPS Flags</th>
+                <th className="text-right text-xs font-poppins-semibold text-gray-400 uppercase tracking-wide px-4 py-3">Pending</th>
                 <th className="w-8 pr-4" />
               </tr>
             </thead>
@@ -215,36 +215,36 @@ const Analytics = () => {
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center shrink-0">
-                          <span className="text-[#16a34a] font-black text-xs">
+                          <span className="text-[#16a34a] font-poppins-bold text-xs">
                             {getInitials(rep.user.firstname, rep.user.lastname)}
                           </span>
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-[#1a1a1a]">
+                          <p className="text-sm font-poppins-semibold text-[#1a1a1a]">
                             {rep.user.firstname} {rep.user.lastname}
                           </p>
                           {isInactive && (
-                            <span className="inline-block text-[10px] font-bold bg-red-50 text-red-500 rounded-full px-2 py-0.5 mt-0.5 leading-none">
+                            <span className="inline-block text-[10px] font-poppins-bold bg-red-50 text-red-500 rounded-full px-2 py-0.5 mt-0.5 leading-none">
                               Inactive {rep.days_since_last_visit}d
                             </span>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-bold text-[#1a1a1a]">
+                    <td className="px-4 py-4 text-right text-sm font-poppins-bold text-[#1a1a1a]">
                       {rep.visits_this_month ?? 0}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm text-gray-600">
+                    <td className="px-4 py-4 text-right font-poppins text-sm text-gray-600">
                       {rep.visits_this_week ?? 0}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${cycleBg(rep.cycle_adherence_pct)}`}>
+                      <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-poppins-bold ${cycleBg(rep.cycle_adherence_pct)}`}>
                         {rep.cycle_adherence_pct != null ? `${rep.cycle_adherence_pct}%` : "—"}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
                       <span
-                        className={`text-sm font-semibold ${
+                        className={`text-sm font-poppins-semibold ${
                           (rep.gps_anomaly_count_week ?? 0) > 0 ? "text-red-500" : "text-gray-400"
                         }`}
                       >
@@ -253,7 +253,7 @@ const Analytics = () => {
                     </td>
                     <td className="px-4 py-4 text-right">
                       <span
-                        className={`text-sm font-semibold ${
+                        className={`text-sm font-poppins-semibold ${
                           (rep.pending_reports ?? 0) > 0 ? "text-amber-500" : "text-gray-400"
                         }`}
                       >
@@ -273,12 +273,12 @@ const Analytics = () => {
 
       {/* ── Section 3: Attention Required ──────────────────────────────────── */}
       {attentionReps.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <LuTriangleAlert className="w-4 h-4 text-amber-500 shrink-0" />
             <div>
-              <h2 className="font-bold text-[#1a1a1a] text-[15px]">Attention Required</h2>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Attention Required</h2>
+              <p className="text-xs font-poppins text-gray-400 mt-0.5">
                 {attentionReps.length} rep{attentionReps.length !== 1 ? "s" : ""} flagged
               </p>
             </div>
@@ -299,19 +299,19 @@ const Analytics = () => {
                   className="rounded-xl border border-gray-100 bg-gray-50/60 px-4 py-3 flex items-start gap-3"
                 >
                   <div className="w-8 h-8 rounded-lg bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-[#16a34a] font-black text-xs">
+                    <span className="text-[#16a34a] font-poppins-extrabold text-xs">
                       {getInitials(rep.user.firstname, rep.user.lastname)}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[#1a1a1a] text-sm truncate">
+                    <p className="font-poppins-semibold text-[#1a1a1a] text-sm truncate">
                       {rep.user.firstname} {rep.user.lastname}
                     </p>
                     <div className="flex flex-col gap-1 mt-1.5">
                       {alerts.map((alert, i) => (
                         <span
                           key={i}
-                          className={`inline-flex items-center gap-1 text-xs font-medium ${
+                          className={`inline-flex items-center gap-1 text-xs font-poppins-semibold ${
                             alert.level === "red" ? "text-red-500" : "text-amber-600"
                           }`}
                         >

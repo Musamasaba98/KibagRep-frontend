@@ -12,14 +12,14 @@ const Messaging = () => {
     {/* chats container */}
     <div className="w-[350px] p-5 h-[calc(100vh-60px)] border-solid border-r-[1px] border-gray-200 bg-white">
     <div className="w-full">
-    <div className="flex px-2 rounded-md items-center gap-2 h-[37px] bg-[#efefef] w-full">
-    <input type="text" className="w-[90%] outline-none bg-transparent" placeholder="search conversations..."/>
-    <BiSearch className="w-5 h-4 text-[#454545]"/>
+    <div className="flex px-2 rounded-full boorder-solid border border-gray-100 items-center gap-2 h-[41px] bg-gray-50 w-full">
+    <input type="text" className="w-[90%] font-poppins text-sm outline-none bg-transparent" placeholder="search conversations..."/>
+    <BiSearch className="w-5 h-5 text-[#454545]"/>
     </div>
     </div>
     {/* the conversations heading */}
     <div className="w-full mt-5">
-    <h2 className="font-semibold text-lg text-[#222f36]">All conversations</h2>
+    <h2 className="font-poppins-semibold text-md text-[#222f36]">All conversations</h2>
     </div>
     <hr className="mt-2"/>
     {/* conversations container */}
@@ -32,11 +32,11 @@ const Messaging = () => {
     <img src={item.avatar} className="w-[40px] h-[40px] rounded-full object-cover"/>
     </div>
     <div className="">
-    <h2 className="font-semibold text-md text-[#222f36]">{item.name}</h2>
-    <p className="text-sm text-[#222f36] leading-none">{item.lastMessage.slice(0,22)}...</p>
+    <h2 className="font-poppins-semibold text-[14px] text-[#202020]">{item.name}</h2>
+    <p className="text-xs font-poppins text-[#454545] leading-none">{item.lastMessage.slice(0,22)}...</p>
     </div>
     </div>
-    <p className="text-sm text-[#222f36]">{item.time}</p>
+    <p className="text-xs font-poppins text-[#454545]">{item.time}</p>
     </div>
      )
     })}
@@ -57,8 +57,8 @@ const Messaging = () => {
     <img src={icons.member_4} className="w-10 h-10 rounded-full object-cover"/>
     </div>
     <div className="">
-    <h2 className="font-semibold text-[#222f36]">Twesigye Fahad</h2>
-    <p className="text-sm leading-none text-[#20f120]">online</p>
+    <h2 className="font-poppins-semibold text-sm text-[#222f36]">Twesigye Fahad</h2>
+    <p className="text-sm font-poppins leading-none text-[#20f120]">online</p>
     </div>
     </div>
 
@@ -80,10 +80,10 @@ const Messaging = () => {
             <FaUser className="w-4 h-4 text-white"/>
             </div>
             <div className="p-2 bg-green-500 rounded-xl">
-            <p className="text-sm text-white">{item.message}</p>
+            <p className="text-sm font-poppins text-white">{item.message}</p>
             </div>
             </div>
-            <p className="text-xs w-full flex justify-end pt-2 text-[#222f36]">{item.timestamp}</p>
+            <p className="text-xs w-full font-poppins flex justify-end pt-2 text-[#222f36]">{item.timestamp}</p>
             </div>
             </div>  
         )
@@ -96,10 +96,10 @@ const Messaging = () => {
             <FaUser className="w-4 h-4 text-white"/>
             </div>
             <div className="p-2 bg-gray-200 rounded-xl">
-            <p className="text-sm">{item.message}</p>
+            <p className="text-sm font-poppins">{item.message}</p>
             </div>
             </div>
-            <p className="text-xs w-full flex justify-end pt-2 text-[#222f36]">{item.timestamp}</p>
+            <p className="text-xs font-poppins w-full flex justify-end pt-2 text-[#222f36]">{item.timestamp}</p>
             </div>
             </div> 
         ) 
@@ -118,7 +118,7 @@ const Messaging = () => {
 
     {/* the message input container */}
     <div className="flex flex-1 items-center">
-    <input type="text" className="w-full outline-none" placeholder="type your message here..."/>
+    <input type="text" className="w-full font-poppins text-sm outline-none" placeholder="type your message here..."/>
     </div>
 
     <IoPaperPlaneOutline className="w-7 h-7 cursor-pointer text-[#454545]"/>

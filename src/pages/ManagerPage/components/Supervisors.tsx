@@ -45,12 +45,12 @@ const Supervisors = () => {
   const perfPct = (visits: number) => Math.round((visits / maxVisits) * 100);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm shadow-gray-100 border border-gray-50">
+    <div className="bg-white rounded-2xl border border-gray-100">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-wrap gap-3">
         <div>
-          <h2 className="font-bold text-[#1a1a1a] text-[15px]">Supervisor Activity</h2>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Supervisor Activity</h2>
+          <p className="text-xs font-poppins text-gray-400 mt-0.5">
             {loading ? "Loading…" : `${supervisors.length} supervisor${supervisors.length !== 1 ? "s" : ""} — last 30 days`}
           </p>
         </div>
@@ -58,7 +58,7 @@ const Supervisors = () => {
           <BiSearch className="w-4 h-4 text-gray-400 shrink-0" />
           <input
             type="text"
-            className="bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400 w-40"
+            className="bg-transparent font-poppins outline-none text-sm text-gray-700 placeholder:text-gray-400 w-40"
             placeholder="Find supervisor…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -71,10 +71,10 @@ const Supervisors = () => {
         {loading ? (
           <div className="flex items-center gap-3 px-6 py-8 text-gray-400">
             <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-green-500 animate-spin" />
-            <span className="text-sm">Loading supervisors…</span>
+            <span className="text-sm font-poppins">Loading supervisors…</span>
           </div>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-gray-400 text-sm py-8">
+          <p className="text-center font-poppins text-gray-400 text-sm py-8">
             {supervisors.length === 0 ? "No supervisor activity in the last 30 days." : "No supervisors found."}
           </p>
         ) : (
@@ -95,15 +95,15 @@ const Supervisors = () => {
               >
                 {/* Avatar */}
                 <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center shrink-0">
-                  <span className="text-[#16a34a] font-black text-xs">
+                  <span className="text-[#16a34a] font-poppins-extrabold text-xs">
                     {sup.name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase()}
                   </span>
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-[#1a1a1a] text-sm truncate">{sup.name}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="font-poppins-semibold text-[#1a1a1a] text-sm truncate">{sup.name}</p>
+                  <p className="text-xs font-poppins text-gray-400 mt-0.5">
                     {sup.visits} visits · {sup.samples} samples given
                   </p>
                 </div>
@@ -118,7 +118,7 @@ const Supervisors = () => {
                   </div>
                   <div className="flex items-center gap-1 w-14 justify-end">
                     <TrendIcon className={`w-3.5 h-3.5 shrink-0 ${trendColor}`} />
-                    <span className="text-sm font-bold text-gray-700">{pct}%</span>
+                    <span className="text-sm font-poppins-bold text-gray-700">{pct}%</span>
                   </div>
                 </div>
               </div>

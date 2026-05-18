@@ -20,14 +20,6 @@ const HeroSection = () => {
           {/* Left — copy */}
           <div className="text-center md:text-left">
 
-            {/* Eyebrow pill */}
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#4ade80] animate-pulse" />
-              <span className="text-white/90 text-sm font-poppins-semibold tracking-wide">
-                Uganda's #1 Medical SFA Platform
-              </span>
-            </div>
-
             <h1 className="font-poppins-extrabold text-4xl md:text-5xl lg:text-[56px] text-white leading-[1.1] tracking-tight max-w-2xl mx-auto md:mx-0">
               Field force{" "}
               <span className="text-[#4ade80]">accountability</span>{" "}

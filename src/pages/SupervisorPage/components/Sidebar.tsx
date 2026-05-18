@@ -70,7 +70,7 @@ const Sidebar = () => {
           <h1 className="font-poppins-extrabold text-xl text-[#1a1a1a] tracking-tight">
             KIBAG<span className="text-[#16a34a]">REP</span>
           </h1>
-          <p className="text-xs text-[#454545] leading-none mt-0.5 font-medium">Supervisor Dashboard</p>
+          <p className="text-xs text-[#454545] leading-none mt-0.5 font-poppins">SUPERVISOR DASHBOARD</p>
         </div>
       </div>
 

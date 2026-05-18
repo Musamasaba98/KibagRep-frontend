@@ -175,13 +175,13 @@ const Tasks = () => {
         <div className="flex items-center gap-3">
           <GrTask className="w-5 h-5 text-[#16a34a] shrink-0" />
           <div>
-            <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Tasks</h1>
-            <p className="text-gray-400 text-sm mt-0.5">Action items needing your attention</p>
+            <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Tasks</h1>
+            <p className="text-gray-400 font-poppins text-sm mt-0.5">Action items needing your attention</p>
           </div>
         </div>
         <div className="flex items-center gap-3 py-16 justify-center">
           <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-[#16a34a] animate-spin" />
-          <span className="text-sm text-gray-400">Loading tasks…</span>
+          <span className="text-sm font-poppins text-gray-400">Loading tasks…</span>
         </div>
       </div>
     );
@@ -194,12 +194,12 @@ const Tasks = () => {
         <div className="flex items-center gap-3">
           <GrTask className="w-5 h-5 text-[#16a34a] shrink-0" />
           <div>
-            <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Tasks</h1>
-            <p className="text-gray-400 text-sm mt-0.5">Action items needing your attention</p>
+            <h1 className="font-poppins-bold text-[#1a1a1a] text-2xl tracking-tight">Tasks</h1>
+            <p className="text-gray-400 font-poppins text-sm mt-0.5">Action items needing your attention</p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex items-center justify-center py-16">
-          <p className="text-red-400 text-sm">Failed to load tasks. Please try again.</p>
+        <div className="bg-white rounded-2xl border border-gray-100 flex items-center justify-center py-16">
+          <p className="text-red-400 font-poppins text-sm">Failed to load tasks. Please try again.</p>
         </div>
       </div>
     );
@@ -213,14 +213,14 @@ const Tasks = () => {
           <GrTask className="w-5 h-5 text-[#16a34a] shrink-0" />
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Tasks</h1>
+              <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Tasks</h1>
               {tasks.length > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] rounded-full bg-red-500 text-white text-xs font-bold px-1.5">
+                <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] rounded-full bg-red-500 text-white text-xs font-poppins-bold px-1.5">
                   {tasks.length}
                 </span>
               )}
             </div>
-            <p className="text-gray-400 text-sm mt-0.5">Action items needing your attention</p>
+            <p className="text-gray-400 font-poppins text-sm mt-0.5">Action items needing your attention</p>
           </div>
         </div>
 
@@ -228,14 +228,14 @@ const Tasks = () => {
         {tasks.length > 0 && (
           <div className="flex items-center gap-2">
             {highCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-500">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-poppins-semibold text-red-500">
+                <span className="w-1.5 h-1.5 font-poppins rounded-full bg-red-500 shrink-0" />
                 {highCount} High
               </span>
             )}
             {medCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-poppins-semibold text-amber-600">
+                <span className="w-1.5 h-1.5 font-poppins rounded-full bg-amber-400 shrink-0" />
                 {medCount} Medium
               </span>
             )}
@@ -256,7 +256,7 @@ const Tasks = () => {
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+                className={`rounded-full px-4 py-1.5 text-sm font-poppins-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                   isActive
                     ? "bg-[#16a34a] text-white"
                     : "bg-white border border-gray-200 text-gray-600 hover:border-[#16a34a] hover:text-[#16a34a]"
@@ -282,17 +282,17 @@ const Tasks = () => {
       {/* Task list */}
       {filtered.length === 0 && tasks.length === 0 ? (
         // All clear empty state
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex flex-col items-center justify-center py-20 gap-3">
+        <div className="bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center py-20 gap-3">
           <div className="w-12 h-12 rounded-2xl bg-[#f0fdf4] flex items-center justify-center">
             <MdCheckCircleOutline className="w-7 h-7 text-[#16a34a]" />
           </div>
-          <p className="font-semibold text-gray-700">All clear — no urgent items</p>
-          <p className="text-sm text-gray-400">Everything is up to date. Check back later.</p>
+          <p className="font-poppins-semibold text-gray-700">All clear — no urgent items</p>
+          <p className="text-sm font-poppins text-gray-400">Everything is up to date. Check back later.</p>
         </div>
       ) : filtered.length === 0 ? (
         // Filtered empty state
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex items-center justify-center py-12">
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-400 font-poppins text-sm">
             No {filter.charAt(0) + filter.slice(1).toLowerCase()} priority tasks.
           </p>
         </div>
@@ -313,17 +313,17 @@ const Tasks = () => {
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#1a1a1a] leading-snug">
+                  <p className="text-sm font-poppins-semibold text-[#1a1a1a] leading-snug">
                     {task.title}
                   </p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className={`text-xs font-bold ${priorityLabelColor[task.priority]}`}>
+                    <span className={`text-xs font-poppins-bold ${priorityLabelColor[task.priority]}`}>
                       {priorityLabel[task.priority]}
                     </span>
                     {task.sub && (
                       <>
                         <span className="text-gray-200 text-xs">·</span>
-                        <span className="text-xs text-gray-400 truncate">{task.sub}</span>
+                        <span className="text-xs font-poppins text-gray-400 truncate">{task.sub}</span>
                       </>
                     )}
                   </div>
@@ -333,7 +333,7 @@ const Tasks = () => {
                 {task.linkTo && (
                   <NavLink
                     to={task.linkTo}
-                    className="shrink-0 rounded-full border border-[#16a34a] px-3 py-1 text-xs font-semibold text-[#16a34a] hover:bg-[#f0fdf4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                    className="shrink-0 rounded-full border border-[#16a34a] px-3 py-1 text-xs font-poppins-semibold text-[#16a34a] hover:bg-[#f0fdf4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                     style={{ transition: "background-color 0.15s" }}
                   >
                     Review

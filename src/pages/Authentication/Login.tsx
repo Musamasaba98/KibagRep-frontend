@@ -52,19 +52,19 @@ const Login = () => {
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-[#16a34a] rounded-xl flex items-center justify-center shadow-lg shadow-green-900/50">
-            <span className="text-white font-black text-lg tracking-tight">K</span>
+            <span className="text-white font-poppins-extrabold text-lg tracking-tight">K</span>
           </div>
-          <span className="text-white font-black text-xl tracking-tight">KibagRep</span>
+          <span className="text-white font-poppins-extrabold text-xl tracking-tight">KibagRep</span>
         </div>
 
         {/* Headline */}
         <div>
-          <h1 className="text-white text-4xl xl:text-5xl font-black leading-tight tracking-tight">
+          <h1 className="text-white text-4xl xl:text-5xl font-poppins-extrabold leading-tight tracking-tight">
             Uganda's field force<br />
             <span className="text-[#16a34a]">accountability</span><br />
             platform.
           </h1>
-          <p className="text-white/50 text-base mt-5 leading-relaxed max-w-sm">
+          <p className="text-white/50 font-poppins text-base mt-5 leading-relaxed max-w-sm">
             Built for pharma reps who visit 10 doctors a day. Every visit logged,
             every sample tracked, every cycle enforced.
           </p>
@@ -76,14 +76,14 @@ const Login = () => {
                 <div className="w-8 h-8 rounded-lg bg-[#16a34a]/20 flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4 text-[#16a34a]" />
                 </div>
-                <p className="text-white/70 text-sm leading-snug">{text}</p>
+                <p className="text-white/70 font-poppins text-sm leading-snug">{text}</p>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Footer */}
-        <p className="text-white/25 text-xs">© {new Date().getFullYear()} KibagRep · Uganda</p>
+        <p className="text-white/25 font-poppins text-xs">© {new Date().getFullYear()} KibagRep · Uganda</p>
       </div>
 
       {/* ── Right panel — form ── */}
@@ -95,10 +95,10 @@ const Login = () => {
             <div className="w-9 h-9 bg-[#16a34a] rounded-xl flex items-center justify-center shadow shadow-green-900/60">
               <span className="text-white font-black text-sm">K</span>
             </div>
-            <span className="text-white font-black text-lg tracking-tight">KibagRep</span>
+            <span className="text-white font-poppins-extrabold text-lg tracking-tight">KibagRep</span>
           </div>
-          <p className="text-white text-2xl font-black leading-tight">Welcome back</p>
-          <p className="text-white/50 text-sm">Sign in to your account</p>
+          <p className="text-white text-2xl font-poppins-extrabold leading-tight">Welcome back</p>
+          <p className="text-white/50 font-poppins text-sm">Sign in to your account</p>
         </div>
 
         {/* Mobile: white card floats over header */}
@@ -115,7 +115,7 @@ const Login = () => {
 
         {/* Desktop: original form */}
         <div className="hidden lg:block w-full max-w-sm">
-          <h2 className="text-2xl font-black text-[#1a2530] tracking-tight">Welcome back</h2>
+          <h2 className="text-2xl font-poppins-semibold text-[#1a2530] tracking-tight">Welcome back</h2>
           <p className="text-gray-400 text-sm mt-1">Sign in to your account to continue</p>
 
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
@@ -132,7 +132,7 @@ const Login = () => {
               <input
                 type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
                 placeholder="Your email address"
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
+                className="w-full pl-10 font-poppins pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
               />
             </div>
 
@@ -142,13 +142,13 @@ const Login = () => {
               <input
                 type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
                 placeholder="Password"
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
+                className="w-full pl-10 pr-4 font-poppins py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
               />
             </div>
 
             {/* Forgot password */}
             <div className="flex justify-end -mt-1">
-              <button type="button" className="text-xs text-[#16a34a] font-semibold hover:underline focus-visible:outline-none">
+              <button type="button" className="text-xs font-poppins text-[#16a34a] font-semibold hover:underline focus-visible:outline-none">
                 Forgot password?
               </button>
             </div>
@@ -156,16 +156,16 @@ const Login = () => {
             {/* Submit */}
             <button
               type="submit" disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              className="w-full flex font-poppins items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-60 disabled:cursor-not-allowed text-white py-3 rounded-xl text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
               style={{ transition: "background-color 0.15s" }}
             >
               {loading ? "Signing in…" : <>Sign in <FiArrowRight className="w-4 h-4" /></>}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-400 mt-6">
+          <p className="text-center font-poppins text-sm text-gray-400 mt-6">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-[#16a34a] font-semibold hover:underline">
+            <Link to="/signup" className="text-[#16a34a] hover:underline">
               Create one
             </Link>
           </p>
