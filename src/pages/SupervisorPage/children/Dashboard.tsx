@@ -616,10 +616,10 @@ const Dashboard = () => {
           <div className="flex items-center gap-3 px-6 py-4 border-b border-violet-100">
             <IoCalendarOutline className="w-5 h-5 text-violet-500" />
             <div className="flex-1">
-              <h2 className="font-bold text-[#1a1a1a] text-[15px]">Call Cycles</h2>
-              <p className="text-xs text-gray-400">Monthly call plans awaiting approval</p>
+              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Call Cycles</h2>
+              <p className="text-xs font-popins text-gray-400">Monthly call plans awaiting approval</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-violet-100 text-violet-600">
+            <span className="px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-violet-100 text-violet-600">
               {pendingCycles?.length}
             </span>
           </div>
@@ -635,15 +635,15 @@ const Dashboard = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
-                        <span className="text-[#16a34a] font-black text-sm">
+                        <span className="text-[#16a34a] font-poppins-bold text-sm">
                           {c.user.firstname.charAt(0)}{c.user.lastname.charAt(0)}
                         </span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-bold text-sm text-[#1a1a1a]">
+                        <p className="font-poppins-bold text-sm text-[#1a1a1a]">
                           {c.user.firstname} {c.user.lastname}
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs font-poppins text-gray-400 mt-0.5">
                           {monthLabel} · {c.items?.length} doctors
                           {tierCounts.A > 0 && <span className="ml-1.5 font-semibold text-[#16a34a]">A×{tierCounts.A}</span>}
                           {tierCounts.B > 0 && <span className="ml-1 font-semibold text-amber-500">B×{tierCounts.B}</span>}
@@ -666,7 +666,7 @@ const Dashboard = () => {
                         <>
                           <button
                             onClick={() => handleApproveCycle(c.id)}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] active:bg-[#166534] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-bold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] active:bg-[#166534] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                             style={{ transition: "opacity 0.15s" }}
                           >
                             <FiCheckCircle className="w-3.5 h-3.5" />
@@ -683,11 +683,11 @@ const Dashboard = () => {
                       {/* Column headers */}
                       <div className="grid text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-violet-50 border-b border-violet-100"
                            style={{ gridTemplateColumns: "2rem 1fr 1fr 3.5rem 3.5rem" }}>
-                        <span className="px-3 py-2">#</span>
-                        <span className="px-3 py-2">Doctor</span>
-                        <span className="px-3 py-2">Facility · Town</span>
-                        <span className="px-3 py-2 text-center">Tier</span>
-                        <span className="px-3 py-2 text-center">Target</span>
+                        <span className="px-3 font-poppins py-2">#</span>
+                        <span className="px-3 font-poppins py-2">Doctor</span>
+                        <span className="px-3 font-poppins py-2">Facility · Town</span>
+                        <span className="px-3 font-poppins py-2 text-center">Tier</span>
+                        <span className="px-3 font-poppins py-2 text-center">Target</span>
                       </div>
 
                       {/* Rows sorted by tier A → B → C */}
@@ -701,27 +701,27 @@ const Dashboard = () => {
                                 ${tier === "A" ? "hover:bg-green-50/40" : tier === "B" ? "hover:bg-amber-50/30" : "hover:bg-gray-50/60"}`}
                               style={{ gridTemplateColumns: "2rem 1fr 1fr 3.5rem 3.5rem" }}
                             >
-                              <span className="px-3 py-3 text-gray-300 font-mono text-[10px]">
+                              <span className="px-3 py-3 text-gray-300 font-poppins text-[10px]">
                                 {c.items.filter(i => i.tier === tier).indexOf(item) + 1}
                               </span>
                               <div className="px-3 py-3 min-w-0">
-                                <p className="font-semibold text-[#1a1a1a] truncate">{item.doctor.doctor_name}</p>
+                                <p className="font-poppins-semibold text-[#1a1a1a] truncate">{item.doctor.doctor_name}</p>
                                 {(item.doctor.speciality ?? []).length > 0 && (
-                                  <p className="text-[10px] text-gray-400 truncate">{(item.doctor.speciality ?? []).join(", ")}</p>
+                                  <p className="text-[10px] font-poppins text-gray-400 truncate">{(item.doctor.speciality ?? []).join(", ")}</p>
                                 )}
                               </div>
                               <div className="px-3 py-3 min-w-0">
-                                <p className="text-gray-600 truncate">{item.doctor.location ?? "—"}</p>
+                                <p className="text-gray-600 font-poppins truncate">{item.doctor.location ?? "—"}</p>
                                 {item.doctor.town && <p className="text-[10px] text-gray-400 truncate">{item.doctor.town}</p>}
                               </div>
                               <div className="px-3 py-3 flex justify-center">
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-poppins-black ${
                                   tier === "A" ? "bg-green-100 text-[#16a34a]"
                                   : tier === "B" ? "bg-amber-100 text-amber-600"
                                   : "bg-gray-100 text-gray-500"
                                 }`}>{tier}</span>
                               </div>
-                              <span className="px-3 py-3 text-center font-bold text-gray-600">{item.frequency}×</span>
+                              <span className="px-3 py-3 text-center font-poppins-bold text-gray-600">{item.frequency}×</span>
                             </div>
                           ))
                       )}
@@ -729,9 +729,9 @@ const Dashboard = () => {
                       {/* Tier summary footer */}
                       <div className="flex items-center gap-4 px-4 py-2.5 bg-violet-50 border-t border-violet-100 text-[11px]">
                         <span className="text-gray-400">Totals:</span>
-                        {tierCounts.A > 0 && <span className="font-bold text-[#16a34a]">Tier A: {tierCounts.A} × {c.items.filter(i=>i.tier==="A").reduce((s,i)=>s+i.frequency,0)} visits</span>}
-                        {tierCounts.B > 0 && <span className="font-bold text-amber-500">Tier B: {tierCounts.B} × {c.items.filter(i=>i.tier==="B").reduce((s,i)=>s+i.frequency,0)} visits</span>}
-                        {tierCounts.C > 0 && <span className="font-bold text-gray-400">Tier C: {tierCounts.C} × {c.items.filter(i=>i.tier==="C").reduce((s,i)=>s+i.frequency,0)} visits</span>}
+                        {tierCounts.A > 0 && <span className="font-poppins-bold text-[#16a34a]">Tier A: {tierCounts.A} × {c.items.filter(i=>i.tier==="A").reduce((s,i)=>s+i.frequency,0)} visits</span>}
+                        {tierCounts.B > 0 && <span className="font-poppins-bold text-amber-500">Tier B: {tierCounts.B} × {c.items.filter(i=>i.tier==="B").reduce((s,i)=>s+i.frequency,0)} visits</span>}
+                        {tierCounts.C > 0 && <span className="font-poppins-bold text-gray-400">Tier C: {tierCounts.C} × {c.items.filter(i=>i.tier==="C").reduce((s,i)=>s+i.frequency,0)} visits</span>}
                         <span className="ml-auto text-gray-500 font-semibold">
                           Total target: {c.items.reduce((s,i)=>s+i.frequency,0)} visits/month
                         </span>
@@ -1112,7 +1112,7 @@ const Dashboard = () => {
 
       {/* ── Doctor Recommendations ── */}
       {!loading && recommendations.length > 0 && (
-        <div className="bg-white rounded-2xl border border-[#dcfce7] shadow-sm shadow-green-50">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm shadow-green-50">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-[#dcfce7]">
             <TbUserCheck className="w-5 h-5 text-[#16a34a]" />
             <div className="flex-1">

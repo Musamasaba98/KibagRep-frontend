@@ -156,7 +156,7 @@ const ManagerCalendar = () => {
         <p className="text-gray-400 font-poppins text-sm mt-0.5">Report activity and JFW schedule</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+      <div className="bg-white rounded-2xl border-solid border border-gray-100 overflow-hidden">
 
         {/* Month nav */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">

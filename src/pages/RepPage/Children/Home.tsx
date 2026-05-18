@@ -112,7 +112,7 @@ const MonthlyProgress = () => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border-solid border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl border-solid border border-gray-100 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <div>
@@ -178,7 +178,7 @@ const Home = () => {
       <SmartOverview activities={activities} activitiesLoading={loading} />
 
       {/* 4 — Detailing performance charts */}
-      <DetailingPerformance />
+      <DetailingPerformance/>
     </div>
   );
 };

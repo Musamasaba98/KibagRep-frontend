@@ -17,11 +17,6 @@ const Messaging = () => {
     <BiSearch className="w-5 h-5 text-[#454545]"/>
     </div>
     </div>
-    {/* the conversations heading */}
-    <div className="w-full mt-5">
-    <h2 className="font-poppins-semibold text-md text-[#222f36]">All conversations</h2>
-    </div>
-    <hr className="mt-2"/>
     {/* conversations container */}
     <div className="w-full flex flex-col gap-7 py-5">
     {conversations.map((item,index)=>{
@@ -32,7 +27,7 @@ const Messaging = () => {
     <img src={item.avatar} className="w-[40px] h-[40px] rounded-full object-cover"/>
     </div>
     <div className="">
-    <h2 className="font-poppins-semibold text-[14px] text-[#202020]">{item.name}</h2>
+    <h2 className="font-poppins-semibold text-[14px] text-gray-800">{item.name}</h2>
     <p className="text-xs font-poppins text-[#454545] leading-none">{item.lastMessage.slice(0,22)}...</p>
     </div>
     </div>

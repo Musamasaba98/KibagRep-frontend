@@ -145,7 +145,7 @@ export const KpiCards = ({
           return (
             <div
               key={card.label}
-              className={`flex flex-col bg-white justify-between min-h-[110px] sm:min-h-[130px] p-3.5 sm:p-4 rounded-xl border-solid border border-gray-200 cursor-pointer`}
+              className={`flex flex-col bg-white justify-between min-h-[110px] sm:min-h-[130px] p-3.5 sm:p-4 rounded-xl border-solid border border-gray-100 cursor-pointer`}
               style={{ transition: "box-shadow 0.2s, opacity 0.2s" }}
             >
               <div className="flex items-center justify-between">
@@ -218,7 +218,7 @@ export const TodayVisitLog = ({
         {activities.map((activity, idx) => (
           <div
             key={activity.id}
-            className="flex items-center gap-4 bg-white rounded-xl px-4 py-3 shadow-[0_1px_8px_0_rgba(0,0,0,0.06)] hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.1)]"
+            className="flex items-center gap-4 bg-white rounded-xl px-4 py-3"
             style={{ transition: "box-shadow 0.2s" }}
           >
             <div className="w-8 h-8 rounded-full bg-[#16a34a]/10 flex items-center justify-center shrink-0">
