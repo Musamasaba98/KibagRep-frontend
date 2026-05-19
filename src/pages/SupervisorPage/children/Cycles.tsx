@@ -9,7 +9,7 @@ const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
   const [note, setNote] = useState("");
   if (!open) return (
     <button onClick={() => setOpen(true)}
-      className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+      className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
       style={{ transition: "background-color 0.15s" }}>
       <FiXCircle className="w-3.5 h-3.5" /> Reject
     </button>
@@ -20,9 +20,9 @@ const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
         placeholder="Reason…"
         className="flex-1 text-xs border border-red-300 rounded-lg px-2.5 py-1.5 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200 min-w-[120px]" />
       <button onClick={() => { if (note.trim()) onConfirm(note.trim()); }}
-        className="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-600 text-white hover:bg-red-700"
+        className="px-3 py-1.5 text-xs font-poppins-bold rounded-lg bg-red-600 text-white hover:bg-red-700"
         style={{ transition: "opacity 0.15s" }}>Send</button>
-      <button onClick={() => setOpen(false)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+      <button onClick={() => setOpen(false)} className="text-xs font-poppins text-gray-400 hover:text-gray-600">Cancel</button>
     </div>
   );
 };
@@ -78,8 +78,8 @@ const Cycles = () => {
   return (
     <div className="w-full p-6 flex flex-col gap-6">
       <div>
-        <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Call Cycles</h1>
-        <p className="text-gray-400 text-sm mt-0.5">Rep call cycles pending your approval</p>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-xl tracking-tight">Call Cycles</h1>
+        <p className="text-gray-400 font-poppins text-sm mt-0.5">Rep call cycles pending your approval</p>
       </div>
 
       {error && (
@@ -90,11 +90,11 @@ const Cycles = () => {
         <div className="flex items-center gap-3 px-6 py-4 border-b border-violet-100">
           <IoCalendarOutline className="w-5 h-5 text-violet-500" />
           <div className="flex-1">
-            <h2 className="font-bold text-[#1a1a1a] text-[15px]">Pending Call Cycles</h2>
-            <p className="text-xs text-gray-400">Review and approve rep monthly doctor plans</p>
+            <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Pending Call Cycles</h2>
+            <p className="text-xs font-poppins text-gray-400">Review and approve rep monthly doctor plans</p>
           </div>
           {!loading && (
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-violet-100 text-violet-600">
+            <span className="px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-violet-100 text-violet-600">
               {cycles.length}
             </span>
           )}
@@ -103,10 +103,10 @@ const Cycles = () => {
         {loading ? (
           <div className="flex items-center gap-3 px-6 py-8 text-gray-400">
             <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-violet-500 animate-spin" />
-            <span className="text-sm">Loading…</span>
+            <span className="text-sm font-poppins">Loading…</span>
           </div>
         ) : cycles.length === 0 ? (
-          <p className="text-center text-gray-400 text-sm py-10">No pending call cycles.</p>
+          <p className="text-center font-poppins text-gray-400 text-sm py-10">No pending call cycles.</p>
         ) : (
           <div className="flex flex-col divide-y divide-violet-50">
             {cycles.map((cycle) => {
@@ -115,10 +115,10 @@ const Cycles = () => {
                 <div key={cycle.id} className="px-6 py-4 flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-semibold text-[#1a1a1a] text-sm">
+                      <p className="font-poppins-semibold text-[#1a1a1a] text-sm">
                         {cycle.user.firstname} {cycle.user.lastname}
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs font-poppins text-gray-400 mt-0.5">
                         {MONTHS[cycle.month - 1]} {cycle.year} · {cycle.items.length} doctors
                       </p>
                     </div>
@@ -129,7 +129,7 @@ const Cycles = () => {
                         <>
                           <button
                             onClick={() => handleApprove(cycle.id)}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-bold rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                           >
                             <FiCheckCircle className="w-3.5 h-3.5" />
                             Approve
@@ -143,13 +143,13 @@ const Cycles = () => {
                     {cycle.items.slice(0, 6).map((item) => (
                       <span
                         key={item.id}
-                        className="text-[11px] px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600"
+                        className="text-[11px] font-poppins px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600"
                       >
                         {item.doctor.doctor_name} · Tier {item.tier} · {item.frequency}×/mo
                       </span>
                     ))}
                     {cycle.items.length > 6 && (
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-400">
+                      <span className="text-[11px] font-poppins px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-400">
                         +{cycle.items.length - 6} more
                       </span>
                     )}

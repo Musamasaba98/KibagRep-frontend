@@ -45,7 +45,7 @@ const DetailingPerformance = () => {
       </div>
 
       <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-5">
-        <div className="bg-white rounded-2xl overflow-hidden border-solid border border-gray-200 p-5 transition-shadow">
+        <div className="bg-white rounded-2xl overflow-hidden border-solid border border-gray-100 p-5 transition-shadow">
           <p className="text-[11px] font-poppins-bold text-gray-400 uppercase tracking-widest mb-4">
             Visit distribution
           </p>
@@ -58,7 +58,7 @@ const DetailingPerformance = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border-solid border border-gray-200 p-5 transition-shadow">
+        <div className="bg-white rounded-2xl border-solid border border-gray-100 p-5 transition-shadow">
           <p className="text-[11px] font-poppins-bold text-gray-400 uppercase tracking-widest mb-4">
             Detailing by product
           </p>

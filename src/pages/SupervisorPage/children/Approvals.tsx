@@ -51,11 +51,11 @@ const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
     <div className="flex items-center gap-2">
       <input autoFocus type="text" value={note} onChange={e => setNote(e.target.value)}
         placeholder="Reason…"
-        className="flex-1 text-xs border border-red-300 rounded-lg px-2.5 py-1.5 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200" />
+        className="flex-1 text-xs font-poppins border border-red-300 rounded-lg px-2.5 py-1.5 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200" />
       <button onClick={() => { if (note.trim()) onConfirm(note.trim()); }}
-        className="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-600 text-white hover:bg-red-700"
+        className="px-3 py-1.5 text-xs font-poppins-bold rounded-lg bg-red-600 text-white hover:bg-red-700"
         style={{ transition: "opacity 0.15s" }}>Send</button>
-      <button onClick={() => setOpen(false)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+      <button onClick={() => setOpen(false)} className="text-xs font-poppins text-gray-400 hover:text-gray-600">Cancel</button>
     </div>
   );
 };
@@ -64,7 +64,7 @@ const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
 const Empty = ({ label }: { label: string }) => (
   <div className="py-16 flex flex-col items-center gap-2 text-gray-400">
     <LuClipboardCheck className="w-10 h-10 opacity-30" />
-    <p className="text-sm font-medium">{label}</p>
+    <p className="text-sm font-poppins-semibold">{label}</p>
   </div>
 );
 
@@ -163,8 +163,8 @@ const Approvals = () => {
           <LuClipboardCheck className="w-5 h-5 text-[#16a34a]" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-[#1a1a1a] tracking-tight">Approval Queue</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-xl font-poppins-bold text-[#1a1a1a] tracking-tight">Approval Queue</h1>
+          <p className="text-sm font-poppins text-gray-500">
             {loading ? "Loading…" : totalPending === 0 ? "All caught up" : `${totalPending} item${totalPending !== 1 ? "s" : ""} pending review`}
           </p>
         </div>
@@ -174,13 +174,13 @@ const Approvals = () => {
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6">
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-poppins-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
               tab === t.key ? "bg-white text-[#16a34a] shadow-[0_1px_4px_rgba(0,0,0,0.08)]" : "text-gray-500 hover:text-[#1a1a1a]"
             }`}
             style={{ transition: "background-color 0.15s, color 0.15s" }}>
             {t.label}
             {t.count > 0 && (
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+              <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full ${
                 tab === t.key ? "bg-[#16a34a] text-white" : "bg-orange-500 text-white"}`}>
                 {t.count}
               </span>
@@ -194,7 +194,7 @@ const Approvals = () => {
           <div className="w-8 h-8 rounded-full border-2 border-[#16a34a] border-t-transparent animate-spin" />
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
 
           {/* ── REPORTS ── */}
           {tab === "reports" && (
@@ -204,18 +204,18 @@ const Approvals = () => {
                 <div key={r.id} className={`p-4 ${actioning === r.id ? "opacity-50 pointer-events-none" : ""}`}>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-full bg-[#f0fdf4] flex items-center justify-center shrink-0 text-xs font-bold text-[#16a34a]">
+                      <div className="w-9 h-9 rounded-full bg-[#f0fdf4] flex items-center justify-center shrink-0 text-xs font-poppins-bold text-[#16a34a]">
                         {r.user.firstname[0]}{r.user.lastname[0]}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1a1a1a]">{r.user.firstname} {r.user.lastname}</p>
-                        <p className="text-xs text-gray-500">{FMT(r.report_date)} · {r.visits_count} visits · {r.samples_count} samples</p>
+                        <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{r.user.firstname} {r.user.lastname}</p>
+                        <p className="text-xs font-poppins text-gray-500">{FMT(r.report_date)} · {r.visits_count} visits · {r.samples_count} samples</p>
                         {r.summary && <p className="text-xs text-gray-400 mt-0.5 truncate">{r.summary}</p>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button onClick={() => approveReport(r.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                        className="flex items-center font-poppins gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                         style={{ transition: "background-color 0.15s" }}>
                         <LuCheck className="w-3.5 h-3.5" /> Approve
                       </button>
@@ -239,19 +239,19 @@ const Approvals = () => {
                         {c.user.firstname[0]}{c.user.lastname[0]}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1a1a1a]">{c.user.firstname} {c.user.lastname}</p>
-                        <p className="text-xs text-gray-500">{MONTHS[c.month]} {c.year} · {c.items.length} doctors</p>
+                        <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{c.user.firstname} {c.user.lastname}</p>
+                        <p className="text-xs font-poppins text-gray-500">{MONTHS[c.month]} {c.year} · {c.items.length} doctors</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button onClick={() => setExpandedCycle(expandedCycle === c.id ? null : c.id)}
-                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50"
+                        className="flex items-center font-poppins gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50"
                         style={{ transition: "background-color 0.15s" }}>
                         {expandedCycle === c.id ? <LuChevronUp className="w-3.5 h-3.5" /> : <LuChevronDown className="w-3.5 h-3.5" />}
                         Doctors
                       </button>
                       <button onClick={() => approveCycle(c.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                         style={{ transition: "background-color 0.15s" }}>
                         <LuCheck className="w-3.5 h-3.5" /> Approve
                       </button>
@@ -262,8 +262,8 @@ const Approvals = () => {
                     <div className="mt-3 ml-12 grid grid-cols-1 gap-1">
                       {c.items.map(item => (
                         <div key={item.id} className="flex items-center justify-between text-xs py-1 px-2.5 bg-gray-50 rounded-lg">
-                          <span className="font-medium text-[#1a1a1a]">{item.doctor.doctor_name}</span>
-                          <span className="text-gray-400">{item.doctor.town} · Tier {item.tier} · {item.frequency}×/mo</span>
+                          <span className="font-poppins-semibold text-[#1a1a1a]">{item.doctor.doctor_name}</span>
+                          <span className="text-gray-400 font-poppins">{item.doctor.town} · Tier {item.tier} · {item.frequency}×/mo</span>
                         </div>
                       ))}
                     </div>
@@ -286,7 +286,7 @@ const Approvals = () => {
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-[#1a1a1a]">{e.user.firstname} {e.user.lastname}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs font-poppins text-gray-500">
                           {e.period} · UGX {e.total_amount.toLocaleString()}
                           {e.submitted_at && ` · submitted ${FMT(e.submitted_at)}`}
                         </p>
@@ -294,7 +294,7 @@ const Approvals = () => {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button onClick={() => approveExpense(e.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                         style={{ transition: "background-color 0.15s" }}>
                         <LuCheck className="w-3.5 h-3.5" /> Approve
                       </button>
@@ -320,30 +320,30 @@ const Approvals = () => {
                       <div className="min-w-0">
                         {rec.doctor ? (
                           <>
-                            <p className="text-sm font-semibold text-[#1a1a1a]">{rec.doctor.doctor_name}</p>
-                            <p className="text-xs text-gray-500">{rec.doctor.town} · {rec.doctor.speciality?.join(", ")}</p>
+                            <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{rec.doctor.doctor_name}</p>
+                            <p className="text-xs font-poppins text-gray-500">{rec.doctor.town} · {rec.doctor.speciality?.join(", ")}</p>
                           </>
                         ) : (
                           <>
-                            <p className="text-sm font-semibold text-[#1a1a1a]">{rec.clinician_name ?? "Unknown clinician"}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{rec.clinician_name ?? "Unknown clinician"}</p>
+                            <p className="text-xs font-poppins text-gray-500">
                               {rec.clinician_cadre} {rec.clinician_location ? `· ${rec.clinician_location}` : ""}
                             </p>
                           </>
                         )}
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs font-poppins text-gray-400 mt-0.5">
                           By {rec.recommended_by.firstname} {rec.recommended_by.lastname} · {rec.unplanned_visit_count} unplanned visit{rec.unplanned_visit_count !== 1 ? "s" : ""} · {FMT(rec.created_at)}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                       <button onClick={() => approveRec(rec.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                         style={{ transition: "background-color 0.15s" }}>
                         <FiCheckCircle className="w-3.5 h-3.5" /> Add to List
                       </button>
                       <button onClick={() => forwardRec(rec.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg border border-violet-200 text-violet-700 hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-400"
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-violet-200 text-violet-700 hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-400"
                         style={{ transition: "background-color 0.15s" }}>
                         Forward
                       </button>

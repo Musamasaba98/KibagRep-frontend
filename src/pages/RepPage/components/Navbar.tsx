@@ -206,7 +206,6 @@ const Navbar = () => {
 
         {/* Right */}
         <div className="flex items-center gap-1.5">
-          <NavIconBtn icon={FaChartPie} />
           <NavIconBtn icon={BiSolidComment} badge={3} />
           <NavIconBtn icon={BiSolidBell} badge={2} />
 

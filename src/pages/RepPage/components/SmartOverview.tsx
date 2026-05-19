@@ -488,7 +488,7 @@ const SmartOverview = ({ activities, activitiesLoading }: SmartOverviewProps) =>
     : [];
 
   return (
-    <div className="bg-white rounded-2xl border-solid border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl border-solid border border-gray-100 overflow-hidden">
 
       {/* ── Tab nav ── */}
       <div className="flex items-center border-b border-gray-100 overflow-x-auto scrollbar-none">

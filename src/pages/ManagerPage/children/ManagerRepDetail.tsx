@@ -139,7 +139,7 @@ const ManagerRepDetail = () => {
       {/* Back nav */}
       <button
         onClick={() => navigate("/manager/analytics")}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#16a34a] w-fit focus-visible:outline-none"
+        className="flex items-center font-poppins gap-2 text-sm text-gray-500 hover:text-[#16a34a] w-fit focus-visible:outline-none"
         style={{ transition: "color 0.15s" }}
       >
         <LuArrowLeft className="w-4 h-4" />
@@ -159,20 +159,20 @@ const ManagerRepDetail = () => {
           {/* Rep header */}
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#16a34a] to-[#15803d] flex items-center justify-center shadow-lg shadow-green-200 flex-shrink-0">
-              <span className="text-white font-black text-xl">{initials}</span>
+              <span className="text-white font-poppins-bold text-xl">{initials}</span>
             </div>
             <div>
-              <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">{repName}</h1>
+              <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">{repName}</h1>
               <div className="flex items-center gap-3 mt-1 flex-wrap">
-                <span className="text-xs text-gray-400">Medical Rep</span>
-                <span className={`text-xs font-semibold ${lastSeenColor}`}>{lastSeenLabel}</span>
+                <span className="text-xs font-poppins text-gray-400">Medical Rep</span>
+                <span className={`text-xs font-poppins-semibold ${lastSeenColor}`}>{lastSeenLabel}</span>
                 {perf && perf.pending_reports > 0 && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
+                  <span className="text-[11px] font-poppins-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
                     {perf.pending_reports} report{perf.pending_reports > 1 ? "s" : ""} pending
                   </span>
                 )}
                 {perf && perf.gps_anomaly_count_week > 0 && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 flex items-center gap-0.5">
+                  <span className="text-[11px] font-poppins-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 flex items-center gap-0.5">
                     <MdOutlineGpsOff className="w-3 h-3" />
                     {perf.gps_anomaly_count_week} GPS flag{perf.gps_anomaly_count_week > 1 ? "s" : ""} this week
                   </span>
@@ -194,8 +194,8 @@ const ManagerRepDetail = () => {
                     <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center mb-2">
                       <Icon className="w-4 h-4 text-white" />
                     </div>
-                    <p className="font-black text-white text-2xl leading-none">{value}</p>
-                    <p className="text-white/80 text-xs mt-1">{label}</p>
+                    <p className="font-poppins-extrabold text-white text-2xl leading-none">{value}</p>
+                    <p className="text-white/80 font-poppins text-xs mt-1">{label}</p>
                   </div>
                 </div>
               ))}
@@ -204,11 +204,11 @@ const ManagerRepDetail = () => {
 
           {/* Cycle adherence */}
           {perf && perf.cycle_total_target > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.04)] p-5">
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h2 className="font-bold text-[#1a1a1a] text-[15px]">Call Cycle Adherence</h2>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Call Cycle Adherence</h2>
+                  <p className="text-xs font-poppins text-gray-400 mt-0.5">
                     {perf.cycle_visits_done} of {perf.cycle_total_target} target visits this month
                   </p>
                 </div>
@@ -216,7 +216,7 @@ const ManagerRepDetail = () => {
                   {pct >= 70
                     ? <FaArrowTrendUp className="w-4 h-4 text-[#16a34a]" />
                     : <FaArrowTrendDown className="w-4 h-4 text-red-500" />}
-                  <span className={`text-2xl font-black ${pct >= 70 ? "text-[#16a34a]" : pct >= 40 ? "text-amber-500" : "text-red-500"}`}>
+                  <span className={`text-2xl font-poppins-extrabold ${pct >= 70 ? "text-[#16a34a]" : pct >= 40 ? "text-amber-500" : "text-red-500"}`}>
                     {pct}%
                   </span>
                 </div>
@@ -233,18 +233,18 @@ const ManagerRepDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {/* Visit activity — 2 columns */}
-            <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
               <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
                 <TbActivityHeartbeat className="w-5 h-5 text-[#16a34a]" />
                 <div className="flex-1">
-                  <h2 className="font-bold text-[#1a1a1a] text-[15px]">Visit Activity</h2>
-                  <p className="text-xs text-gray-400">Last 30 days · {activities.length} visits</p>
+                  <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Visit Activity</h2>
+                  <p className="text-xs text-poppins text-gray-400">Last 30 days · {activities.length} visits</p>
                 </div>
               </div>
               {activities.length === 0 ? (
                 <div className="flex flex-col items-center py-12">
-                  <LuCircleCheck className="w-10 h-10 text-gray-200 mb-3" />
-                  <p className="text-gray-400 text-sm font-medium">No visits in the last 30 days</p>
+                  <LuCircleCheck className="w-10 h-10 text-gray-200 mb-3"/>
+                  <p className="text-gray-400 text-sm font-poppins-semibold">No visits in the last 30 days</p>
                 </div>
               ) : (
                 <div className="divide-y divide-gray-50 max-h-[480px] overflow-y-auto">
@@ -263,28 +263,28 @@ const ManagerRepDetail = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="font-semibold text-sm text-[#1a1a1a]">{act.doctor.doctor_name}</p>
+                          <p className="font-poppins-semibold text-sm text-[#1a1a1a]">{act.doctor.doctor_name}</p>
                           {act.gps_anomaly && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 flex items-center gap-0.5">
                               <MdOutlineGpsOff className="w-2.5 h-2.5" /> GPS
                             </span>
                           )}
                           {act.nca_reason && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                            <span className="text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
                               NCA
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs font-poppins text-gray-400 mt-0.5">
                           {act.doctor.town}
                           {act.focused_product && (
-                            <> · <span className="text-[#16a34a] font-medium">{act.focused_product.product_name}</span></>
+                            <> · <span className="text-[#16a34a] font-poppins-bold">{act.focused_product.product_name}</span></>
                           )}
                           {act.samples_given > 0 && <> · {act.samples_given} samples</>}
                           {act.nca_reason && <> · <span className="text-amber-600">{act.nca_reason}</span></>}
                         </p>
                       </div>
-                      <span className="text-[11px] text-gray-400 flex-shrink-0 whitespace-nowrap">
+                      <span className="text-[11px] text-gray-400 font-poppins flex-shrink-0 whitespace-nowrap">
                         {format(new Date(act.date), "MMM d, HH:mm")}
                       </span>
                     </div>
@@ -294,31 +294,31 @@ const ManagerRepDetail = () => {
             </div>
 
             {/* Reports sidebar */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
               <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
                 <LuFileText className="w-5 h-5 text-gray-500" />
                 <div>
-                  <h2 className="font-bold text-[#1a1a1a] text-[15px]">Daily Reports</h2>
-                  <p className="text-xs text-gray-400">Last 30 days</p>
+                  <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Daily Reports</h2>
+                  <p className="text-xs font-poppins text-gray-400">Last 30 days</p>
                 </div>
               </div>
               {reports.length === 0 ? (
                 <div className="flex flex-col items-center py-10">
-                  <p className="text-gray-400 text-sm">No reports found</p>
+                  <p className="text-gray-400 font-poppins text-sm">No reports found</p>
                 </div>
               ) : (
                 <div className="divide-y divide-gray-50">
                   {reports.map((r) => (
                     <div key={r.id} className="flex items-center gap-3 px-5 py-3">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-[#1a1a1a]">
+                        <p className="text-sm font-poppins-semibold text-[#1a1a1a]">
                           {format(new Date(r.report_date), "EEE d MMM")}
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs font-poppins text-gray-400 mt-0.5">
                           {r.visits_count} visits · {r.samples_count} samples
                         </p>
                       </div>
-                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${STATUS_CHIP[r.status] ?? STATUS_CHIP.DRAFT}`}>
+                      <span className={`text-[11px] font-poppins-bold px-2 py-0.5 rounded-full flex-shrink-0 ${STATUS_CHIP[r.status] ?? STATUS_CHIP.DRAFT}`}>
                         {r.status === "SUBMITTED" ? "Pending" : r.status === "APPROVED" ? "Approved" : r.status === "REJECTED" ? "Rejected" : "Draft"}
                       </span>
                     </div>

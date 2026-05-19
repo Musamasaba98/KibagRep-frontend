@@ -5,7 +5,7 @@ import Sidebar from "./components/Sidebar";
 
 const CountryPage = () => {
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="h-screen pb-24 overflow-y-auto flex bg-gray-50">
       <Sidebar />
       {/* main content container */}
       <div className="w-full ml-64">

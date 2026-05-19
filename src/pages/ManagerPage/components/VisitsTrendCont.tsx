@@ -75,13 +75,13 @@ const VisitsTrendCont = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm shadow-gray-100 border border-gray-50 p-6">
+    <div className="bg-white rounded-2xl border border-gray-100 p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="font-bold text-[#1a1a1a] text-[15px]">Team Visit Trend</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Last 14 days across all reps</p>
+          <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Team Visit Trend</h2>
+          <p className="text-xs font-poppins text-gray-400 mt-0.5">Last 14 days across all reps</p>
         </div>
-        <span className="text-xs font-semibold text-[#16a34a] bg-[#f0fdf4] px-3 py-1 rounded-full border border-[#dcfce7]">
+        <span className="text-xs font-poppins-semibold text-[#16a34a] bg-[#f0fdf4] px-3 py-1 rounded-full border border-[#dcfce7]">
           Live data
         </span>
       </div>
@@ -98,18 +98,18 @@ const VisitsTrendCont = () => {
       {!loading && topProducts.length > 0 && (
         <div className="mt-6 pt-5 border-t border-gray-100">
           <div className="mb-4">
-            <p className="font-bold text-[#1a1a1a] text-[13px]">Product Detailing Mix</p>
-            <p className="text-xs text-gray-400 mt-0.5">Top products detailed — last 14 days</p>
+            <p className="font-poppins-bold text-[#1a1a1a] text-[13px]">Product Detailing Mix</p>
+            <p className="text-xs font-poppins text-gray-400 mt-0.5">Top products detailed — last 14 days</p>
           </div>
           <div className="flex flex-col gap-3">
             {topProducts.map((p, i) => (
               <div key={p.name}>
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs font-medium text-[#1a1a1a] truncate max-w-[55%]">{p.name}</p>
+                  <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate max-w-[55%]">{p.name}</p>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-xs text-gray-400">{p.count} visits</span>
+                    <span className="text-xs font-poppins text-gray-400">{p.count} visits</span>
                     <span
-                      className="text-xs font-bold"
+                      className="text-xs font-poppins-bold"
                       style={{ color: PRODUCT_COLORS[i] }}
                     >
                       {p.pct}%

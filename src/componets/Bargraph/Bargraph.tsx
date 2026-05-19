@@ -25,11 +25,12 @@ export default function Bargraph({ data }: { data?: BarItem[] }) {
     xField: "brand",
     yField: "sales",
     colorField: "brand",
+    fontFamily:"poppins",
     legend: false,
     style: { maxWidth: 40, inset: 5 },
     scale: { color: { range: COLOR_PALETTE } },
     axis: { y: null },
-    xAxis: { label: { style: { textAlign: "center" } } },
+    xAxis: { label: { style: { textAlign: "center",fontFamily:"poppins" } } },
   };
 
   return <Column {...config} />;
