@@ -135,7 +135,7 @@ const RepDetail = () => {
       {/* Back nav */}
       <button
         onClick={() => navigate("/supervisor/reps")}
-        className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#16a34a] w-fit focus-visible:outline-none"
+        className="flex font-poppins items-center gap-2 text-sm text-gray-500 hover:text-[#16a34a] w-fit focus-visible:outline-none"
         style={{ transition: "color 0.15s" }}
       >
         <LuArrowLeft className="w-4 h-4" />

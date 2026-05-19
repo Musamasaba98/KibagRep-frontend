@@ -39,7 +39,7 @@ const Navabar = () => {
   const roleLabel = user?.role ?? "Field Line Manager";
 
   return (
-    <div className="w-full sticky top-0 z-30 bg-white border-b border-gray-100 shadow-[0_1px_12px_0_rgba(0,0,0,0.05)]">
+    <div className="w-full sticky top-0 z-30 bg-white border-b border-gray-100">
       <div className="flex items-center justify-between h-16 px-5">
 
         {/* Left */}
@@ -54,7 +54,7 @@ const Navabar = () => {
           <div className="flex items-center gap-2 px-3 w-[260px] h-9 rounded-xl bg-gray-50 border border-gray-100 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/20 transition-colors">
             <BiSearch className="w-4 h-4 text-gray-400 shrink-0" />
             <input
-              className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
+              className="w-full font-poppins bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
               placeholder="Search reps, supervisors…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -82,8 +82,8 @@ const Navabar = () => {
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#16a34a] border-2 border-white" />
             </div>
             <div className="hidden sm:block text-left">
-              <p className="text-xs font-bold text-[#222f36] leading-tight">{fullName}</p>
-              <p className="text-[10px] text-gray-400 leading-tight capitalize">{roleLabel}</p>
+              <p className="text-xs font-poppins-bold text-[#222f36] leading-tight">{fullName}</p>
+              <p className="text-[10px] font-poppins text-gray-400 leading-tight capitalize">{roleLabel}</p>
             </div>
             <BiChevronDown className="w-4 h-4 text-gray-400 group-hover:text-[#16a34a] transition-colors" />
           </button>

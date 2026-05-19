@@ -10,7 +10,7 @@ const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
   const [note, setNote] = useState("");
   if (!open) return (
     <button onClick={(e) => { e.stopPropagation(); setOpen(true); }}
-      className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 focus-visible:outline-none"
+      className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-poppins-bold rounded-lg border border-red-200 text-red-600 hover:bg-red-50 focus-visible:outline-none"
       style={{ transition: "background-color 0.15s" }}>
       <LuX className="w-3.5 h-3.5" /> Reject
     </button>
@@ -19,11 +19,11 @@ const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
       <input autoFocus type="text" value={note} onChange={e => setNote(e.target.value)}
         placeholder="Reason…"
-        className="flex-1 text-xs border border-red-300 rounded-lg px-2.5 py-1.5 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200 min-w-[120px]" />
+        className="flex-1 text-xs font-poppins border border-red-300 rounded-lg px-2.5 py-1.5 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200 min-w-[120px]" />
       <button onClick={() => { if (note.trim()) onConfirm(note.trim()); }}
-        className="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-600 text-white hover:bg-red-700"
+        className="px-3 py-1.5 text-xs font-poppins-bold rounded-lg bg-red-600 text-white hover:bg-red-700"
         style={{ transition: "opacity 0.15s" }}>Send</button>
-      <button onClick={() => setOpen(false)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
+      <button onClick={() => setOpen(false)} className="text-xs text-gray-400 font-poppins hover:text-gray-600">Cancel</button>
     </div>
   );
 };
@@ -121,13 +121,13 @@ const SupervisorReports = () => {
     <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Reports</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Daily reports from your team</p>
+          <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Reports</h1>
+          <p className="text-gray-400 font-poppins text-sm mt-0.5">Daily reports from your team</p>
         </div>
         <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
           {([7, 30, 60] as Days[]).map((d) => (
             <button key={d} onClick={() => setDays(d)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold focus-visible:outline-none ${days === d ? "bg-white text-[#16a34a] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-poppins-semibold focus-visible:outline-none ${days === d ? "bg-white text-[#16a34a] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
               style={{ transition: "background-color 0.15s" }}>{d}d</button>
           ))}
         </div>
@@ -140,15 +140,15 @@ const SupervisorReports = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="flex border-b border-gray-100">
           {TABS.map(({ key, label }) => (
             <button key={key} onClick={() => { setTab(key); setExpanded(null); }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm font-semibold focus-visible:outline-none ${tab === key ? "text-[#16a34a] border-b-2 border-[#16a34a] bg-[#f0fdf4]/50" : "text-gray-400 hover:text-gray-600"}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm font-poppins-semibold focus-visible:outline-none ${tab === key ? "text-[#16a34a] border-b-2 border-[#16a34a] bg-[#f0fdf4]/50" : "text-gray-400 hover:text-gray-600"}`}
               style={{ transition: "color 0.15s" }}>
               {label}
               {key === "SUBMITTED" && pendingCount > 0 && !loading && (
-                <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-bold ${tab === "SUBMITTED" ? "bg-[#16a34a] text-white" : "bg-amber-100 text-amber-700"}`}>{pendingCount}</span>
+                <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-poppins-bold ${tab === "SUBMITTED" ? "bg-[#16a34a] text-white" : "bg-amber-100 text-amber-700"}`}>{pendingCount}</span>
               )}
             </button>
           ))}
@@ -161,8 +161,8 @@ const SupervisorReports = () => {
         ) : reports.length === 0 ? (
           <div className="flex flex-col items-center py-16">
             <LuFileText className="w-10 h-10 text-gray-200 mb-3" />
-            <p className="text-gray-500 font-semibold text-sm">No reports found</p>
-            <p className="text-gray-400 text-xs mt-1">Try a different filter or date range</p>
+            <p className="text-gray-500 font-poppins-semibold text-sm">No reports found</p>
+            <p className="text-gray-400 font-poppins text-xs mt-1">Try a different filter or date range</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
@@ -175,10 +175,10 @@ const SupervisorReports = () => {
                 <div key={rep.id}>
                   <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 hover:bg-gray-50/60 cursor-pointer" onClick={() => toggleExpand(rep.id)}>
                     <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#16a34a] font-black text-xs">{INITIALS(rep)}</span>
+                      <span className="text-[#16a34a] font-poppins-bold text-xs">{INITIALS(rep)}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-[#1a1a1a] text-sm leading-tight">{rep.user.firstname} {rep.user.lastname}</p>
+                      <p className="font-poppins-semibold text-[#1a1a1a] text-sm leading-tight">{rep.user.firstname} {rep.user.lastname}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{FMT(rep.report_date)}</p>
                     </div>
                     <div className="hidden sm:flex items-center gap-4 text-xs text-gray-500 flex-shrink-0">
@@ -188,19 +188,19 @@ const SupervisorReports = () => {
                     {rep.jfw_observer_id && (
                       <span className="hidden sm:inline text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200 flex-shrink-0">JFW</span>
                     )}
-                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${s.bg} ${s.text}`}>{s.label}</span>
+                    <span className={`text-[11px] font-poppins-bold px-2 py-0.5 rounded-full flex-shrink-0 ${s.bg} ${s.text}`}>{s.label}</span>
                     <div className="text-gray-400 flex-shrink-0">{isOpen ? <LuChevronUp className="w-4 h-4" /> : <LuChevronDown className="w-4 h-4" />}</div>
                   </div>
 
                   {isOpen && (
                     <div className="bg-gray-50/60 border-t border-gray-100 px-4 sm:px-5 py-4 flex flex-col gap-3">
                       {rep.summary && (
-                        <p className="text-sm text-gray-600 italic bg-white rounded-xl px-3.5 py-2.5 border border-gray-100">"{rep.summary}"</p>
+                        <p className="text-sm text-gray-600 font-poppins italic bg-white rounded-xl px-3.5 py-2.5 border border-gray-100">"{rep.summary}"</p>
                       )}
                       {rep.review_note && (
                         <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
                           <LuX className="w-3.5 h-3.5 text-red-500 mt-0.5 flex-shrink-0" />
-                          <p className="text-xs text-red-700">{rep.review_note}</p>
+                          <p className="text-xs font-poppins text-red-700">{rep.review_note}</p>
                         </div>
                       )}
                       {loadingAct === rep.id ? (
@@ -208,22 +208,22 @@ const SupervisorReports = () => {
                           <div className="w-4 h-4 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />Loading visits...
                         </div>
                       ) : repActs.length === 0 ? (
-                        <p className="text-xs text-gray-400 py-1">No visit activities recorded.</p>
+                        <p className="text-xs font-poppins text-gray-400 py-1">No visit activities recorded.</p>
                       ) : (
                         <div className="flex flex-col gap-1.5">
-                          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{repActs.length} Visit{repActs.length !== 1 ? "s" : ""}</p>
+                          <p className="text-[11px] font-poppins-bold text-gray-400 uppercase tracking-widest">{repActs.length} Visit{repActs.length !== 1 ? "s" : ""}</p>
                           {repActs.map((act) => (
                             <div key={act.id} className="bg-white rounded-xl border border-gray-100 px-3.5 py-2.5 flex items-start gap-3">
                               <TbActivityHeartbeat className={`w-4 h-4 mt-0.5 flex-shrink-0 ${act.visit_type === "NCA" ? "text-amber-500" : act.visit_type === "UNPLANNED" ? "text-sky-500" : "text-[#16a34a]"}`} />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="text-sm font-semibold text-[#1a1a1a]">{act.doctor?.doctor_name ?? "Unknown HCP"}</p>
-                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${VTYPE[act.visit_type] ?? ""}`}>{act.visit_type}</span>
+                                  <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{act.doctor?.doctor_name ?? "Unknown HCP"}</p>
+                                  <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full border ${VTYPE[act.visit_type] ?? ""}`}>{act.visit_type}</span>
                                   {act.gps_anomaly_flag && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">GPS flag</span>}
                                 </div>
-                                {act.doctor && <p className="text-xs text-gray-400 mt-0.5">{[act.doctor.location, act.doctor.town].filter(Boolean).join(" - ") || "-"}</p>}
+                                {act.doctor && <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.doctor.location, act.doctor.town].filter(Boolean).join(" - ") || "-"}</p>}
                                 {act.visit_type === "NCA" && act.nca_reason && <p className="text-xs text-amber-700 mt-0.5">Reason: {act.nca_reason}</p>}
-                                {act.focused_product && <p className="text-xs text-[#16a34a] mt-0.5">{act.focused_product.product_name}{act.samples_given > 0 ? ` - ${act.samples_given} samples` : ""}</p>}
+                                {act.focused_product && <p className="text-xs font-poppins text-[#16a34a] mt-0.5">{act.focused_product.product_name}{act.samples_given > 0 ? ` - ${act.samples_given} samples` : ""}</p>}
                               </div>
                             </div>
                           ))}
@@ -236,7 +236,7 @@ const SupervisorReports = () => {
                           ) : (
                             <>
                               <button onClick={(e) => { e.stopPropagation(); handleApprove(rep.id); }}
-                                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white focus-visible:outline-none"
+                                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-poppins-bold rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white focus-visible:outline-none"
                                 style={{ transition: "background-color 0.15s" }}><LuCheck className="w-3.5 h-3.5" />Approve</button>
                               <RejectInput onConfirm={(note) => handleReject(rep.id, note)} />
                             </>

@@ -120,9 +120,9 @@ const IndicatorCards = () => {
                   <Icon className="w-5 h-5 text-white" />
                 </div>
               )}
-              <p className="font-black text-white text-3xl leading-none">{card.value}</p>
-              <p className="text-white/90 font-bold text-[13px] mt-2 leading-tight">{card.label}</p>
-              <p className="text-white/60 text-xs mt-0.5">{card.sub}</p>
+              <p className="font-poppins-extrabold text-white text-3xl leading-none">{card.value}</p>
+              <p className="text-white/90 font-poppins-bold text-[13px] mt-2 leading-tight">{card.label}</p>
+              <p className="text-white/60 font-poppins text-xs mt-0.5">{card.sub}</p>
             </div>
           </div>
         );

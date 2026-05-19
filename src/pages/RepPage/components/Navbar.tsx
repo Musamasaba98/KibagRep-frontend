@@ -56,11 +56,11 @@ const NavIconBtn = ({
 }) => (
   <button
     onClick={onClick}
-    className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 hover:bg-[#dcfce7] text-gray-400 hover:text-[#16a34a] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+    className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 hover:bg-[#dcfce7] text-gray-400 hover:text-[#16a34a] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
   >
-    <Icon className="w-[18px] h-[18px]" />
+    <Icon className="w-[22px] h-[22px]" />
     {badge != null && badge > 0 && (
-      <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#16a34a] text-white text-[9px] font-bold flex items-center justify-center leading-none pointer-events-none">
+      <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#16a34a] text-white text-[9px] font-bold flex items-center justify-center leading-none pointer-events-none">
         {badge > 9 ? "9+" : badge}
       </span>
     )}
@@ -90,7 +90,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="w-full sticky top-0 z-30 bg-white border-b border-gray-100 shadow-[0_1px_12px_0_rgba(0,0,0,0.05)]">
+    <div className="w-full sticky top-0 z-[200] bg-white border-b border-gray-100">
 
       {/* ── Mobile header (< md) ── */}
       <div className="flex md:hidden items-center h-14 px-4">
@@ -182,15 +182,15 @@ const Navbar = () => {
             <BiMenu className="w-5 h-5 text-white" />
           </button>
 
-          <div className="flex items-center gap-2 px-3 w-[300px] h-9 rounded-xl bg-gray-50 border border-gray-100 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/20 transition-colors">
-            <BiSearch className="w-4 h-4 text-gray-400 shrink-0" />
-            <input
-              className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
-              placeholder="Search doctors, activities…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-            />
+          <div className="flex items-center gap-2 px-3 w-[300px] h-10 rounded-xl bg-gray-50 border border-gray-100 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/20 transition-colors">
+          <BiSearch className="w-4 h-4 text-gray-400 shrink-0" />
+          <input
+          className="w-full font-poppins bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
+          placeholder="Search doctors, activities…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
+          />
           </div>
         </div>
 
@@ -206,7 +206,6 @@ const Navbar = () => {
 
         {/* Right */}
         <div className="flex items-center gap-1.5">
-          <NavIconBtn icon={FaChartPie} />
           <NavIconBtn icon={BiSolidComment} badge={3} />
           <NavIconBtn icon={BiSolidBell} badge={2} />
 
@@ -224,8 +223,8 @@ const Navbar = () => {
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#16a34a] border-2 border-white" />
             </div>
             <div className="hidden sm:block text-left">
-              <p className="text-xs font-bold text-[#222f36] leading-tight">{fullName}</p>
-              <p className="text-[10px] text-gray-400 leading-tight capitalize">{roleLabel}</p>
+              <p className="text-xs font-poppins-bold text-[#222f36] leading-tight">{fullName}</p>
+              <p className="text-[10px] font-poppins text-gray-400 leading-tight capitalize">{roleLabel}</p>
             </div>
             <BiChevronDown className="w-4 h-4 text-gray-400 group-hover:text-[#16a34a] transition-colors" />
           </button>

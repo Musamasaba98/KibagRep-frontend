@@ -47,11 +47,11 @@ const MenuItem = ({ item }: { item: MenuItemDef }) => {
       className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left group focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
     >
       <div
-        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${item.iconBg} group-hover:opacity-90`}
+        className={`w-8 h-8 font-poppins rounded-lg flex items-center justify-center shrink-0 transition-colors ${item.iconBg} group-hover:opacity-90`}
       >
         <Icon className={`w-4 h-4 ${item.iconColor}`} />
       </div>
-      <span className="flex-1 text-sm font-medium text-[#222f36]">{item.label}</span>
+      <span className="flex-1 text-sm font-poppins-semibold text-[#222f36]">{item.label}</span>
       <MdChevronRight className="w-4 h-4 text-gray-300 group-hover:text-gray-400 transition-colors" />
     </button>
   );
@@ -61,7 +61,7 @@ const MenuItem = ({ item }: { item: MenuItemDef }) => {
 
 const MenuSection = ({ section }: { section: MenuSectionDef }) => (
   <div className="px-3 pb-2">
-    <p className="text-[10px] font-bold text-gray-400 tracking-widest uppercase px-4 pt-3 pb-1">
+    <p className="text-[10px] font-poppins-bold text-gray-400 tracking-widest uppercase px-4 pt-3 pb-1">
       {section.heading}
     </p>
     {section.items.map((item) => (
@@ -195,10 +195,10 @@ const MenuPopup = ({ showMenu }: { showMenu: boolean }) => {
       >
         {/* ── Header ── */}
         <div className="flex items-center justify-between px-4 h-[64px] border-b border-gray-100 shrink-0">
-          <h2 className="text-sm font-bold text-[#222f36] tracking-tight">Quick Actions</h2>
+          <h2 className="text-sm font-poppins-bold text-[#222f36] tracking-tight">Quick Actions</h2>
           <button
             onClick={close}
-            className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            className="w-8 h-8 flex font-poppins items-center justify-center rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           >
             <MdClose className="w-5 h-5" />
           </button>
@@ -215,12 +215,12 @@ const MenuPopup = ({ showMenu }: { showMenu: boolean }) => {
               <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#16a34a] border-2 border-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-[#222f36] truncate">{fullName}</p>
-              <p className="text-[11px] text-[#16a34a] font-medium capitalize truncate">
+              <p className="text-sm font-poppins-bold text-[#222f36] truncate">{fullName}</p>
+              <p className="text-[11px] text-[#16a34a] font-poppins-semibold capitalize truncate">
                 {user?.role ?? "Medical Rep"}
               </p>
               {user?.email && (
-                <p className="text-[10px] text-gray-400 truncate">{user.email}</p>
+                <p className="text-[10px] font-poppins text-gray-400 truncate">{user.email}</p>
               )}
             </div>
           </div>

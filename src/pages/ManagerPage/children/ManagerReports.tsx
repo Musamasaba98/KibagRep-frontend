@@ -84,15 +84,15 @@ const ActivityRow = ({ act }: { act: Activity }) => (
     </div>
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-1.5 flex-wrap">
-        <p className="text-xs font-semibold text-[#222f36] truncate">
+        <p className="text-xs font-poppins-semibold text-[#222f36] truncate">
           {act.doctor?.doctor_name ?? "Unknown HCP"}
         </p>
         {act.doctor?.town && (
-          <span className="text-[10px] text-gray-400">{act.doctor.town}</span>
+          <span className="text-[10px] font-poppins text-gray-400">{act.doctor.town}</span>
         )}
         <VisitTypePill type={act.visit_type} />
         {act.gps_anomaly_flag && (
-          <span className="flex items-center gap-0.5 text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
+          <span className="flex items-center gap-0.5 text-[9px] font-poppins-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
             <MdOutlineWarningAmber className="w-2.5 h-2.5" />
             GPS
           </span>
@@ -101,15 +101,15 @@ const ActivityRow = ({ act }: { act: Activity }) => (
       {act.focused_product && (
         <div className="flex items-center gap-1 mt-0.5">
           <FiPackage className="w-3 h-3 text-gray-300" />
-          <p className="text-[10px] text-gray-400">{act.focused_product.product_name}</p>
+          <p className="text-[10px] font-poppins text-gray-400">{act.focused_product.product_name}</p>
         </div>
       )}
       {act.nca_reason && (
-        <p className="text-[10px] text-amber-600 mt-0.5 italic">NCA: {act.nca_reason}</p>
+        <p className="text-[10px] font-poppins text-amber-600 mt-0.5 italic">NCA: {act.nca_reason}</p>
       )}
     </div>
     {act.samples_given > 0 && (
-      <span className="text-[10px] font-semibold text-[#15803d] bg-[#f0fdf4] px-2 py-0.5 rounded-full shrink-0">
+      <span className="text-[10px] font-poppins-semibold text-[#15803d] bg-[#f0fdf4] px-2 py-0.5 rounded-full shrink-0">
         {act.samples_given} sample{act.samples_given !== 1 ? "s" : ""}
       </span>
     )}
@@ -130,25 +130,25 @@ const RejectForm = ({
   const [reason, setReason] = useState("");
   return (
     <div className="mt-3 border border-red-200 rounded-xl p-3 bg-red-50/40">
-      <p className="text-xs font-semibold text-red-700 mb-2">Provide a rejection reason</p>
+      <p className="text-xs font-poppins-semibold text-red-700 mb-2">Provide a rejection reason</p>
       <textarea
         rows={2}
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         placeholder="e.g. Visit counts don't match territory plan..."
-        className="w-full text-sm border border-red-200 rounded-lg px-3 py-2 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200 resize-none bg-white transition-colors"
+        className="w-full font-poppins text-sm border border-red-200 rounded-lg px-3 py-2 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-200 resize-none bg-white transition-colors"
       />
       <div className="flex gap-2 mt-2">
         <button
           onClick={onCancel}
-          className="flex-1 py-1.5 text-xs font-semibold text-gray-500 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-400"
+          className="flex-1 py-1.5 text-xs font-poppins-semibold text-gray-500 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-400"
         >
           Cancel
         </button>
         <button
           onClick={() => reason.trim() && onConfirm(reason.trim())}
           disabled={loading || !reason.trim()}
-          className="flex-1 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600"
+          className="flex-1 py-1.5 text-xs font-poppins-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600"
         >
           {loading ? "Rejecting..." : "Confirm Reject"}
         </button>
@@ -213,29 +213,29 @@ const ReportRow = ({
         onClick={toggle}
       >
         {/* Avatar */}
-        <div className="w-9 h-9 rounded-xl bg-[#dcfce7] flex items-center justify-center shrink-0 text-xs font-black text-[#15803d]">
+        <div className="w-9 h-9 rounded-xl bg-[#dcfce7] flex items-center justify-center shrink-0 text-xs font-poppins-bold text-[#15803d]">
           {av}
         </div>
 
         {/* Name + date */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[#222f36] truncate">
+          <p className="text-sm font-poppins-bold text-[#222f36] truncate">
             {report.user.firstname} {report.user.lastname}
-            <span className="ml-1.5 text-[10px] font-medium text-gray-400">{report.user.role}</span>
+            <span className="ml-1.5 text-[10px] font-poppins-semibold text-gray-400">{report.user.role}</span>
           </p>
-          <p className="text-[11px] text-gray-400">{fmtDate(report.report_date)}</p>
+          <p className="text-[11px] font-poppins text-gray-400">{fmtDate(report.report_date)}</p>
         </div>
 
         {/* Counts — hidden on very small screens */}
         <div className="hidden sm:flex items-center gap-3 text-[11px] text-gray-500 shrink-0">
-          <span>{report.visits_count} visits</span>
-          <span className="text-gray-200">|</span>
-          <span>{report.samples_count} samples</span>
+          <span className="font-poppins">{report.visits_count} visits</span>
+          <span className="text-gray-200 font-poppins">|</span>
+          <span className="font-poppins">{report.samples_count} samples</span>
         </div>
 
         {/* JFW badge */}
         {report.jfw_observer_id && (
-          <span className="hidden sm:inline text-[10px] font-bold text-violet-700 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-full shrink-0">
+          <span className="hidden sm:inline text-[10px] font-poppins-bold text-violet-700 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-full shrink-0">
             JFW
           </span>
         )}
@@ -254,7 +254,7 @@ const ReportRow = ({
         <div className="border-t border-gray-100 px-4 py-4 space-y-4">
           {/* Summary */}
           {report.summary && (
-            <blockquote className="text-xs text-gray-600 italic border-l-2 border-[#16a34a] pl-3">
+            <blockquote className="text-xs font-poppins text-gray-600 italic border-l-2 border-[#16a34a] pl-3">
               {report.summary}
             </blockquote>
           )}
@@ -263,13 +263,13 @@ const ReportRow = ({
           {report.review_note && report.status === "REJECTED" && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
               <FiAlertCircle className="w-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-red-700">{report.review_note}</p>
+              <p className="text-xs font-poppins text-red-700">{report.review_note}</p>
             </div>
           )}
 
           {/* Activities */}
           <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-poppins-bold text-gray-400 uppercase tracking-widest mb-2">
               Activities
             </p>
             {actsLoading ? (
@@ -281,7 +281,7 @@ const ReportRow = ({
                 {activities.map((a) => <ActivityRow key={a.id} act={a} />)}
               </div>
             ) : actsLoaded ? (
-              <p className="text-xs text-gray-400 py-3 text-center">No activities recorded</p>
+              <p className="text-xs font-poppins text-gray-400 py-3 text-center">No activities recorded</p>
             ) : null}
           </div>
 
@@ -291,7 +291,7 @@ const ReportRow = ({
               <button
                 onClick={handleApprove}
                 disabled={approving}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#16a34a] hover:bg-[#15803d] rounded-lg disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold text-white bg-[#16a34a] hover:bg-[#15803d] rounded-lg disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
               >
                 <FiCheck className="w-3.5 h-3.5" />
                 {approving ? "Approving..." : "Approve"}
@@ -299,7 +299,7 @@ const ReportRow = ({
               <button
                 onClick={() => setShowReject((v) => !v)}
                 disabled={rejecting}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
               >
                 <FiX className="w-3.5 h-3.5" />
                 Reject
@@ -366,8 +366,8 @@ const ManagerReports = () => {
     <div className="w-full p-6 flex flex-col gap-6">
       {/* Page header */}
       <div>
-        <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Reports</h1>
-        <p className="text-gray-400 text-sm mt-0.5">All company daily reports</p>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Reports</h1>
+        <p className="text-gray-400 font-poppins text-sm mt-0.5">All company daily reports</p>
       </div>
 
       {/* Controls row */}
@@ -382,14 +382,14 @@ const ManagerReports = () => {
               <button
                 key={tab.value}
                 onClick={() => setTab(tab.value)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-poppins-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                   activeTab === tab.value
                     ? "bg-white text-[#16a34a] shadow-[0_1px_4px_0_rgba(0,0,0,0.08)]"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 {tab.label}
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full ${
                   activeTab === tab.value ? "bg-[#dcfce7] text-[#15803d]" : "bg-gray-200 text-gray-400"
                 }`}>
                   {count}
@@ -405,7 +405,7 @@ const ManagerReports = () => {
             <button
               key={d}
               onClick={() => setDays(d)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-poppins-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                 days === d
                   ? "bg-white text-[#16a34a] shadow-[0_1px_4px_0_rgba(0,0,0,0.08)]"
                   : "text-gray-500 hover:text-gray-700"
@@ -425,13 +425,13 @@ const ManagerReports = () => {
       ) : error ? (
         <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
           <FiAlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
-          <p className="text-sm text-red-700">{error}</p>
+          <p className="text-sm font-poppins text-red-700">{error}</p>
         </div>
       ) : visible.length === 0 ? (
         <div className="flex flex-col items-center py-20 text-gray-300">
           <FiFileText className="w-10 h-10 mb-3 opacity-40" />
-          <p className="text-sm font-semibold text-gray-400">No reports found</p>
-          <p className="text-xs text-gray-300 mt-1">
+          <p className="text-sm font-poppins-semibold text-gray-400">No reports found</p>
+          <p className="text-xs font-poppins text-gray-300 mt-1">
             {activeTab === "SUBMITTED"
               ? "No pending reports to review"
               : `No ${activeTab.toLowerCase()} reports in the last ${days} days`}

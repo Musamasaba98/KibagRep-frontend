@@ -22,7 +22,7 @@ export default function Dognutpie({ data }: { data?: PieItem[] }) {
     innerRadius: 0.7,
     radius: 1,
     legend: {
-      color: { title: false, position: "right", rowPadding: 5 },
+      color: { title: false,FontFamily:'poppins', position: "right", rowPadding: 5 },
     },
     annotations: [
       {
@@ -33,6 +33,7 @@ export default function Dognutpie({ data }: { data?: PieItem[] }) {
           y: "50%",
           textAlign: "center",
           fontSize: 10,
+          fontFamily:'poppins',
           fontStyle: "bold",
         },
       },

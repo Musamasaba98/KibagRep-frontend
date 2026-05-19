@@ -138,7 +138,7 @@ const AddItemForm = ({ claimId, onAdded }: AddItemFormProps) => {
     <div className="border border-dashed border-gray-200 rounded-xl overflow-hidden">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-[#16a34a] hover:bg-[#f0fdf4] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+        className="w-full flex items-center gap-2 px-4 py-3 text-sm font-poppins-semibold text-[#16a34a] hover:bg-[#f0fdf4] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
       >
         <FiPlus className="w-4 h-4" />
         Add Expense Item
@@ -148,7 +148,7 @@ const AddItemForm = ({ claimId, onAdded }: AddItemFormProps) => {
       {open && (
         <form onSubmit={handleSubmit} className="border-t border-gray-100 p-4 flex flex-col gap-3 bg-gray-50/50">
           {error && (
-            <p className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">{error}</p>
+            <p className="text-xs text-red-600 bg-red-50 border font-poppins border-red-200 px-3 py-2 rounded-lg">{error}</p>
           )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {CATEGORIES.map((c) => {
@@ -158,7 +158,7 @@ const AddItemForm = ({ claimId, onAdded }: AddItemFormProps) => {
                   key={c.value}
                   type="button"
                   onClick={() => setCategory(c.value)}
-                  className={`flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+                  className={`flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-xs font-poppins-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                     category === c.value
                       ? "border-[#16a34a] bg-[#f0fdf4] text-[#16a34a]"
                       : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
@@ -175,7 +175,7 @@ const AddItemForm = ({ claimId, onAdded }: AddItemFormProps) => {
             placeholder="Description (e.g. Matatu to Kampala)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white transition-colors"
+            className="w-full px-3 py-2 font-poppins text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white transition-colors"
           />
           <div className="grid grid-cols-2 gap-3">
             <div className="relative">
@@ -187,28 +187,28 @@ const AddItemForm = ({ claimId, onAdded }: AddItemFormProps) => {
                 onChange={(e) => setAmount(e.target.value)}
                 min="1"
                 step="100"
-                className="w-full pl-11 pr-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white transition-colors"
+                className="w-full pl-11 font-poppins pr-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white transition-colors"
               />
             </div>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white transition-colors"
+              className="w-full px-3 py-2 font-poppins text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white transition-colors"
             />
           </div>
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-2 text-sm font-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              className="flex-1 py-2 text-sm font-poppins-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
             >
               {saving ? "Saving…" : "Add Item"}
             </button>
             <button
               type="button"
               onClick={() => { setOpen(false); setError(""); }}
-              className="px-4 py-2 text-sm font-semibold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-400"
+              className="px-4 py-2 text-sm font-poppins-semibold text-gray-500 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-400"
             >
               Cancel
             </button>
@@ -414,19 +414,19 @@ const Expenses = () => {
     <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
       {/* Page header */}
       <div>
-        <h1 className="font-bold text-xl tracking-tight text-gray-800">Expense Claims</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Submit and track your field expense claims</p>
+        <h1 className="font-poppins-bold text-xl tracking-tight text-gray-800">Expense Claims</h1>
+        <p className="text-sm font-poppins text-gray-400 mt-0.5">Submit and track your field expense claims</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
+        <div className="bg-red-50 border font-poppins border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
           {error}
         </div>
       )}
 
       {/* Current month claim */}
       <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+        <p className="text-xs font-poppins-bold text-gray-400 uppercase tracking-widest mb-3">
           {formatPeriod(period)} (Current)
         </p>
         {currentClaim ? (
@@ -436,12 +436,12 @@ const Expenses = () => {
             <div className="w-12 h-12 rounded-2xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center mb-3">
               <FiFileText className="w-5 h-5 text-[#16a34a]" />
             </div>
-            <p className="text-gray-700 font-semibold text-sm">No claim for {formatPeriod(period)}</p>
-            <p className="text-gray-400 text-xs mt-1 mb-4">Start tracking your expenses for this month</p>
+            <p className="text-gray-700 font-poppins-semibold text-sm">No claim for {formatPeriod(period)}</p>
+            <p className="text-gray-400 text-xs font-poppins mt-1 mb-4">Start tracking your expenses for this month</p>
             <button
               onClick={handleCreateClaim}
               disabled={creating}
-              className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              className="flex items-center gap-2 px-5 py-2 text-sm font-poppins-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
             >
               <FiPlus className="w-4 h-4" />
               {creating ? "Creating…" : "Start New Claim"}

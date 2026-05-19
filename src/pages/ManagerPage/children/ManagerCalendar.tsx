@@ -51,7 +51,7 @@ const DayCell = ({
       <div className="flex justify-start mb-1">
         <span
           className={`
-            w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold
+            w-6 h-6 flex items-center justify-center rounded-full text-xs font-poppins-bold
             ${today ? "bg-[#16a34a] text-white" : ""}
             ${!today && inMonth ? "text-[#222f36]" : ""}
             ${!inMonth ? "text-gray-300" : ""}
@@ -66,13 +66,13 @@ const DayCell = ({
           {events.slice(0, 2).map((ev, i) => (
             <span
               key={i}
-              className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full truncate ${EVENT_COLOR_CLASSES[ev.color]}`}
+              className={`text-[10px] font-poppins-semibold px-1.5 py-0.5 rounded-full truncate ${EVENT_COLOR_CLASSES[ev.color]}`}
             >
               {ev.label}
             </span>
           ))}
           {events.length > 2 && (
-            <span className="text-[9px] text-gray-400 pl-1">+{events.length - 2} more</span>
+            <span className="text-[9px] font-poppins text-gray-400 pl-1">+{events.length - 2} more</span>
           )}
         </div>
       )}
@@ -152,16 +152,16 @@ const ManagerCalendar = () => {
   return (
     <div className="w-full p-6 flex flex-col gap-6">
       <div>
-        <h1 className="font-black text-[#1a1a1a] text-2xl tracking-tight">Calendar</h1>
-        <p className="text-gray-400 text-sm mt-0.5">Report activity and JFW schedule</p>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Calendar</h1>
+        <p className="text-gray-400 font-poppins text-sm mt-0.5">Report activity and JFW schedule</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+      <div className="bg-white rounded-2xl border-solid border border-gray-100 overflow-hidden">
 
         {/* Month nav */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <h2 className="text-base font-black text-[#222f36]">
+            <h2 className="text-base font-poppins-extrabold text-[#222f36]">
               {format(currentMonth, "MMMM yyyy")}
             </h2>
             {loadingEvents && (
@@ -171,7 +171,7 @@ const ManagerCalendar = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={goToToday}
-              className="px-3 py-1.5 text-xs font-semibold text-[#16a34a] bg-[#f0fdf4] hover:bg-[#dcfce7] rounded-lg border border-[#bbf7d0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              className="px-3 py-1.5 text-xs font-poppins-semibold text-[#16a34a] bg-[#f0fdf4] hover:bg-[#dcfce7] rounded-lg border border-[#bbf7d0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
               style={{ transition: "background-color 0.15s" }}
             >
               Today
@@ -224,17 +224,17 @@ const ManagerCalendar = () => {
 
         {/* Legend */}
         <div className="flex items-center gap-4 px-5 py-3 border-t border-gray-100 flex-wrap">
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Legend</span>
+          <span className="text-[10px] font-poppins-semibold text-gray-400 uppercase tracking-wide">Legend</span>
           <span className="flex items-center gap-1.5 text-[11px] text-violet-700">
-            <span className="w-2 h-2 rounded-full bg-violet-400" />
+            <span className="w-2 h-2 font-poppins rounded-full bg-violet-400" />
             JFW
           </span>
           <span className="flex items-center gap-1.5 text-[11px] text-[#15803d]">
-            <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
+            <span className="w-2 h-2 font-poppins rounded-full bg-[#16a34a]" />
             Report Approved
           </span>
           <span className="flex items-center gap-1.5 text-[11px] text-amber-700">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="w-2 h-2 font-poppins rounded-full bg-amber-400" />
             Report Pending / Rejected
           </span>
         </div>

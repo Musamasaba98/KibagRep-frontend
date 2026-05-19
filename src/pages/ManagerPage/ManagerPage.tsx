@@ -6,7 +6,7 @@ import Sidebar from "./components/Sidebar";
 const ManagerPage = () => {
   return (
     <>
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="h-screen overflow-y-auto flex bg-gray-50">
    <Sidebar/>
    {/* the main content container */}
    <div className="w-full ml-64">

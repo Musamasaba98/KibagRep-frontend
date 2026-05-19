@@ -59,10 +59,10 @@ const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)]">
+      <div className="bg-white rounded-2xl border border-gray-100">
         <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="font-bold text-[#1a1a1a] text-[15px]">Campaign Detailing Coverage</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Which reps pushed each product this week</p>
+          <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Campaign Detailing Coverage</h2>
+          <p className="text-xs font-poppins text-gray-400 mt-0.5">Which reps pushed each product this week</p>
         </div>
         <div className="flex justify-center py-10">
           <div className="w-7 h-7 rounded-full border-2 border-violet-400 border-t-transparent animate-spin" />
@@ -72,19 +72,19 @@ const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
         <div>
-          <h2 className="font-bold text-[#1a1a1a] text-[15px]">Campaign Detailing Coverage</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Which reps pushed each product this week</p>
+          <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Campaign Detailing Coverage</h2>
+          <p className="text-xs font-poppins text-gray-400 mt-0.5">Which reps pushed each product this week</p>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-100 text-violet-700">Last 7 days</span>
+        <span className="text-xs font-poppins-semibold px-2.5 py-1 rounded-full bg-violet-100 text-violet-700">Last 7 days</span>
       </div>
 
       {rows.length === 0 ? (
         <div className="flex flex-col items-center py-12 text-gray-400">
           <MdCampaign className="w-9 h-9 mb-2 opacity-30" />
-          <p className="text-sm">No detailing activity recorded this week</p>
+          <p className="text-sm font-poppins">No detailing activity recorded this week</p>
         </div>
       ) : (
         <div className="divide-y divide-gray-50">
@@ -94,10 +94,10 @@ const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
             return (
               <div key={product_name} className="px-6 py-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-[#1a1a1a] truncate flex-1 mr-4">{product_name}</p>
+                  <p className="text-sm font-poppins-semibold text-[#1a1a1a] truncate flex-1 mr-4">{product_name}</p>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-gray-400">{detail_count} detailing{detail_count !== 1 ? "s" : ""}</span>
-                    <span className="text-sm font-bold" style={{ color: barColor }}>
+                    <span className="text-xs font-poppins text-gray-400">{detail_count} detailing{detail_count !== 1 ? "s" : ""}</span>
+                    <span className="text-sm font-poppins-bold" style={{ color: barColor }}>
                       {rep_count}/{total} reps
                     </span>
                   </div>
@@ -109,7 +109,7 @@ const CampaignDetailingSection = ({ totalReps }: { totalReps: number }) => {
                       style={{ width: `${pct}%`, backgroundColor: barColor, transition: "width 0.4s ease" }}
                     />
                   </div>
-                  <span className="text-xs font-semibold text-gray-500 w-9 text-right">{pct}%</span>
+                  <span className="text-xs font-poppins-semibold text-gray-500 w-9 text-right">{pct}%</span>
                 </div>
               </div>
             );
@@ -138,15 +138,15 @@ const Dashboard = () => {
   return (
     <div className="w-full p-6 space-y-6">
       <div>
-        <h1 className="font-black text-2xl text-[#1a1a1a] tracking-tight">Manager Dashboard</h1>
-        <p className="text-gray-400 text-sm mt-0.5">Team performance overview and pending approvals</p>
+        <h1 className="font-poppins-extrabold text-2xl text-[#1a1a1a] tracking-tight">Manager Dashboard</h1>
+        <p className="text-gray-400 font-poppins text-sm mt-0.5">Team performance overview and pending approvals</p>
       </div>
       <IndicatorCards />
       <VisitsTrendCont />
       <CampaignDetailingSection totalReps={repCount} />
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <Supervisors />
-        <RecentReports />
+      <Supervisors />
+      <RecentReports />
       </div>
     </div>
   );

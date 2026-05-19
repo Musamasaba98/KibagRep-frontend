@@ -35,7 +35,7 @@ const Sidebar = () => {
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
       isActive
-        ? "bg-[#f0fdf4] text-[#16a34a] font-semibold"
+        ? "bg-[#f0fdf4] text-[#16a34a] font-poppins-semibold"
         : "text-[#444] hover:bg-gray-50 hover:text-[#16a34a]"
     }`;
 
@@ -55,10 +55,10 @@ const Sidebar = () => {
     <div className="bg-white border-r border-gray-100 flex-none w-64 h-screen fixed flex flex-col shadow-[1px_0_12px_0_rgba(0,0,0,0.04)]">
       <div className="h-16 flex items-center px-6 border-b border-gray-100 shrink-0">
         <div>
-          <h1 className="font-black text-xl text-[#1a1a1a] tracking-tight">
-            Kibag<span className="text-[#16a34a]">Rep</span>
+          <h1 className="font-poppins-extrabold text-xl text-[#1a1a1a] tracking-tight">
+            KIBAG<span className="text-[#16a34a]">REP</span>
           </h1>
-          <p className="text-xs text-gray-400 leading-none mt-0.5 font-medium">Manager Dashboard</p>
+          <p className="text-xs text-gray-400 font-poppins leading-none mt-0.5 font-medium">MANAGER DASHBOARD</p>
         </div>
       </div>
 
@@ -67,8 +67,8 @@ const Sidebar = () => {
           <NavLink key={to} to={to} end={end} className={navLinkClass}>
             {({ isActive }) => (
               <>
-                <Icon className="w-[18px] h-[18px] shrink-0" />
-                <span className="text-[15px] flex-1">{label}</span>
+                <Icon className="w-[19px] h-[19px] shrink-0" />
+                <span className="text-[15px] font-poppins flex-1">{label}</span>
                 {showBadge && !isActive && pendingCount !== null && pendingCount > 0 && (
                   <span className="min-w-[20px] h-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                     {pendingCount > 99 ? "99+" : pendingCount}
@@ -83,34 +83,34 @@ const Sidebar = () => {
       <div className="border-t border-gray-100 py-4 flex flex-col gap-1 shrink-0">
         <button
           onClick={() => navigate("/manager/reports")}
-          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+          className="flex items-center font-poppins gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           style={{ transition: "background-color 0.15s, color 0.15s" }}
         >
           <div className="relative flex-shrink-0">
-            <BsBell className="w-[18px] h-[18px]" />
+            <BsBell className="w-[19px] h-[19px]" />
             {pendingCount !== null && pendingCount > 0 && (
               <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-orange-500 border-2 border-white" />
             )}
           </div>
           <span className="text-[15px] flex-1">Notifications</span>
           {pendingCount !== null && pendingCount > 0 && (
-            <span className="text-xs font-semibold text-orange-500">{pendingCount}</span>
+            <span className="text-xs font-poppins-semibold text-orange-500">{pendingCount}</span>
           )}
         </button>
         <button
-          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+          className="flex items-center font-poppins gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           style={{ transition: "background-color 0.15s, color 0.15s" }}
         >
-          <GoGear className="w-[18px] h-[18px] shrink-0" />
+          <GoGear className="w-[19px] font-poppins h-[19px] shrink-0" />
           <span className="text-[15px]">Settings</span>
         </button>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-red-50 hover:text-red-600 w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+          className="flex items-center font-poppins gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-red-50 hover:text-red-600 w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
           style={{ transition: "background-color 0.15s, color 0.15s" }}
         >
-          <SlLogout className="w-[18px] h-[18px] shrink-0" />
-          <span className="text-[15px]">Logout</span>
+          <SlLogout className="w-[19px] h-[19px] shrink-0" />
+          <span className="text-[15px] font-poppins">Logout</span>
         </button>
       </div>
     </div>

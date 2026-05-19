@@ -45,7 +45,7 @@ const RepPage = () => {
   const openModal = (key: 'visit' | 'nca' | 'unplanned') => {
     setFabOpen(false);
     if (key === 'visit')     setShowLogVisit(true);
-    if (key === 'pharmacy')  setShowLogPharmacy(true);
+    if (key === 'pharmacy' as any)  setShowLogPharmacy(true);
     if (key === 'nca')       dispatch(toggleShowNca());
     if (key === 'unplanned') dispatch(toggleShowUnplanned());
   };
@@ -61,7 +61,7 @@ const RepPage = () => {
 
       {fabOpen && <div className="fixed inset-0 z-30" onClick={() => setFabOpen(false)} />}
 
-      <div className="w-full bg-gray-100 min-h-screen overflow-x-hidden">
+      <div className="w-full bg-gray-50 h-screen overflow-x-hidden">
         <Navbar />
         <div className="w-full flex">
           <Sidebar />
@@ -78,7 +78,7 @@ const RepPage = () => {
         </div>
       </div>
 
-      <MobileNav />
+      <MobileNav/>
 
       {/* Speed-dial FAB */}
       <div
@@ -103,7 +103,7 @@ const RepPage = () => {
             </span>
             <button
               type="button"
-              onClick={() => openModal(key)}
+              onClick={() => openModal(key as any)}
               aria-label={label}
               className={`${color} ${shadow} text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
               style={{ transition: 'background-color 0.15s' }}
@@ -126,6 +126,7 @@ const RepPage = () => {
             : <><FaPlus className="w-4 h-4" />{!isMobile && <span>Actions</span>}</>}
         </button>
       </div>
+      
     </>
   );
 };

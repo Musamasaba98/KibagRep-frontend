@@ -88,7 +88,7 @@ function TierPopover({
       <button
         onClick={() => setOpen((v) => !v)}
         title="Set company tier"
-        className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+        className={`flex items-center gap-1 text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
           current
             ? `${TIER_STYLES[current.tier].bg} ${TIER_STYLES[current.tier].text} ${TIER_STYLES[current.tier].border}`
             : "bg-gray-50 text-gray-400 border-gray-200 hover:border-gray-400"
@@ -100,7 +100,7 @@ function TierPopover({
 
       {open && (
         <div className="absolute right-0 top-7 z-50 w-52 bg-white rounded-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.14)] border border-gray-100 p-3 flex flex-col gap-2.5">
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Company tier</p>
+          <p className="text-[11px] font-poppins-bold text-gray-400 uppercase tracking-widest">Company tier</p>
           <div className="flex gap-1.5">
             {(["A", "B", "C"] as const).map((t) => {
               const s = TIER_STYLES[t];
@@ -175,8 +175,8 @@ function ReportClinicianModal({ onClose, onSuccess }: { onClose: () => void; onS
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-4">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="font-black text-[#1a1a1a] text-base">Report New Clinician</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Not on KibagRep yet — your supervisor will review and forward to KibagRep for verification.</p>
+            <h2 className="font-poppins-bold text-[#1a1a1a] text-base">Report New Clinician</h2>
+            <p className="text-xs text-gray-400 mt-0.5 font-poppins">Not on KibagRep yet — your supervisor will review and forward to KibagRep for verification.</p>
           </div>
           <button
             onClick={onClose}
@@ -188,22 +188,22 @@ function ReportClinicianModal({ onClose, onSuccess }: { onClose: () => void; onS
 
         <div className="flex flex-col gap-3">
           <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Full name *</label>
+            <label className="text-xs font-poppins-semibold text-gray-600 block mb-1">Full name *</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Dr. John Okello"
-              className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 transition-colors"
+              className="w-full font-poppins text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 transition-colors"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Cadre</label>
+            <label className="text-xs font-poppins-semibold text-gray-600 block mb-1">Cadre</label>
             <select
               value={cadre}
               onChange={(e) => setCadre(e.target.value)}
-              className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16a34a] bg-white transition-colors"
+              className="w-full font-poppins text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16a34a] bg-white transition-colors"
             >
               <option value="">Select cadre…</option>
               {Object.keys(CADRE_LABELS).map((c) => (
@@ -213,7 +213,7 @@ function ReportClinicianModal({ onClose, onSuccess }: { onClose: () => void; onS
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Location / Facility</label>
+            <label className="text-xs font-poppins-semibold text-gray-600 block mb-1">Location / Facility</label>
             <input
               type="text"
               value={location}
@@ -224,13 +224,13 @@ function ReportClinicianModal({ onClose, onSuccess }: { onClose: () => void; onS
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Contact</label>
+            <label className="text-xs font-poppins-semibold text-gray-600 block mb-1">Contact</label>
             <input
               type="text"
               value={contact}
               onChange={(e) => setContact(e.target.value)}
               placeholder="e.g. 0712 345 678"
-              className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 transition-colors"
+              className="w-full font-poppins text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 transition-colors"
             />
           </div>
 
@@ -240,14 +240,14 @@ function ReportClinicianModal({ onClose, onSuccess }: { onClose: () => void; onS
         <div className="flex gap-2 pt-1">
           <button
             onClick={onClose}
-            className="flex-1 py-2 text-sm font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-colors"
+            className="flex-1 py-2 text-sm font-poppins-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={submit}
             disabled={saving}
-            className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold bg-[#16a34a] hover:bg-[#15803d] text-white rounded-xl disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-poppins-semibold bg-[#16a34a] hover:bg-[#15803d] text-white rounded-xl disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           >
             {saving ? (
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -387,8 +387,8 @@ const Doctors = () => {
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[#222f36]">HCP Directory</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-poppins-extrabold text-[#222f36]">HCP Directory</h1>
+          <p className="text-sm font-poppins text-gray-500 mt-0.5">
             {loading ? "Loading…" : `${doctors.length} ${scope === "company" ? "approved doctors" : "healthcare professionals"}`}
           </p>
         </div>
@@ -398,7 +398,7 @@ const Doctors = () => {
           <div className="flex items-center gap-0 border border-gray-200 rounded-xl overflow-hidden bg-gray-50 p-0.5">
             <button
               onClick={() => setScope("company")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                 scope === "company"
                   ? "bg-white text-[#16a34a] shadow-sm shadow-gray-200"
                   : "text-gray-500 hover:text-gray-700"
@@ -409,7 +409,7 @@ const Doctors = () => {
             </button>
             <button
               onClick={() => setScope("all")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
                 scope === "all"
                   ? "bg-white text-[#16a34a] shadow-sm shadow-gray-200"
                   : "text-gray-500 hover:text-gray-700"
@@ -423,7 +423,7 @@ const Doctors = () => {
           {/* Report new clinician */}
           <button
             onClick={() => setShowReportModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-[#16a34a] hover:bg-[#15803d] text-white rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-poppins-semibold bg-[#16a34a] hover:bg-[#15803d] text-white rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           >
             <TbUserPlus className="w-4 h-4" />
             Report New Clinician
@@ -439,7 +439,7 @@ const Doctors = () => {
           placeholder="Search by name, town, specialty…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 transition-colors"
+          className="w-full pl-10 font-poppins pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 transition-colors"
         />
       </div>
 
@@ -447,7 +447,7 @@ const Doctors = () => {
       {scope === "all" && !loading && (
         <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
           <HiOutlineGlobeAlt className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-amber-700 leading-relaxed">
+          <p className="text-xs font-poppins text-amber-700 leading-relaxed">
             Showing the full KibagRep doctor database. Doctors not on your company list can be <strong>recommended</strong> — your supervisor will review and approve. For clinicians not on the list at all, use <strong>Report New Clinician</strong>.
           </p>
         </div>
@@ -468,15 +468,15 @@ const Doctors = () => {
       {!loading && !error && filtered.length === 0 && (
         <div className="flex flex-col items-center py-16 text-gray-400">
           <FaUserDoctor className="w-10 h-10 mb-3 opacity-30" />
-          <p className="font-semibold">
+          <p className="font-poppins-semibold">
             {scope === "company" && !search ? "No approved doctors yet" : "No HCPs found"}
           </p>
           {scope === "company" && !search && (
-            <p className="text-sm mt-1 text-center max-w-xs">
+            <p className="text-sm font-poppins mt-1 text-center max-w-xs">
               Switch to <strong>Full Directory</strong> to find doctors and recommend them to be added to your company list.
             </p>
           )}
-          {search && <p className="text-sm mt-1">Try a different search term</p>}
+          {search && <p className="text-sm font-poppins mt-1">Try a different search term</p>}
         </div>
       )}
 
@@ -492,7 +492,7 @@ const Doctors = () => {
             return (
               <div
                 key={doc.id}
-                className="bg-white rounded-xl shadow shadow-gray-100/80 hover:shadow-md hover:shadow-gray-200/60 p-5 flex flex-col gap-3 transition-shadow"
+                className="bg-white border-solid border border-gray-200 rounded-xl p-5 flex flex-col gap-3 transition-shadow"
               >
                 {/* Header row */}
                 <div className="flex items-start gap-3">
@@ -501,15 +501,15 @@ const Doctors = () => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="font-bold text-[#222f36] text-sm leading-snug">{doc.doctor_name}</p>
+                      <p className="font-poppins-bold text-[#222f36] text-sm leading-snug">{doc.doctor_name}</p>
                       {doc.cadre && doc.cadre !== "Doctor" && (
-                        <span className="text-[10px] font-semibold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded-full leading-none">
+                        <span className="text-[10px] font-poppins-semibold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded-full leading-none">
                           {doc.cadre}
                         </span>
                       )}
                     </div>
                     {doc.speciality?.length > 0 && (
-                      <p className="text-xs text-[#16a34a] font-medium mt-0.5">
+                      <p className="text-xs font-poppins text-[#16a34a] font-medium mt-0.5">
                         {doc.speciality.join(" · ")}
                       </p>
                     )}
@@ -524,7 +524,7 @@ const Doctors = () => {
                   )}
                   {/* Show approved badge in directory view */}
                   {scope === "all" && isOnCompanyList && (
-                    <span className="flex items-center gap-1 text-[10px] font-bold text-[#16a34a] bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                    <span className="flex items-center gap-1 text-[10px] font-poppins-bold text-[#16a34a] bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full whitespace-nowrap">
                       <MdCheckCircle className="w-3 h-3" />
                       Approved
                     </span>
@@ -534,15 +534,15 @@ const Doctors = () => {
                 {/* Location */}
                 <div className="flex items-center gap-1.5 text-xs text-gray-500">
                   <FaLocationDot className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                  <span className="truncate">{doc.location}</span>
+                  <span className="truncate font-poppins">{doc.location}</span>
                   {doc.town && <span className="text-gray-300">·</span>}
-                  {doc.town && <span className="text-gray-400 flex-shrink-0">{doc.town}</span>}
+                  {doc.town && <span className="text-gray-400 font-poppins flex-shrink-0">{doc.town}</span>}
                 </div>
 
                 {/* Footer row */}
                 <div className="flex items-center justify-between pt-1 border-t border-gray-50">
                   {doc.contact ? (
-                    <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <span className="flex items-center font-poppins gap-1 text-xs text-gray-400">
                       <FaPhone className="w-3 h-3" />
                       {doc.contact}
                     </span>
@@ -554,15 +554,15 @@ const Doctors = () => {
                     {/* In full-directory view: show Recommend if not on company list */}
                     {scope === "all" && !isOnCompanyList && (
                       hasRecommended ? (
-                        <span className="text-xs font-semibold text-amber-600">Recommended ✓</span>
+                        <span className="text-xs font-poppins-semibold text-amber-600">Recommended ✓</span>
                       ) : (
                         <button
                           onClick={() => handleRecommend(doc.id)}
                           disabled={isRecommending}
-                          className="flex items-center gap-1 text-xs font-semibold text-amber-600 hover:text-amber-700 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors"
+                          className="flex items-center gap-1 text-xs font-poppins-semibold text-amber-600 hover:text-amber-700 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors"
                         >
                           {isRecommending ? (
-                            <span className="w-3.5 h-3.5 border-2 border-amber-300 border-t-amber-600 rounded-full animate-spin inline-block" />
+                            <span className="w-3.5 h-3.5 font-poppins border-2 border-amber-300 border-t-amber-600 rounded-full animate-spin inline-block" />
                           ) : (
                             <TbUserPlus className="w-4 h-4" />
                           )}
@@ -574,7 +574,7 @@ const Doctors = () => {
                     {/* Add to cycle — only for company-list doctors or approved ones in directory */}
                     {(scope === "company" || isOnCompanyList) && (
                       inCycle ? (
-                        <span className="flex items-center gap-1 text-xs font-semibold text-[#16a34a]">
+                        <span className="flex items-center gap-1 text-xs font-poppins-semibold text-[#16a34a]">
                           <MdCheckCircle className="w-4 h-4" />
                           In cycle
                         </span>
@@ -582,10 +582,10 @@ const Doctors = () => {
                         <button
                           onClick={() => handleAddToCycle(doc.id)}
                           disabled={isAdding}
-                          className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-[#16a34a] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors"
+                          className="flex items-center gap-1 text-xs font-poppins-semibold text-gray-500 hover:text-[#16a34a] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors"
                         >
                           {isAdding ? (
-                            <span className="w-3.5 h-3.5 border-2 border-gray-300 border-t-[#16a34a] rounded-full animate-spin inline-block" />
+                            <span className="w-3.5 h-3.5 font-poppins border-2 border-gray-300 border-t-[#16a34a] rounded-full animate-spin inline-block" />
                           ) : (
                             <MdAddCircleOutline className="w-4 h-4" />
                           )}
@@ -600,7 +600,7 @@ const Doctors = () => {
                         onClick={() =>
                           setVisitDoctor({ id: doc.id, label: `${doc.doctor_name} — ${doc.town}` })
                         }
-                        className="text-xs font-semibold text-[#16a34a] hover:text-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors"
+                        className="text-xs font-poppins-semibold text-[#16a34a] hover:text-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] rounded transition-colors"
                       >
                         Log Visit →
                       </button>
@@ -621,7 +621,7 @@ const Doctors = () => {
             <div className="bg-[#1a2530] px-5 py-5 flex items-start justify-between">
               <div>
                 <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1">HCP Profile</p>
-                <h2 className="text-white text-lg font-black leading-tight">{profileDoctor.doctor_name}</h2>
+                <h2 className="text-white text-lg font-poppins-extrabold leading-tight">{profileDoctor.doctor_name}</h2>
                 {profileDoctor.cadre && <p className="text-white/60 text-xs mt-0.5">{profileDoctor.cadre}</p>}
               </div>
               <button onClick={() => setProfileDoctor(null)} className="text-white/60 hover:text-white focus-visible:outline-none ml-2">

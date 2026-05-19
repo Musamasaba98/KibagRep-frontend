@@ -113,37 +113,37 @@ const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel
   const gpsIndicator = () => {
     if (gpsStatus === "acquiring")
       return (
-        <span className="flex items-center gap-1 text-[11px] text-amber-600 font-medium">
+        <span className="flex items-center gap-1 text-[11px] text-amber-600 font-poppins-semibold">
           <FiLoader className="w-3 h-3 animate-spin" /> Acquiring GPS…
         </span>
       );
     if (gpsStatus === "acquired")
       return (
-        <span className="flex items-center gap-1 text-[11px] text-[#16a34a] font-medium">
+        <span className="flex items-center gap-1 text-[11px] text-[#16a34a] font-poppins-semibold">
           <FiMapPin className="w-3 h-3" /> GPS acquired
         </span>
       );
     return (
-      <span className="flex items-center gap-1 text-[11px] text-gray-400 font-medium">
+      <span className="flex items-center gap-1 text-[11px] text-gray-400 font-poppins-semibold">
         <FiAlertTriangle className="w-3 h-3" /> GPS unavailable
       </span>
     );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50">
       <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between bg-amber-500 px-6 py-4">
           <div>
-            <h2 className="text-white font-bold text-xl">Log NCA</h2>
-            <p className="text-white/80 text-xs mt-0.5">No Customer Activity</p>
+            <h2 className="text-white font-poppins-bold text-xl">Log NCA</h2>
+            <p className="text-white/80 font-poppins text-xs mt-0.5">No Customer Activity</p>
             <div className="mt-1">{gpsIndicator()}</div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-white/80 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white rounded"
+            className="text-white/80 font-poppins hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white rounded"
           >
             <FaXmark className="w-5 h-5" />
           </button>
@@ -152,20 +152,20 @@ const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel
         {/* Body */}
         <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3 py-2 rounded-md">
+            <div className="bg-red-50 font-poppins border border-red-200 text-red-600 text-sm px-3 py-2 rounded-md">
               {error}
             </div>
           )}
 
           {/* Info banner */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-700">
+          <div className="bg-amber-50 font-poppins border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-700">
             <strong>NCA</strong> means you attempted this visit but the doctor was unavailable.
             The system still records your attempt with GPS evidence.
           </div>
 
           {/* Doctor search */}
           <div className="relative">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-poppins-semibold text-gray-700 mb-1">
               Doctor <span className="text-red-500">*</span>
             </label>
             <input
@@ -179,14 +179,14 @@ const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel
                 setShowDoctorList(true);
               }}
               onFocus={() => setShowDoctorList(true)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
+              className="w-full font-poppins border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
             />
             {showDoctorList && filteredDoctors.length > 0 && (
               <ul className="absolute z-10 bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-48 overflow-y-auto custom-scrollbar shadow-lg">
                 {filteredDoctors.map((doc) => (
                   <li
                     key={doc.id}
-                    className="px-4 py-2.5 hover:bg-amber-50 cursor-pointer text-sm"
+                    className="px-4 font-poppins py-2.5 hover:bg-amber-50 cursor-pointer text-sm"
                     onMouseDown={() => {
                       setDoctorId(doc.id);
                       setDoctorLabel(`${doc.doctor_name} — ${doc.town}`);
@@ -194,16 +194,16 @@ const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel
                       setShowDoctorList(false);
                     }}
                   >
-                    <span className="font-medium">{doc.doctor_name}</span>
+                    <span className="font-poppins-semibold">{doc.doctor_name}</span>
                     {doc.town && (
-                      <span className="text-gray-400 ml-2 text-xs">{doc.town}</span>
+                      <span className="text-gray-400 font-poppins ml-2 text-xs">{doc.town}</span>
                     )}
                   </li>
                 ))}
               </ul>
             )}
             {showDoctorList && doctorSearch.length >= 2 && filteredDoctors.length === 0 && (
-              <div className="absolute z-10 bg-white border border-gray-200 rounded-lg w-full mt-1 px-4 py-3 text-sm text-gray-400 shadow">
+              <div className="absolute z-10 font-poppins bg-white border border-gray-200 rounded-lg w-full mt-1 px-4 py-3 text-sm text-gray-400 shadow">
                 No doctors found
               </div>
             )}
@@ -211,13 +211,13 @@ const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel
 
           {/* Product (what was planned) */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-poppins-semibold text-gray-700 mb-1">
               Product you planned to detail <span className="text-red-500">*</span>
             </label>
             <select
               value={focusedProductId}
               onChange={(e) => setFocusedProductId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
+              className="w-full border font-poppins border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
             >
               <option value="">Select product…</option>
               {products.map((p) => (
@@ -230,13 +230,13 @@ const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel
 
           {/* NCA reason */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-poppins-semibold text-gray-700 mb-1">
               Reason <span className="text-red-500">*</span>
             </label>
             <select
               value={ncaReason}
               onChange={(e) => setNcaReason(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
+              className="w-full font-poppins border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30"
             >
               <option value="">Select reason…</option>
               {NCA_REASONS.map((r) => (
@@ -252,7 +252,7 @@ const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-500"
+              className="flex-1 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-poppins-semibold py-2.5 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-500"
               style={{ transition: "opacity 0.15s, background-color 0.15s" }}
             >
               {loading ? "Saving…" : "Log NCA"}
@@ -260,7 +260,7 @@ const Ncapopup = ({ onClose, onSuccess, initialDoctorId = "", initialDoctorLabel
             <button
               type="button"
               onClick={onClose}
-              className="px-5 border border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100 font-semibold py-2.5 rounded-lg text-sm"
+              className="px-5 border border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100 font-poppins-semibold py-2.5 rounded-lg text-sm"
               style={{ transition: "background-color 0.15s" }}
             >
               Cancel
