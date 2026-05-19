@@ -96,6 +96,7 @@ import SuperAdminAllUsers from "./pages/SuperAdminPage/children/AllUsers";
 
 // Auth guard
 import ProtectedRoute from "./components/ProtectedRoute";
+import Messages from "./pages/SupervisorPage/children/Messages";
 
 let persistor = persistStore(store);
 
@@ -171,6 +172,7 @@ const router = createBrowserRouter([
           { path: "doctors", element: <SupervisorDoctors /> },
           { path: "jfw", element: <SupervisorJfw /> },
           { path: "reports", element: <SupervisorReports /> },
+          { path: "messages", element:<Messages/>}
         ],
       },
     ],

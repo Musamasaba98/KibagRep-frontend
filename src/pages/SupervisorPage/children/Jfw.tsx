@@ -197,7 +197,7 @@ const Jfw = () => {
   return (
     <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
       <div>
-        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Joint Field Work</h1>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-xl tracking-tight">Joint Field Work</h1>
         <p className="text-gray-400 font-poppins text-sm mt-0.5">Days you joined a rep in the field — review visits and score the coaching session</p>
       </div>
 
@@ -213,7 +213,7 @@ const Jfw = () => {
         <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">{error}</div>
       )}
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         {loading ? (
           <div className="flex items-center gap-3 px-6 py-10 text-gray-400 text-sm">
             <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-[#16a34a] animate-spin" />

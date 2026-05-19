@@ -41,7 +41,7 @@ const Reps = () => {
   return (
     <div className="w-full p-6 flex flex-col gap-6">
       <div>
-        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">My Reps</h1>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-xl tracking-tight">My Reps</h1>
         <p className="text-gray-400 font-poppins text-sm mt-0.5">
           {loading ? "Loading…" : `${reps.length} rep${reps.length !== 1 ? "s" : ""} — last 30 days`}
         </p>

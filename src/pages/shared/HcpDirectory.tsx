@@ -217,7 +217,7 @@ const HcpDirectory = () => {
 
       {/* ── Header ── */}
       <div>
-        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">HCP Directory</h1>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-xl tracking-tight">HCP Directory</h1>
         <p className="text-gray-400 font-poppins text-sm mt-0.5">
           Company doctor list, full KibagRep directory, and pending recommendations
         </p>

@@ -140,7 +140,7 @@ const SupervisorReports = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="flex border-b border-gray-100">
           {TABS.map(({ key, label }) => (
             <button key={key} onClick={() => { setTab(key); setExpanded(null); }}

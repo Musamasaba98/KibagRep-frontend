@@ -386,7 +386,7 @@ const Dashboard = () => {
 
       {/* ── Page header ── */}
       <div>
-        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Supervisor Dashboard</h1>
+        <h1 className="font-poppins-extrabold text-[#1a1a1a] text-xl tracking-tight">Supervisor Dashboard</h1>
         <p className="text-[#454545] font-poppins text-sm mt-0.5">Your team activity — last 7 days</p>
       </div>
 

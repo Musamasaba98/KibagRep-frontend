@@ -194,7 +194,7 @@ const Approvals = () => {
           <div className="w-8 h-8 rounded-full border-2 border-[#16a34a] border-t-transparent animate-spin" />
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
 
           {/* ── REPORTS ── */}
           {tab === "reports" && (

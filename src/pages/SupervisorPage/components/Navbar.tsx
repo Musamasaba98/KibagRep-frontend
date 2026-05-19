@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { BiBell, BiSearch } from "react-icons/bi";
 import { FaRegComment } from "react-icons/fa6";
 import { RootState } from "../../../store/store";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -9,12 +10,12 @@ const Navbar = () => {
   const initial = user?.firstname ? user.firstname.charAt(0).toUpperCase() : "S";
 
   return (
-    <div className="w-full px-6 z-[300] sticky top-0 flex items-center justify-between bg-white/80 backdrop-blur-md h-[60px] border-b border-gray-200">
+    <div className="w-full px-6 z-[300] sticky top-0 flex items-center justify-between bg-white/80 backdrop-blur-md h-[60px] border-b border-gray-100">
 
       {/* Left — page title */}
       <div className="hidden sm:block">
         <p className="font-poppins-bold text-[#1a1a1a] text-[15px] leading-tight">Supervisor Dashboard</p>
-        <p className="text-xs text-gray-400 font-poppins leading-tight">Team activity and approvals</p>
+        <p className="text-xs text-[#454545] font-poppins leading-tight">Team activity and approvals</p>
       </div>
 
       {/* Right — actions + user */}
@@ -28,13 +29,14 @@ const Navbar = () => {
           <BiSearch className="w-5 h-5" />
         </button>
 
+        <Link to={"/supervisor/messages"}>
         <button
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-[#1a1a1a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           style={{ transition: "background-color 0.15s" }}
-          aria-label="Messages"
-        >
+          aria-label="Messages">
           <FaRegComment className="w-[18px] h-[18px]" />
         </button>
+        </Link>
 
         <button
           className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-[#1a1a1a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
