@@ -1,21 +1,28 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { BiBell, BiSearch } from "react-icons/bi";
 import { FaRegComment } from "react-icons/fa6";
 import { RootState } from "../../../store/store";
 import { Link } from "react-router-dom";
+import { LuMenu } from "react-icons/lu";
+import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
 
 const Navbar = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const fullName = user ? `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() : "Supervisor";
   const initial = user?.firstname ? user.firstname.charAt(0).toUpperCase() : "S";
+  const dispatch = useDispatch();
 
   return (
-    <div className="w-full px-6 z-[300] sticky top-0 flex items-center justify-between bg-white/80 backdrop-blur-md h-[60px] border-b border-gray-100">
+    <div className="w-full px-6 z-[2000] sticky top-0 flex items-center justify-between bg-white/80 backdrop-blur-md h-[60px] border-b border-gray-100">
 
       {/* Left — page title */}
       <div className="hidden sm:block">
         <p className="font-poppins-bold text-[#1a1a1a] text-[15px] leading-tight">Supervisor Dashboard</p>
         <p className="text-xs text-[#454545] font-poppins leading-tight">Team activity and approvals</p>
+      </div>
+
+      <div onClick={()=>dispatch(toggleSupervisorPannel())} className="block sm:hidden">
+      <LuMenu className="w-6 h-6"/>
       </div>
 
       {/* Right — actions + user */}

@@ -43,7 +43,7 @@ const PerfCard = ({ rep }: { rep: RepPerf }) => {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-4">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-full bg-[#f0fdf4] flex items-center justify-center text-xs font-poppins-bold text-[#16a34a] shrink-0">
+        <div className="w-9 h-9 rounded-full bg-[#f0fdf4] hidden sm:flex items-center justify-center text-xs font-poppins-bold text-[#16a34a] shrink-0">
           {rep.user.firstname[0]}{rep.user.lastname[0]}
         </div>
         <div className="min-w-0 flex-1">
@@ -132,7 +132,7 @@ const TargetRowEdit = ({
     <tr className="border-b border-gray-50 hover:bg-gray-50/50">
       <td className="py-3 pl-4 pr-2">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-[#f0fdf4] flex items-center justify-center text-[10px] font-bold text-[#16a34a] shrink-0">
+          <div className="w-7 h-7 rounded-full bg-[#f0fdf4] hidden sm:flex items-center justify-center text-[10px] font-poppins-semibold text-[#16a34a] shrink-0">
             {row.user.firstname[0]}{row.user.lastname[0]}
           </div>
           <span className="text-sm font-poppins-bold text-[#1a1a1a]">{row.user.firstname} {row.user.lastname}</span>
@@ -322,7 +322,7 @@ const Analysis = () => {
   const hasAnyTarget = targets.some(t => t.target !== null);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8">
+    <div className="p-6 max-w-5xl overflow-x-auto mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-[#f0fdf4] flex items-center justify-center shrink-0">

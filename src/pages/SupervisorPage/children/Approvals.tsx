@@ -174,13 +174,13 @@ const Approvals = () => {
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6">
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-poppins-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
-              tab === t.key ? "bg-white text-[#16a34a] shadow-[0_1px_4px_rgba(0,0,0,0.08)]" : "text-gray-500 hover:text-[#1a1a1a]"
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-[11px] sm:text-sm font-poppins-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+              tab === t.key ? "bg-white text-[#16a34a]" : "text-gray-500 hover:text-[#1a1a1a]"
             }`}
             style={{ transition: "background-color 0.15s, color 0.15s" }}>
             {t.label}
             {t.count > 0 && (
-              <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full ${
+              <span className={`text-[10px] font-poppins px-1.5 py-0.5 rounded-full ${
                 tab === t.key ? "bg-[#16a34a] text-white" : "bg-orange-500 text-white"}`}>
                 {t.count}
               </span>

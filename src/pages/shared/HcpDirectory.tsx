@@ -69,7 +69,7 @@ const initials = (name: string) => {
 const CadreChip = ({ cadre }: { cadre?: string }) => {
   if (!cadre) return null;
   return (
-    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200 font-medium">
+    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200 font-poppins-semibold">
       {cadre}
     </span>
   );
@@ -77,11 +77,11 @@ const CadreChip = ({ cadre }: { cadre?: string }) => {
 
 const DocAvatar = ({ name, small }: { name: string; small?: boolean }) => (
   <div
-    className={`rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0 ${
+    className={`rounded-xl bg-[#f0fdf4] hidden border border-[#dcfce7] sm:flex items-center justify-center flex-shrink-0 ${
       small ? "w-8 h-8" : "w-10 h-10"
     }`}
   >
-    <span className={`text-[#16a34a] font-black ${small ? "text-xs" : "text-sm"}`}>
+    <span className={`text-[#16a34a] font-poppins-bold ${small ? "text-xs" : "text-sm"}`}>
       {initials(name)}
     </span>
   </div>
@@ -97,8 +97,8 @@ const Spinner = () => (
 const EmptyState = ({ message, sub }: { message: string; sub: string }) => (
   <div className="flex flex-col items-center justify-center py-16 text-center">
     <LuStethoscope className="w-10 h-10 text-gray-200 mb-3" />
-    <p className="text-gray-500 font-semibold text-sm">{message}</p>
-    <p className="text-gray-400 text-xs mt-1">{sub}</p>
+    <p className="text-gray-500 font-poppins-semibold text-sm">{message}</p>
+    <p className="text-gray-400 font-poppins text-xs mt-1">{sub}</p>
   </div>
 );
 
@@ -243,7 +243,7 @@ const HcpDirectory = () => {
             <button
               key={key}
               onClick={() => { setTab(key); setSearch(""); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-poppins-semibold focus-visible:outline-none transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs sm:text-sm font-poppins sm:font-poppins-semibold focus-visible:outline-none transition-colors ${
                 tab === key
                   ? "text-[#16a34a] border-b-2 border-[#16a34a] bg-[#f0fdf4]/50"
                   : "text-gray-400 hover:text-gray-600 hover:bg-gray-50/60"
@@ -252,7 +252,7 @@ const HcpDirectory = () => {
               {label}
               {count !== undefined && (
                 <span
-                  className={`text-[11px] px-2 py-0.5 rounded-full font-poppins-bold ${
+                  className={`text-[11px] px-2 py-0.5 rounded-full font-poppins ${
                     tab === key
                       ? "bg-[#16a34a] text-white"
                       : key === "recommendations" && count > 0
