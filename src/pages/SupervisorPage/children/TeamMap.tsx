@@ -5,6 +5,9 @@ import "leaflet/dist/leaflet.css";
 import { MdOutlineGpsOff } from "react-icons/md";
 import { LuMapPin } from "react-icons/lu";
 import { getTeamMapApi } from "../../../services/api";
+import { BiX } from "react-icons/bi";
+import { useDispatch } from "react-redux";
+import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
 
 // Fix Leaflet default icon broken by Vite
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -104,15 +107,24 @@ const TeamMap = () => {
   };
 
   const totalPins = visibleData.reduce((s, r) => s + r.activities.length, 0);
+  const dispatch = useDispatch()
 
   return (
     <div className="flex h-[calc(100vh-4rem)]">
       {/* ── Sidebar ── */}
-      <div className="w-64 bg-white border-r border-gray-100 flex flex-col overflow-hidden shrink-0">
+      <div className="w-64 bg-white border-r border-gray-100 hidden sm:flex flex-col overflow-hidden shrink-0">
         <div className="px-4 py-4 border-b border-gray-100">
+          <div className="w-full flex justify-between">
           <div className="flex items-center gap-2 mb-3">
             <LuMapPin className="w-4 h-4 text-[#16a34a]" />
             <h2 className="text-sm font-poppins-bold text-[#1a1a1a]">Team Map</h2>
+          </div>
+
+          <div 
+          onClick={()=>{}}
+          className="w-6 h-6 flex items-center justify-center bg-gray-50 rounded-full">
+          <BiX className="w-5 h-5"/>
+          </div>
           </div>
           <div className="flex gap-1">
             {([1, 3, 7] as Days[]).map(d => (

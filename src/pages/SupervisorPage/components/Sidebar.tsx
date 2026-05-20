@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { FaHouse, FaUserGroup } from "react-icons/fa6";
 import { GoGear } from "react-icons/go";
 import { BsBell } from "react-icons/bs";
@@ -17,11 +17,19 @@ import {
   getPendingExpenseClaimsApi,
   getRecommendationsApi,
 } from "../../../services/api";
+import { RootState } from "../../../store/store";
+import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const {pathname} = useLocation();
   const [pendingCount, setPendingCount] = useState<number | null>(null);
+  const isShowPannel = useSelector((state:RootState)=>state.uiState.showSupervisorSidebar);
+
+  useEffect(()=>{
+  dispatch(toggleSupervisorPannel())
+  },[pathname]);
 
   useEffect(() => {
     Promise.allSettled([
@@ -64,8 +72,9 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="bg-white border-r border-gray-100 flex-none w-64 h-screen fixed flex flex-col shadow-[1px_0_12px_0_rgba(0,0,0,0.04)]">
-      <div className="h-[60px] flex items-center px-6 border-b border-gray-100 shrink-0">
+    // --------------------------------THE SIDEBAR------------------------------------------
+    <div className={`bg-white duration-150 sm:pt-0 pt-16 border-r  z-[1000] sm:z-0  ${isShowPannel?'translate-x-0':'translate-x-[-100%]'} sm:translate-x-0 border-gray-100 flex-none  w-64 h-screen fixed flex flex-col`}>
+      <div className="h-[60px] hidden sm:flex items-center px-6 border-b border-gray-100 shrink-0">
         <div>
           <h1 className="font-poppins-extrabold text-xl text-[#1a1a1a] tracking-tight">
             KIBAG<span className="text-[#16a34a]">REP</span>
