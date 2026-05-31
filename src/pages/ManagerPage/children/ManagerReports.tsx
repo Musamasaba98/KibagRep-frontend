@@ -198,7 +198,7 @@ const ReportRow = ({
   const handleReject = async (reason: string) => {
     setRejecting(true);
     try {
-      await rejectReportApi(report.id, { reason });
+      await rejectReportApi(report.id, { note: reason });
       onRejected(report.id);
     } catch { /* ignore */ } finally { setRejecting(false); setShowReject(false); }
   };

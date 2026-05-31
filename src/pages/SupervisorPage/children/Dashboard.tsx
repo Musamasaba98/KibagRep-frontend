@@ -217,7 +217,7 @@ const Dashboard = () => {
   const handleRejectReport = async (id: string, note: string) => {
     setActioningReport(id);
     try {
-      await rejectReportApi(id, note as any);
+      await rejectReportApi(id, { note });
       setPendingReports((p) => p.filter((r) => r.id !== id));
     } catch {
       setError("Failed to reject report.");
@@ -241,7 +241,7 @@ const Dashboard = () => {
   const handleRejectCycle = async (id: string, note: string) => {
     setActioningCycle(id);
     try {
-      await rejectCycleApi(id, note);
+      await rejectCycleApi(id, { note });
       setPendingCycles((p) => p.filter((c) => c.id !== id));
     } catch {
       setError("Failed to reject cycle.");
@@ -265,7 +265,7 @@ const Dashboard = () => {
   const handleRejectExpense = async (id: string, note: string) => {
     setActioningExpense(id);
     try {
-      await rejectExpenseClaimApi(id, note);
+      await rejectExpenseClaimApi(id, { note });
       setPendingExpenses((p) => p.filter((e) => e.id !== id));
     } catch {
       setError("Failed to reject expense claim.");
@@ -693,9 +693,9 @@ const Dashboard = () => {
 
                       {/* Rows sorted by tier A → B → C */}
                       {["A", "B", "C"].flatMap((tier) =>
-                        c.items
+                        (c.items ?? [])
                           .filter((item) => item.tier === tier)
-                          .map((item, idx, arr) => (
+                          .map((item) => (
                             <div
                               key={item.id}
                               className={`grid items-center border-b border-violet-50 last:border-0 text-xs
@@ -703,7 +703,7 @@ const Dashboard = () => {
                               style={{ gridTemplateColumns: "2rem 1fr 1fr 3.5rem 3.5rem" }}
                             >
                               <span className="px-3 py-3 text-gray-300 font-poppins text-[10px]">
-                                {c.items.filter(i => i.tier === tier).indexOf(item) + 1}
+                                {(c.items ?? []).filter(i => i.tier === tier).indexOf(item) + 1}
                               </span>
                               <div className="px-3 py-3 min-w-0">
                                 <p className="font-poppins-semibold text-[#1a1a1a] truncate">{item.doctor.doctor_name}</p>
@@ -729,11 +729,11 @@ const Dashboard = () => {
                       {/* Tier summary footer */}
                       <div className="flex items-center gap-4 px-4 py-2.5 bg-violet-50 border-t border-violet-100 text-[11px]">
                         <span className="text-gray-400">Totals:</span>
-                        {tierCounts.A > 0 && <span className="font-poppins-bold text-[#16a34a]">Tier A: {tierCounts.A} × {c.items.filter(i => i.tier === "A").reduce((s, i) => s + i.frequency, 0)} visits</span>}
-                        {tierCounts.B > 0 && <span className="font-poppins-bold text-amber-500">Tier B: {tierCounts.B} × {c.items.filter(i => i.tier === "B").reduce((s, i) => s + i.frequency, 0)} visits</span>}
-                        {tierCounts.C > 0 && <span className="font-poppins-bold text-gray-400">Tier C: {tierCounts.C} × {c.items.filter(i => i.tier === "C").reduce((s, i) => s + i.frequency, 0)} visits</span>}
+                        {tierCounts.A > 0 && <span className="font-poppins-bold text-[#16a34a]">Tier A: {tierCounts.A} × {(c.items ?? []).filter(i => i.tier === "A").reduce((s, i) => s + i.frequency, 0)} visits</span>}
+                        {tierCounts.B > 0 && <span className="font-poppins-bold text-amber-500">Tier B: {tierCounts.B} × {(c.items ?? []).filter(i => i.tier === "B").reduce((s, i) => s + i.frequency, 0)} visits</span>}
+                        {tierCounts.C > 0 && <span className="font-poppins-bold text-gray-400">Tier C: {tierCounts.C} × {(c.items ?? []).filter(i => i.tier === "C").reduce((s, i) => s + i.frequency, 0)} visits</span>}
                         <span className="ml-auto text-gray-500 font-semibold">
-                          Total target: {c.items.reduce((s, i) => s + i.frequency, 0)} visits/month
+                          Total target: {(c.items ?? []).reduce((s, i) => s + i.frequency, 0)} visits/month
                         </span>
                       </div>
                     </div>

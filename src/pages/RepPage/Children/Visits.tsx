@@ -37,8 +37,8 @@ const Visits = () => {
     setLoading(true);
     setError("");
     Promise.all([
-      getActivityHistoryApi({ days: 30, limit: 200 } as any),
-      getPharmacyActivityHistoryApi({ days: 30, limit: 200 } as any),
+      getActivityHistoryApi({ days: 30, limit: 200 }),
+      getPharmacyActivityHistoryApi({ days: 30, limit: 200 }),
     ])
       .then(([docRes, pharmRes]) => {
         const docVisits: DoctorVisit[] = (docRes.data.data ?? []).map((v: any) => ({ ...v, _type: "doctor" as const }));

@@ -117,7 +117,7 @@ const Expenses = () => {
 
   const handleReject = async (id: string, reason: string) => {
     setActioning(id);
-    try { await rejectExpenseClaimApi(id, { reason }); setRejectTarget(null); load(); }
+    try { await rejectExpenseClaimApi(id, { note: reason }); setRejectTarget(null); load(); }
     catch { } finally { setActioning(null); }
   };
 

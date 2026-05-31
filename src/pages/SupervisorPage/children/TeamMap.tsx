@@ -120,11 +120,15 @@ const TeamMap = () => {
             <h2 className="text-sm font-poppins-bold text-[#1a1a1a]">Team Map</h2>
           </div>
 
-          <div 
-          onClick={()=>{}}
-          className="w-6 h-6 flex items-center justify-center bg-gray-50 rounded-full">
-          <BiX className="w-5 h-5"/>
-          </div>
+          <button
+            type="button"
+            onClick={() => dispatch(toggleSupervisorPannel())}
+            className="w-6 h-6 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-400"
+            style={{ transition: "background-color 0.15s" }}
+            aria-label="Close sidebar"
+          >
+            <BiX className="w-5 h-5"/>
+          </button>
           </div>
           <div className="flex gap-1">
             {([1, 3, 7] as Days[]).map(d => (

@@ -26,6 +26,7 @@ interface Cycle {
   year: number;
   status: "DRAFT" | "SUBMITTED" | "APPROVED" | "LOCKED";
   approved_at: string | null;
+  review_note: string | null;
   items: CycleItem[];
 }
 
@@ -146,6 +147,17 @@ const CallCycle = () => {
           )}
         </div>
       </div>
+
+      {/* ── Rejection notice (shown when supervisor sent the cycle back) ── */}
+      {cycle.status === "DRAFT" && cycle.review_note && (
+        <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <FiAlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-poppins-semibold text-red-700">Cycle returned by supervisor</p>
+            <p className="text-xs font-poppins text-red-600 mt-0.5">{cycle.review_note}</p>
+          </div>
+        </div>
+      )}
 
       {/* ── Progress bar ── */}
       <div className="bg-white rounded-xl p-4 border-solid border border-gray-200">

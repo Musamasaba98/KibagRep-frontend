@@ -105,7 +105,7 @@ const SupervisorReports = () => {
   const handleReject = async (id: string, reason: string) => {
     setActioning(id);
     try {
-      await rejectReportApi(id, { reason });
+      await rejectReportApi(id, { note: reason });
       setReports((p) => p.map((r) => r.id === id ? { ...r, status: "REJECTED" as const, review_note: reason } : r));
     } catch { setError("Failed to reject."); }
     finally { setActioning(null); }

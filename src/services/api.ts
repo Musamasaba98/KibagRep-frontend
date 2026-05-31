@@ -94,14 +94,14 @@ export const signupApi = (data: unknown) => api.post('/user/addUser', data);
 // ─── Doctor Activities ────────────────────────────────────────────────────────
 export const addDoctorActivityApi = (data: unknown) => api.post('/field-doctor/add-doctor-activity', data);
 export const addNcaApi = (data: unknown) => api.post('/field-doctor/add-nca', data);
-export const getActivityHistoryApi = (params?: string) => api.get(`/field-doctor/history${params ? '?' + params : ''}`);
+export const getActivityHistoryApi = (params?: { days?: number; limit?: number; page?: number }) => api.get('/field-doctor/history', { params });
 export const getTodayActivitiesApi = () => api.get('/field-doctor/today');
-export const getCompanyFeedApi = (params?: { days?: number }) =>
+export const getCompanyFeedApi = (params?: { days?: number; limit?: number }) =>
   api.get('/field-doctor/company-feed', { params });
 
 // ─── Pharmacy Activities ──────────────────────────────────────────────────────
 export const addPharmacyActivityApi = (data: unknown) => api.post('/field-pharmacy/add-pharmacy-activity', data);
-export const getPharmacyActivityHistoryApi = () => api.get('/field-pharmacy/history');
+export const getPharmacyActivityHistoryApi = (params?: { days?: number; limit?: number }) => api.get('/field-pharmacy/history', { params });
 
 // ─── Products (alias) ─────────────────────────────────────────────────────────
 export const getProductsApi = () => api.get('/product/company');
@@ -114,15 +114,15 @@ export const getCurrentCycleApi = () => api.get('/cycle/current');
 export const submitCycleApi = (id: string) => api.post(`/cycle/${id}/submit`);
 export const getPendingCyclesApi = () => api.get('/cycle/pending');
 export const approveCycleApi = (id: string) => api.put(`/cycle/${id}/approve`);
-export const rejectCycleApi = (id: string, data: { reason: string }) => api.put(`/cycle/${id}/reject`, data);
+export const rejectCycleApi = (id: string, data: { note: string }) => api.put(`/cycle/${id}/reject`, data);
 
 // ─── Daily Reports ────────────────────────────────────────────────────────────
 export const getTodayReportApi = () => api.get('/daily-report/today');
 export const submitDailyReportApi = (data: unknown) => api.post('/daily-report/submit', data);
-export const getMyReportsApi = () => api.get('/daily-report/my');
+export const getMyReportsApi = (days?: number) => api.get('/daily-report/my', { params: days ? { days } : undefined });
 export const getPendingReportsApi = () => api.get('/daily-report/pending');
 export const approveReportApi = (id: string) => api.put(`/daily-report/${id}/approve`);
-export const rejectReportApi = (id: string, data: { reason: string }) => api.put(`/daily-report/${id}/reject`, data);
+export const rejectReportApi = (id: string, data?: { note?: string }) => api.put(`/daily-report/${id}/reject`, data);
 export const getCompanyObserversApi = () => api.get('/daily-report/observers');
 export const getCompanyReportsApi = (params?: string) => api.get(`/daily-report/company${params ? '?' + params : ''}`);
 export const getJfwReportsApi = () => api.get('/daily-report/jfw');
@@ -145,9 +145,9 @@ export const addCycleItemApi = (data: { doctor_id: string; tier?: string; freque
 export const removeCycleItemApi = (itemId: string) => api.delete(`/cycle/current/items/${itemId}`);
 export const recommendDoctorApi = (doctorId: string) => api.post('/doctor/recommend', { doctor_id: doctorId });
 export const reportNewClinicianApi = (data: { clinician_name: string; clinician_cadre?: string; clinician_location?: string; clinician_contact?: string }) => api.post('/doctor/report-clinician', data);
-export const getRecommendationsApi = () => api.get('/doctor/recommendations');
+export const getRecommendationsApi = (status?: string) => api.get('/doctor/recommendations', { params: status ? { status } : undefined });
 export const approveRecommendationApi = (id: string) => api.put(`/doctor/recommendations/${id}/approve`);
-export const rejectRecommendationApi = (id: string, note?: string) => api.put(`/doctor/recommendations/${id}/reject`, { note });
+export const rejectRecommendationApi = (id: string, note?: string) => api.put(`/doctor/recommendations/${id}/reject`, { review_note: note });
 export const forwardRecommendationApi = (id: string) => api.put(`/doctor/recommendations/${id}/forward`);
 
 // ─── Facilities ───────────────────────────────────────────────────────────────
@@ -161,7 +161,7 @@ export const removeExpenseItemApi = (claimId: string, itemId: string) => api.del
 export const submitExpenseClaimApi = (claimId: string) => api.put(`/expense/${claimId}/submit`);
 export const getPendingExpenseClaimsApi = () => api.get('/expense/pending');
 export const approveExpenseClaimApi = (claimId: string) => api.put(`/expense/${claimId}/approve`);
-export const rejectExpenseClaimApi = (claimId: string, data: { reason: string }) => api.put(`/expense/${claimId}/reject`, data);
+export const rejectExpenseClaimApi = (claimId: string, data: { note: string }) => api.put(`/expense/${claimId}/reject`, data);
 
 // ─── Territories ──────────────────────────────────────────────────────────────
 export const getTerritoriesApi = () => api.get('/territory');
@@ -178,6 +178,9 @@ export const updateTourPlanDayApi = (id: string, data: unknown) => api.put(`/tou
 export const addTourPlanEntryApi = (id: string, data: unknown) => api.post(`/tour-plan/${id}/entries`, data);
 export const removeTourPlanEntryApi = (id: string, entryId: string) => api.delete(`/tour-plan/${id}/entries/${entryId}`);
 export const submitTourPlanApi = (id: string) => api.put(`/tour-plan/${id}/submit`);
+export const getPendingTourPlansApi = () => api.get('/tour-plan/pending');
+export const approveTourPlanApi = (id: string) => api.put(`/tour-plan/${id}/approve`);
+export const rejectTourPlanApi = (id: string, data: { review_note: string }) => api.put(`/tour-plan/${id}/reject`, data);
 
 // ─── Daily Report (extended) ──────────────────────────────────────────────────
 export const getDailyReportActivitiesApi = (id: string) => api.get(`/daily-report/${id}/activities`);

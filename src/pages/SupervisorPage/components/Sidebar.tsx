@@ -16,6 +16,7 @@ import {
   getPendingCyclesApi,
   getPendingExpenseClaimsApi,
   getRecommendationsApi,
+  getPendingTourPlansApi,
 } from "../../../services/api";
 import { RootState } from "../../../store/store";
 import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
@@ -37,15 +38,17 @@ const Sidebar = () => {
       getPendingCyclesApi(),
       getPendingExpenseClaimsApi(),
       getRecommendationsApi(),
-    ]).then(([reports, cycles, expenses, recs]) => {
+      getPendingTourPlansApi(),
+    ]).then(([reports, cycles, expenses, recs, tourplans]) => {
       let total = 0;
-      if (reports.status === "fulfilled") total += (reports.value.data?.data ?? []).length;
-      if (cycles.status === "fulfilled") total += (cycles.value.data?.data ?? []).length;
-      if (expenses.status === "fulfilled") total += (expenses.value.data?.data ?? []).length;
+      if (reports.status === "fulfilled")   total += (reports.value.data?.data ?? []).length;
+      if (cycles.status === "fulfilled")    total += (cycles.value.data?.data ?? []).length;
+      if (expenses.status === "fulfilled")  total += (expenses.value.data?.data ?? []).length;
       if (recs.status === "fulfilled") {
         const pending = (recs.value.data?.data ?? []).filter((r: { status: string }) => r.status === "PENDING");
         total += pending.length;
       }
+      if (tourplans.status === "fulfilled") total += (tourplans.value.data?.data ?? []).length;
       setPendingCount(total);
     });
   }, []);

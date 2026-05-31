@@ -392,7 +392,7 @@ const Expenses = () => {
     setCreating(true);
     setError("");
     try {
-      await createExpenseClaimApi(period);
+      await createExpenseClaimApi({ period });
       await fetchClaims();
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to create claim.");
