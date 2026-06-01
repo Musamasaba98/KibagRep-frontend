@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
-import { FaBuildingColumns, FaPlus, FaXmark, FaMagnifyingGlass } from "react-icons/fa6";
+import { useState, useEffect, useCallback } from "react";
+import { FaBuildingColumns, FaMagnifyingGlass, FaLocationDot } from "react-icons/fa6";
+import { MdOutlineGpsOff } from "react-icons/md";
+import { LuShieldAlert } from "react-icons/lu";
 import api from "../../../services/api";
 
 interface Facility {
@@ -8,25 +10,24 @@ interface Facility {
   facility_type?: string;
   town?: string;
   location?: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 const Facilities = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading]       = useState(true);
   const [q, setQ]                   = useState("");
-  const [showModal, setShowModal]   = useState(false);
-  const [form, setForm]             = useState({ name: "", facility_type: "", town: "", location: "" });
-  const [saving, setSaving]         = useState(false);
-  const [formError, setFormError]   = useState("");
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     api.get("/facility")
       .then(r => setFacilities(r.data.data ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  };
-  useEffect(() => { load(); }, []);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
 
   const filtered = q.length >= 2
     ? facilities.filter(f =>
@@ -36,40 +37,55 @@ const Facilities = () => {
       )
     : facilities;
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault(); setFormError("");
-    if (!form.name.trim() || !form.location.trim()) {
-      setFormError("Name and location are required"); return;
-    }
-    setSaving(true);
-    try {
-      await api.post("/facility", {
-        name: form.name.trim(),
-        location: form.location.trim(),
-        facility_type: form.facility_type || undefined,
-        town: form.town || undefined,
-      });
-      setShowModal(false);
-      setForm({ name: "", facility_type: "", town: "", location: "" });
-      load();
-    } catch (err: any) {
-      setFormError(err.response?.data?.error || err.response?.data?.message || "Failed to create");
-    } finally { setSaving(false); }
-  };
+  const withCoords    = facilities.filter(f => f.latitude != null && f.longitude != null).length;
+  const withoutCoords = facilities.length - withCoords;
 
   return (
     <div className="p-4 sm:p-6 flex flex-col gap-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#1a2530] tracking-tight">Facilities</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{facilities.length} health facilities in the database</p>
+
+      {/* Header */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-black text-[#1a2530] tracking-tight">Facilities</h1>
+        <div className="flex items-center gap-3 mt-1 flex-wrap">
+          <p className="text-sm text-gray-400">{facilities.length} health facilities</p>
+          {facilities.length > 0 && (
+            <>
+              <span className="flex items-center gap-1 text-xs font-semibold text-[#16a34a]">
+                <FaLocationDot className="w-3 h-3" /> {withCoords} with GPS
+              </span>
+              {withoutCoords > 0 && (
+                <span className="flex items-center gap-1 text-xs font-semibold text-amber-600">
+                  <MdOutlineGpsOff className="w-3.5 h-3.5" /> {withoutCoords} missing
+                </span>
+              )}
+            </>
+          )}
         </div>
-        <button onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-[0_2px_8px_0_rgba(22,163,74,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-          style={{ transition: "background-color 0.15s" }}>
-          <FaPlus className="w-3.5 h-3.5" /><span>Add Facility</span>
-        </button>
       </div>
+
+      {/* Info banner */}
+      <div className="flex items-start gap-3 bg-sky-50 border border-sky-200 rounded-xl px-4 py-3">
+        <LuShieldAlert className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-xs font-semibold text-sky-800">Managed by KibagRep platform administrators</p>
+          <p className="text-xs text-sky-700 mt-0.5 leading-relaxed">
+            Facility records and GPS coordinates can only be created or edited by the Super Admin.
+            If a facility is missing or has incorrect coordinates, contact your KibagRep administrator.
+          </p>
+        </div>
+      </div>
+
+      {/* GPS coverage warning */}
+      {withoutCoords > 0 && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <MdOutlineGpsOff className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800 leading-relaxed">
+            <span className="font-semibold">{withoutCoords} facilit{withoutCoords !== 1 ? "ies" : "y"} without GPS coordinates.</span>
+            {" "}GPS anomaly detection will not fire for visits to doctors at these facilities until
+            the Super Admin pins their location.
+          </p>
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative">
@@ -79,6 +95,7 @@ const Facilities = () => {
           className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20" />
       </div>
 
+      {/* Facility list — read-only */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-16">
@@ -88,67 +105,50 @@ const Facilities = () => {
           <div className="flex flex-col items-center py-20 text-gray-400">
             <FaBuildingColumns className="w-10 h-10 mb-3 opacity-20" />
             <p className="font-semibold">{q ? "No matching facilities" : "No facilities yet"}</p>
-            <p className="text-sm mt-1">Add health facilities where doctors work</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
-            {filtered.map(f => (
-              <div key={f.id} className="flex items-center gap-3 px-4 sm:px-5 py-3.5 hover:bg-gray-50/50">
-                <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center shrink-0">
-                  <FaBuildingColumns className="w-3.5 h-3.5 text-amber-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#1a2530] truncate">{f.name}</p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {[f.facility_type, f.town, f.location].filter(Boolean).join(" · ")}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <>
+            <div className="grid px-4 sm:px-5 py-2 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider"
+              style={{ gridTemplateColumns: "2rem 1fr auto" }}>
+              <span />
+              <span>Facility</span>
+              <span className="text-right">Coordinates</span>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {filtered.map(f => {
+                const hasCoords = f.latitude != null && f.longitude != null;
+                return (
+                  <div key={f.id}
+                    className="grid items-center gap-3 px-4 sm:px-5 py-3.5"
+                    style={{ gridTemplateColumns: "2rem 1fr auto" }}>
+                    <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center shrink-0">
+                      <FaBuildingColumns className="w-3.5 h-3.5 text-amber-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#1a2530] truncate">{f.name}</p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {[f.facility_type, f.town, f.location].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      {hasCoords ? (
+                        <span className="flex items-center gap-1 text-[10px] font-semibold text-[#16a34a] bg-[#f0fdf4] border border-[#dcfce7] px-2 py-1 rounded-full font-mono whitespace-nowrap">
+                          <FaLocationDot className="w-2.5 h-2.5 shrink-0" />
+                          {f.latitude!.toFixed(4)}, {f.longitude!.toFixed(4)}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full whitespace-nowrap">
+                          No GPS
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
-
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }}>
-          <div className="bg-white rounded-2xl shadow-[0_8px_40px_0_rgba(0,0,0,0.18)] w-full max-w-md">
-            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
-              <h2 className="font-black text-[#1a2530] text-lg tracking-tight">Add Facility</h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 focus-visible:outline-none">
-                <FaXmark className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleCreate} className="px-6 py-5 flex flex-col gap-4">
-              {formError && <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3 py-2.5 rounded-xl">{formError}</div>}
-              {[
-                { key: "name",          label: "Facility Name *",  placeholder: "e.g. Mulago National Referral Hospital" },
-                { key: "location",      label: "Location / Address *", placeholder: "e.g. Mulago Hill, Kampala" },
-                { key: "facility_type", label: "Type",             placeholder: "e.g. Hospital, Clinic, Health Centre" },
-                { key: "town",          label: "Town / Area",      placeholder: "e.g. Kampala" },
-              ].map(({ key, label, placeholder }) => (
-                <div key={key}>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5">{label}</label>
-                  <input type="text" value={(form as any)[key]}
-                    onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-                    placeholder={placeholder}
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20" />
-                </div>
-              ))}
-              <div className="flex gap-3 pt-1">
-                <button type="button" onClick={() => setShowModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 focus-visible:outline-none">
-                  Cancel
-                </button>
-                <button type="submit" disabled={saving}
-                  className="flex-1 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-                  style={{ transition: "background-color 0.15s" }}>
-                  {saving ? "Saving…" : "Add Facility"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -75,8 +75,12 @@ export const getMyCompanyApi = () => api.get("/company/mine");
 export const getCompanyUsersApi = () => api.get("/user/company/users");
 export const addUserToCompanyApi = (data: { userId: string; role: string; company_id?: string; team_id?: string }) =>
   api.post("/user/company/add", data);
-export const updateCompanyUserApi = (userId: string, data: { role?: string; team_id?: string | null }) =>
-  api.put(`/user/company/${userId}`, data);
+export const updateCompanyUserApi = (userId: string, data: {
+  role?: string;
+  team_id?: string | null;
+  territory_id?: string | null;
+  secondary_territory_id?: string | null;
+}) => api.put(`/user/company/${userId}`, data);
 export const removeUserFromCompanyApi = (userId: string) => api.delete(`/user/company/${userId}`);
 export const getUnassignedUsersApi = () => api.get("/user/unassigned");
 export const getAllPlatformUsersApi = (params?: { q?: string; role?: string; company_id?: string }) =>
@@ -193,3 +197,10 @@ export const getTeamMapApi = (days?: number) => api.get(`/supervisor/team-map${d
 export const getMyTargetApi = () => api.get('/target/my');
 export const getTeamTargetsApi = (month?: number, year?: number) => api.get(`/target/team${month && year ? '?month=' + month + '&year=' + year : ''}`);
 export const setTargetApi = (data: unknown) => api.post('/target', data);
+
+// ─── Field Events (OPD Breakfasts, CME, Launches, etc.) ──────────────────────
+export const getFieldEventsApi = (params?: { status?: string; type?: string; month?: number; year?: number }) =>
+  api.get('/field-events', { params });
+export const createFieldEventApi = (data: unknown) => api.post('/field-events', data);
+export const updateFieldEventApi = (id: string, data: unknown) => api.put(`/field-events/${id}`, data);
+export const deleteFieldEventApi = (id: string) => api.delete(`/field-events/${id}`);

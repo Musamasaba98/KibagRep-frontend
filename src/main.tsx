@@ -25,6 +25,7 @@ import Calendar from "./pages/RepPage/Children/Calendar";
 import TourPlan from "./pages/RepPage/Children/TourPlan";
 import NearMe from "./pages/RepPage/Children/NearMe";
 import Settings from "./pages/RepPage/Children/Settings";
+import Events from "./pages/RepPage/Children/Events";
 
 // Manager
 import ManagerPage from "./pages/ManagerPage/ManagerPage";
@@ -93,6 +94,8 @@ import SuperAdminPage from "./pages/SuperAdminPage/SuperAdminPage";
 import SuperAdminDashboard from "./pages/SuperAdminPage/children/SuperAdminDashboard";
 import SuperAdminCompanies from "./pages/SuperAdminPage/children/Companies";
 import SuperAdminAllUsers from "./pages/SuperAdminPage/children/AllUsers";
+import SuperAdminFacilities from "./pages/SuperAdminPage/children/Facilities";
+import SuperAdminHcp from "./pages/SuperAdminPage/children/HcpDirectory";
 
 // Auth guard
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -126,6 +129,7 @@ const router = createBrowserRouter([
           { path: "tour-plan", element: <TourPlan /> },
           { path: "near-me", element: <NearMe /> },
           { path: "settings", element: <Settings /> },
+          { path: "events", element: <Events /> },
         ],
       },
     ],
@@ -234,8 +238,10 @@ const router = createBrowserRouter([
         element: <SuperAdminPage />,
         children: [
           { index: true, element: <SuperAdminDashboard /> },
-          { path: "companies", element: <SuperAdminCompanies /> },
-          { path: "users", element: <SuperAdminAllUsers /> },
+          { path: "companies",  element: <SuperAdminCompanies /> },
+          { path: "users",      element: <SuperAdminAllUsers /> },
+          { path: "facilities", element: <SuperAdminFacilities /> },
+          { path: "hcp",        element: <SuperAdminHcp /> },
         ],
       },
     ],
