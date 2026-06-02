@@ -56,9 +56,18 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
   }, []);
 
   useEffect(() => {
-    getCompanyDoctorListApi().then((r) => setDoctors(r.data.data ?? r.data)).catch(() => {});
+    getCompanyDoctorListApi().then((r) => {
+      const raw = r.data.data ?? r.data ?? [];
+      setDoctors(raw.map((item: any) => item.doctor ?? item));
+    }).catch(() => {});
     getProductsApi().then((r) => setProducts(r.data.data ?? r.data)).catch(() => {});
   }, []);
+
+  // Auto-include focused product in productsDetailed when it's selected
+  useEffect(() => {
+    if (!focusedProductId) return;
+    setProductsDetailed((prev) => prev.includes(focusedProductId) ? prev : [...prev, focusedProductId]);
+  }, [focusedProductId]);
 
   const filteredDoctors = doctorSearch.length >= 2
     ? doctors.filter((d) =>
@@ -231,11 +240,21 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
                 {products.map((p) => {
                   const selected = productsDetailed.includes(p.id);
                   return (
-                    <button key={p.id} type="button" onClick={() => toggleProduct(p.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-poppins-semibold border ${selected ? "bg-[#16a34a] border-[#16a34a] text-white" : "bg-white border-gray-300 text-gray-600 hover:border-[#16a34a]"}`}
+                    <button key={p.id} type="button"
+                      onClick={() => p.id !== focusedProductId && toggleProduct(p.id)}
+                      disabled={p.id === focusedProductId}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-poppins-semibold border ${
+                        p.id === focusedProductId
+                          ? "bg-[#16a34a] border-[#16a34a] text-white cursor-default"
+                          : selected
+                            ? "bg-[#16a34a] border-[#16a34a] text-white"
+                            : "bg-white border-gray-300 text-gray-600 hover:border-[#16a34a]"
+                      }`}
                       style={{ transition: "background-color 0.15s, color 0.15s" }}>
-                      {selected && <FaCheck className="w-3 h-3" />}
-                      {p.product_name}
+                      {p.id === focusedProductId
+                        ? <><FaCheck className="w-3 h-3" />{p.product_name} <span className="opacity-70 text-[10px]">★ focus</span></>
+                        : <>{selected && <FaCheck className="w-3 h-3" />}{p.product_name}</>
+                      }
                     </button>
                   );
                 })}

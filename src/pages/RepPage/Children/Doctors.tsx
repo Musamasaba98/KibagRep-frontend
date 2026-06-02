@@ -300,7 +300,17 @@ const Doctors = () => {
                 company_tier: cd.doctor.company_tier,
                 on_company_list: true,
               }))
-            : raw;
+            : raw.map((d: any) => ({
+                id: d.id,
+                doctor_name: d.doctor_name,
+                town: d.town,
+                location: d.location,
+                speciality: d.speciality ?? [],
+                cadre: d.cadre,
+                contact: d.contact,
+                company_tier: d.company_tiers?.length ? d.company_tiers[0] : null,
+                on_company_list: (d.company_doctors?.length ?? 0) > 0,
+              }));
         setDoctors(normalized);
         const items: { doctor_id: string }[] = cycleRes.data?.data?.items ?? [];
         setCycleIds(new Set(items.map((i) => i.doctor_id)));

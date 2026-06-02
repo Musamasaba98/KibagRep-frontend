@@ -189,7 +189,8 @@ export const changePasswordApi = (data: { current_password: string; new_password
 export const searchPharmaciesApi = (q: string) => api.get(`/pharmacy/search?q=${encodeURIComponent(q)}`);
 
 // ─── Doctor Directory & Recommendations ───────────────────────────────────────
-export const getDoctorDirectoryApi = () => api.get('/doctor');
+export const getDoctorDirectoryApi = (params?: { q?: string; page?: number; limit?: number }) =>
+  api.get('/doctor', { params: { scope: 'all', ...params } });
 export const addCycleItemApi = (data: { doctor_id: string; tier?: string; frequency?: number }) => api.post('/cycle/current/items', data);
 export const removeCycleItemApi = (itemId: string) => api.delete(`/cycle/current/items/${itemId}`);
 export const recommendDoctorApi = (doctorId: string) => api.post('/doctor/recommend', { doctor_id: doctorId });

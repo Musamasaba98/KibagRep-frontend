@@ -59,7 +59,10 @@ const AddUnplanned = ({ onClose, onSuccess }: AddUnplannedProps) => {
 
   useEffect(() => {
     getDoctorsApi()
-      .then((res) => setDoctors(res.data.data ?? res.data))
+      .then((res) => {
+        const raw = res.data.data ?? res.data ?? [];
+        setDoctors(raw.map((item: any) => item.doctor ?? item));
+      })
       .catch(() => {});
     getProductsApi()
       .then((res) => setProducts(res.data.data ?? res.data))

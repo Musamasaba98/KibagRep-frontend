@@ -60,17 +60,18 @@ function typeConfig(t: EventType) {
 
 interface FormModalProps {
   event?: FieldEvent | null;
+  initialDate?: string;
   onClose: () => void;
   onSaved: () => void;
 }
 
-const FormModal = ({ event, onClose, onSaved }: FormModalProps) => {
+export const FormModal = ({ event, initialDate, onClose, onSaved }: FormModalProps) => {
   const isEdit = !!event;
   const [form, setForm] = useState({
     event_type:    event?.event_type    ?? "OPD_BREAKFAST" as EventType,
     title:         event?.title         ?? "",
     status:        event?.status        ?? "PLANNED" as EventStatus,
-    planned_date:  event?.planned_date  ? event.planned_date.slice(0, 10) : "",
+    planned_date:  event?.planned_date  ? event.planned_date.slice(0, 10) : (initialDate ?? ""),
     executed_date: event?.executed_date ? event.executed_date.slice(0, 10) : "",
     planned_count:  String(event?.planned_count  ?? 1),
     executed_count: String(event?.executed_count ?? 0),

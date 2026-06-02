@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleSidebarPanel } from "../../../store/uiStateSlice";
 import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap, BiBookOpen, BiCoffee } from "react-icons/bi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { BsCardChecklist } from "react-icons/bs";
@@ -554,6 +555,7 @@ const DayRow = ({ day, activities, todayPlanEntries, onAddClick, onLogVisit, onN
                     name={tile.name}
                     town={tile.town}
                     slot={(tile as any).slot}
+                    visited={tile.visited}
                     onLogPharmacy={(tile as any).pharmacyId && onLogPharmacy
                       ? () => onLogPharmacy((tile as any).pharmacyId, tile.name, (tile as any).location)
                       : undefined}
@@ -588,7 +590,9 @@ const DayRow = ({ day, activities, todayPlanEntries, onAddClick, onLogVisit, onN
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 const Sidebar = () => {
+  const dispatch = useDispatch();
   const showPanel = useSelector((state: any) => state.uiState.showSidebarPanel);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [activitiesByDay, setActivitiesByDay] = useState<Record<string, DayActivity[]>>({});
   const [todayPlanEntries, setTodayPlanEntries] = useState<TodayPlanEntry[]>([]);
   const [modalDay, setModalDay] = useState<Date | null>(null);
@@ -599,6 +603,13 @@ const Sidebar = () => {
   const todayRowRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   // Scroll today's row to vertical center on mount and when panel opens
   useEffect(() => {
@@ -651,13 +662,23 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <div
-      className="hidden md:flex bg-white fixed shadow"
+    <>
+      {/* Mobile backdrop — tap outside to close */}
+      {isMobile && showPanel && (
+        <div
+          className="fixed inset-0 z-[149] bg-black/30"
+          onClick={() => dispatch(toggleSidebarPanel())}
+        />
+      )}
+      <div
+        className="flex bg-white fixed shadow"
       style={{
-        top: 64,
-        height: 'calc(100vh - 64px)',
-        width: showPanel ? 320 : 72,
-        transition: "width 250ms ease",
+        top: isMobile ? 56 : 64,
+        height: isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)',
+        width: isMobile ? 280 : (showPanel ? 320 : 72),
+        zIndex: isMobile ? 150 : 100,
+        transform: isMobile ? (showPanel ? 'translateX(0)' : 'translateX(-100%)') : undefined,
+        transition: isMobile ? "transform 250ms ease" : "width 250ms ease",
       }}
     >
       {/* left nav strip — icon-only with hover tooltips */}
@@ -769,6 +790,7 @@ const Sidebar = () => {
         />
       )}
     </div>
+    </>
   );
 };
 

@@ -123,12 +123,14 @@ const Navbar = () => {
         ) : (
           /* Normal mode */
           <>
-            {/* Brand mark */}
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="w-8 h-8 bg-[#16a34a] rounded-xl flex items-center justify-center shadow-sm shadow-green-700/25">
-                <span className="text-white font-black text-sm tracking-tight">K</span>
-              </div>
-            </div>
+            {/* Sidebar toggle — same as desktop */}
+            <button
+              onClick={() => dispatch(toggleSidebarPanel())}
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#16a34a] hover:bg-[#15803d] shadow-sm shadow-green-700/25 shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              aria-label="Toggle activity panel"
+            >
+              <BiMenu className="w-5 h-5 text-white" />
+            </button>
 
             {/* Center: offline badge + location */}
             <div className="flex-1 flex flex-col items-center gap-0.5">
