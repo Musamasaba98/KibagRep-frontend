@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FiDownload, FiX } from "react-icons/fi";
+import { PiShareFatLight } from "react-icons/pi";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -8,12 +9,28 @@ interface BeforeInstallPromptEvent extends Event {
 
 const DISMISSED_KEY = "kibag_install_dismissed";
 
+const isIos = () =>
+  /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+const isInStandaloneMode = () =>
+  ("standalone" in window.navigator && (window.navigator as unknown as { standalone: boolean }).standalone) ||
+  window.matchMedia("(display-mode: standalone)").matches;
+
 const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [show, setShow] = useState(false);
+  const [iosMode, setIosMode] = useState(false);
 
   useEffect(() => {
     if (localStorage.getItem(DISMISSED_KEY)) return;
+    if (isInStandaloneMode()) return; // already installed
+
+    if (isIos()) {
+      setIosMode(true);
+      setShow(true);
+      return;
+    }
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -47,23 +64,40 @@ const InstallPrompt = () => {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-[#1a2530] text-sm">Add KibagRep to your phone</p>
-          <p className="text-xs text-gray-400 mt-0.5">Works offline · logs visits without internet</p>
-          <div className="flex gap-2 mt-2.5">
-            <button
-              onClick={handleInstall}
-              className="flex items-center gap-1.5 bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold px-3 py-1.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
-              style={{ transition: "background-color 0.15s" }}
-            >
-              <FiDownload className="w-3 h-3" /> Install
-            </button>
-            <button
-              onClick={handleDismiss}
-              className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg"
-              style={{ transition: "color 0.15s" }}
-            >
-              Not now
-            </button>
-          </div>
+          {iosMode ? (
+            <>
+              <p className="text-xs text-gray-500 mt-1 leading-snug">
+                Tap the <PiShareFatLight className="inline w-3.5 h-3.5 mb-0.5" /> <strong>Share</strong> button at the bottom of your browser, then choose <strong>"Add to Home Screen"</strong>.
+              </p>
+              <button
+                onClick={handleDismiss}
+                className="mt-2.5 text-xs text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg"
+                style={{ transition: "color 0.15s" }}
+              >
+                Got it
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-xs text-gray-400 mt-0.5">Works offline · logs visits without internet</p>
+              <div className="flex gap-2 mt-2.5">
+                <button
+                  onClick={handleInstall}
+                  className="flex items-center gap-1.5 bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold px-3 py-1.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
+                  style={{ transition: "background-color 0.15s" }}
+                >
+                  <FiDownload className="w-3 h-3" /> Install
+                </button>
+                <button
+                  onClick={handleDismiss}
+                  className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg"
+                  style={{ transition: "color 0.15s" }}
+                >
+                  Not now
+                </button>
+              </div>
+            </>
+          )}
         </div>
         <button onClick={handleDismiss} className="text-gray-300 hover:text-gray-500 shrink-0 mt-0.5">
           <FiX className="w-4 h-4" />
