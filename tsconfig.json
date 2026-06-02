@@ -13,7 +13,7 @@
     "isolatedModules": true, // Ensure each file can be transpiled independently
     "jsx": "react-jsx", // Specify how JSX is emitted
     "module": "esnext", // Specify module code generation
-    "moduleResolution": "node", // Resolve modules using Node.js resolution strategy
+    "moduleResolution": "bundler", // Vite-compatible module resolution (required for allowImportingTsExtensions)
     "resolveJsonModule": true, // Allow importing .json files
     "incremental": true, // Enable incremental compilation
     "noFallthroughCasesInSwitch": true // Report errors for fallthrough cases in switch statement

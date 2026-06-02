@@ -430,6 +430,7 @@ interface DayRowProps {
   onNca?: (doctorId: string, doctorName: string) => void;
   onViewProfile?: (doctorId: string, doctorName: string) => void;
   onLogPharmacy?: (pharmacyId: string, pharmacyName: string, location?: string) => void;
+  visitedPharmacyIds: string[];
 }
 
 interface DayActivity {

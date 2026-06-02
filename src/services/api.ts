@@ -3,7 +3,7 @@ import { store } from "../store/store";
 import { logout } from "../store/authSlice";
 import { enqueue } from "../lib/offlineQueue";
 
-const BASE_URL = "http://localhost:4000/api";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000/api";
 
 // Endpoints that should be queued when offline (write operations by reps)
 const QUEUEABLE = [
