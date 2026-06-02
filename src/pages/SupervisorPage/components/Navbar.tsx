@@ -1,28 +1,38 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { BiBell, BiSearch } from "react-icons/bi";
 import { FaRegComment } from "react-icons/fa6";
 import { RootState } from "../../../store/store";
-import { Link } from "react-router-dom";
-import { LuMenu } from "react-icons/lu";
-import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
+import { Link, useLocation } from "react-router-dom";
+
+// Derive a short page title from the URL for mobile
+const PAGE_LABELS: Record<string, string> = {
+  "/supervisor":           "Dashboard",
+  "/supervisor/reps":      "My Reps",
+  "/supervisor/approvals": "Approvals",
+  "/supervisor/reports":   "Reports",
+  "/supervisor/cycles":    "Call Cycles",
+  "/supervisor/jfw":       "JFW",
+  "/supervisor/map":       "Team Map",
+  "/supervisor/analysis":  "Analysis",
+  "/supervisor/doctors":   "HCP Directory",
+  "/supervisor/events":    "Field Events",
+};
 
 const Navbar = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const fullName = user ? `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() : "Supervisor";
   const initial = user?.firstname ? user.firstname.charAt(0).toUpperCase() : "S";
-  const dispatch = useDispatch();
+  const { pathname } = useLocation();
+
+  const pageLabel = PAGE_LABELS[pathname] ?? "Supervisor";
 
   return (
-    <div className="w-full px-6 z-[2000] sticky top-0 flex items-center justify-between bg-white/80 backdrop-blur-md h-[60px] border-b border-gray-100">
+    <div className="w-full px-4 md:px-6 z-[2000] sticky top-0 flex items-center justify-between bg-white/90 backdrop-blur-md h-[56px] md:h-[60px] border-b border-gray-100">
 
-      {/* Left — page title */}
-      <div className="hidden sm:block">
-        <p className="font-poppins-bold text-[#1a1a1a] text-[15px] leading-tight">Supervisor Dashboard</p>
-        <p className="text-xs text-[#454545] font-poppins leading-tight">Team activity and approvals</p>
-      </div>
-
-      <div onClick={()=>dispatch(toggleSupervisorPannel())} className="block sm:hidden">
-      <LuMenu className="w-6 h-6"/>
+      {/* Left — page title (desktop) / current page name (mobile) */}
+      <div>
+        <p className="font-poppins-bold text-[#1a1a1a] text-[15px] leading-tight">{pageLabel}</p>
+        <p className="text-xs text-[#454545] font-poppins leading-tight hidden md:block">Team activity and approvals</p>
       </div>
 
       {/* Right — actions + user */}

@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { FaHouse, FaUserGroup, FaMugHot } from "react-icons/fa6";
 import { GoGear } from "react-icons/go";
 import { BsBell } from "react-icons/bs";
 import { IoCalendarOutline } from "react-icons/io5";
 import { SlLogout } from "react-icons/sl";
-import { TbReport } from "react-icons/tb";
+import { TbReport, TbChartBar } from "react-icons/tb";
 import { LuClipboardCheck, LuStethoscope, LuMap } from "react-icons/lu";
-import { TbChartBar } from "react-icons/tb";
 import { GrTask } from "react-icons/gr";
 import { logout } from "../../../store/authSlice";
 import {
@@ -18,19 +17,11 @@ import {
   getRecommendationsApi,
   getPendingTourPlansApi,
 } from "../../../services/api";
-import { RootState } from "../../../store/store";
-import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {pathname} = useLocation();
   const [pendingCount, setPendingCount] = useState<number | null>(null);
-  const isShowPannel = useSelector((state:RootState)=>state.uiState.showSupervisorSidebar);
-
-  useEffect(()=>{
-  dispatch(toggleSupervisorPannel())
-  },[pathname]);
 
   useEffect(() => {
     Promise.allSettled([
@@ -77,7 +68,7 @@ const Sidebar = () => {
 
   return (
     // --------------------------------THE SIDEBAR------------------------------------------
-    <div className={`bg-white duration-150 sm:pt-0 pt-16 border-r  z-[1000] sm:z-0  ${isShowPannel?'translate-x-0':'translate-x-[-100%]'} sm:translate-x-0 border-gray-100 flex-none  w-64 h-screen fixed flex flex-col`}>
+    <div className="hidden md:flex bg-white border-r border-gray-100 flex-none w-64 h-screen fixed flex-col z-50">
       <div className="h-[60px] hidden sm:flex items-center px-6 border-b border-gray-100 shrink-0">
         <div>
           <h1 className="font-poppins-extrabold text-xl text-[#1a1a1a] tracking-tight">
