@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { LuFileText, LuChevronDown, LuChevronUp, LuCheck, LuX } from "react-icons/lu";
 import { MdOutlineWarningAmber } from "react-icons/md";
-import { TbActivityHeartbeat } from "react-icons/tb";
+import { TbActivityHeartbeat, TbPill } from "react-icons/tb";
 import { FiXCircle } from "react-icons/fi";
 import { getCompanyReportsApi, approveReportApi, rejectReportApi, getDailyReportActivitiesApi } from "../../../services/api";
 
@@ -37,10 +37,14 @@ interface Report {
   user: { id: string; firstname: string; lastname: string; role: string };
 }
 interface Activity {
-  id: string; visit_type: "PLANNED" | "UNPLANNED" | "NCA";
-  samples_given: number; nca_reason: string | null; gps_anomaly_flag: boolean;
-  doctor: { doctor_name: string; location?: string; town?: string } | null;
-  focused_product: { product_name: string } | null;
+  id: string;
+  activity_type: "doctor" | "pharmacy";
+  visit_type?: "PLANNED" | "UNPLANNED" | "NCA";
+  samples_given?: number; nca_reason?: string | null; gps_anomaly_flag?: boolean;
+  doctor?: { doctor_name: string; location?: string; town?: string } | null;
+  pharmacy?: { pharmacy_name: string; location?: string; town?: string } | null;
+  focused_product?: { product_name: string } | null;
+  date: string;
 }
 type StatusTab = "SUBMITTED" | "APPROVED" | "REJECTED" | "ALL";
 type Days = 7 | 30 | 60;
@@ -211,19 +215,45 @@ const SupervisorReports = () => {
                         <p className="text-xs font-poppins text-gray-400 py-1">No visit activities recorded.</p>
                       ) : (
                         <div className="flex flex-col gap-1.5">
-                          <p className="text-[11px] font-poppins-bold text-gray-400 uppercase tracking-widest">{repActs.length} Visit{repActs.length !== 1 ? "s" : ""}</p>
+                          {(() => {
+                            const docActs = repActs.filter(a => a.activity_type === "doctor");
+                            const pharmActs = repActs.filter(a => a.activity_type === "pharmacy");
+                            return (
+                              <p className="text-[11px] font-poppins-bold text-gray-400 uppercase tracking-widest">
+                                {docActs.length} HCP visit{docActs.length !== 1 ? "s" : ""}
+                                {pharmActs.length > 0 && ` · ${pharmActs.length} pharmacy visit${pharmActs.length !== 1 ? "s" : ""}`}
+                              </p>
+                            );
+                          })()}
                           {repActs.map((act) => (
                             <div key={act.id} className="bg-white rounded-xl border border-gray-100 px-3.5 py-2.5 flex items-start gap-3">
-                              <TbActivityHeartbeat className={`w-4 h-4 mt-0.5 flex-shrink-0 ${act.visit_type === "NCA" ? "text-amber-500" : act.visit_type === "UNPLANNED" ? "text-sky-500" : "text-[#16a34a]"}`} />
+                              {act.activity_type === "pharmacy"
+                                ? <TbPill className="w-4 h-4 mt-0.5 flex-shrink-0 text-violet-500" />
+                                : <TbActivityHeartbeat className={`w-4 h-4 mt-0.5 flex-shrink-0 ${act.visit_type === "NCA" ? "text-amber-500" : act.visit_type === "UNPLANNED" ? "text-sky-500" : "text-[#16a34a]"}`} />
+                              }
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{act.doctor?.doctor_name ?? "Unknown HCP"}</p>
-                                  <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full border ${VTYPE[act.visit_type] ?? ""}`}>{act.visit_type}</span>
-                                  {act.gps_anomaly_flag && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">GPS flag</span>}
+                                  {act.activity_type === "pharmacy" ? (
+                                    <>
+                                      <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{act.pharmacy?.pharmacy_name ?? "Unknown Pharmacy"}</p>
+                                      <span className="text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full border bg-violet-50 text-violet-700 border-violet-200">Pharmacy</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{act.doctor?.doctor_name ?? "Unknown HCP"}</p>
+                                      {act.visit_type && <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full border ${VTYPE[act.visit_type ?? ""] ?? ""}`}>{act.visit_type}</span>}
+                                      {act.gps_anomaly_flag && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">GPS flag</span>}
+                                    </>
+                                  )}
                                 </div>
-                                {act.doctor && <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.doctor.location, act.doctor.town].filter(Boolean).join(" - ") || "-"}</p>}
+                                {act.activity_type === "pharmacy" && act.pharmacy && (
+                                  <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.pharmacy.location, act.pharmacy.town].filter(Boolean).join(" - ") || "-"}</p>
+                                )}
+                                {act.activity_type === "doctor" && act.doctor && (
+                                  <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.doctor.location, act.doctor.town].filter(Boolean).join(" - ") || "-"}</p>
+                                )}
                                 {act.visit_type === "NCA" && act.nca_reason && <p className="text-xs text-amber-700 mt-0.5">Reason: {act.nca_reason}</p>}
-                                {act.focused_product && <p className="text-xs font-poppins text-[#16a34a] mt-0.5">{act.focused_product.product_name}{act.samples_given > 0 ? ` - ${act.samples_given} samples` : ""}</p>}
+                                {act.focused_product && <p className="text-xs font-poppins text-[#16a34a] mt-0.5">{act.focused_product.product_name}{(act.samples_given ?? 0) > 0 ? ` · ${act.samples_given ?? 0} samples` : ""}</p>}
                               </div>
                             </div>
                           ))}
