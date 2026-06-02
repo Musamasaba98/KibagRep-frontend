@@ -55,12 +55,14 @@ interface TeamPerf {
 interface Activity {
   id: string;
   date: string;
+  activity_type?: "doctor" | "pharmacy";
   samples_given: number;
   gps_anomaly?: boolean;
   nca_reason?: string | null;
   outcome?: string | null;
   user: { id: string; firstname: string; lastname: string; role: string };
-  doctor: { id: string; doctor_name: string; speciality?: string[]; location?: string; town: string; gps_lat?: number; gps_lng?: number };
+  doctor?: { id: string; doctor_name: string; speciality?: string[]; location?: string; town: string; gps_lat?: number; gps_lng?: number } | null;
+  pharmacy?: { id: string; pharmacy_name: string; location?: string; town?: string } | null;
   focused_product: { id: string; product_name: string } | null;
   products_detailed?: { id: string; product_name: string }[];
 }
@@ -549,14 +551,22 @@ const Dashboard = () => {
                                   <span className="px-3 py-3 text-gray-400 font-mono">{idx + 1}</span>
                                   <span className="px-2 py-3 text-gray-500 font-mono">{format(new Date(a.date), "HH:mm")}</span>
                                   <div className="px-3 py-3 min-w-0">
-                                    <p className="font-semibold text-[#1a1a1a] truncate">{a.doctor.doctor_name}</p>
-                                    {(a.doctor.speciality ?? []).length > 0 && (
-                                      <p className="text-[10px] text-gray-400 truncate">{(a.doctor.speciality ?? []).join(", ")}</p>
+                                    <p className="font-semibold text-[#1a1a1a] truncate">
+                                      {a.activity_type === "pharmacy"
+                                        ? (a.pharmacy?.pharmacy_name ?? "Pharmacy")
+                                        : (a.doctor?.doctor_name ?? "Unknown HCP")}
+                                    </p>
+                                    {a.activity_type !== "pharmacy" && (a.doctor?.speciality ?? []).length > 0 && (
+                                      <p className="text-[10px] text-gray-400 truncate">{(a.doctor?.speciality ?? []).join(", ")}</p>
                                     )}
                                   </div>
                                   <div className="px-3 py-3 min-w-0">
-                                    <p className="text-gray-600 truncate">{a.doctor.location ?? "—"}</p>
-                                    <p className="text-[10px] text-gray-400 truncate">{a.doctor.town}</p>
+                                    <p className="text-gray-600 truncate">
+                                      {a.activity_type === "pharmacy" ? (a.pharmacy?.location ?? "—") : (a.doctor?.location ?? "—")}
+                                    </p>
+                                    <p className="text-[10px] text-gray-400 truncate">
+                                      {a.activity_type === "pharmacy" ? a.pharmacy?.town : a.doctor?.town}
+                                    </p>
                                   </div>
                                   <div className="px-3 py-3 min-w-0">
                                     {allProducts.length > 0 ? (
@@ -962,8 +972,8 @@ const Dashboard = () => {
                       {a.user.firstname} {a.user.lastname}
                     </span>
                     <span className="text-gray-300 text-xs">→</span>
-                    <span className="text-sm text-gray-600">{a.doctor.doctor_name}</span>
-                    <span className="text-xs text-gray-400">{a.doctor.town}</span>
+                    <span className="text-sm text-gray-600">{a.doctor?.doctor_name ?? a.pharmacy?.pharmacy_name ?? "—"}</span>
+                    <span className="text-xs text-gray-400">{a.doctor?.town ?? a.pharmacy?.town}</span>
                   </div>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {format(new Date(a.date), "dd MMM yyyy, HH:mm")}
@@ -1006,7 +1016,7 @@ const Dashboard = () => {
                       {a.user.firstname} {a.user.lastname}
                     </span>
                     <span className="text-gray-300 text-xs">→</span>
-                    <span className="text-sm text-gray-600">{a.doctor.doctor_name}</span>
+                    <span className="text-sm text-gray-600">{a.doctor?.doctor_name ?? a.pharmacy?.pharmacy_name ?? "—"}</span>
                   </div>
                   {a.nca_reason && (
                     <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-2.5 py-1.5 mt-1.5 border border-amber-100">
@@ -1042,7 +1052,7 @@ const Dashboard = () => {
                       {act.user.firstname} {act.user.lastname}
                     </span>
                     <span className="text-gray-300 text-xs">→</span>
-                    <span className="text-sm text-gray-600 font-poppins truncate">{act.doctor.doctor_name}</span>
+                    <span className="text-sm text-gray-600 font-poppins truncate">{act.doctor?.doctor_name ?? act.pharmacy?.pharmacy_name ?? "—"}</span>
                     {act.gps_anomaly && (
                       <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-poppins-bold bg-red-100 text-red-600">
                         GPS
@@ -1050,7 +1060,7 @@ const Dashboard = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <span className="font-poppins">{act.doctor.town}</span>
+                    <span className="font-poppins">{act.doctor?.town ?? act.pharmacy?.town}</span>
                     {act.focused_product && (
                       <><span>·</span><span className="text-[#16a34a] font-poppins-semibold">{act.focused_product.product_name}</span></>
                     )}
