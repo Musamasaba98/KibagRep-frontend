@@ -252,6 +252,13 @@ export const createFieldEventApi = (data: unknown) => api.post('/field-events', 
 export const updateFieldEventApi = (id: string, data: unknown) => api.put(`/field-events/${id}`, data);
 export const deleteFieldEventApi = (id: string) => api.delete(`/field-events/${id}`);
 
+// ─── Report Download ──────────────────────────────────────────────────────────
+export const downloadReportApi = (month: number, year: number, userId?: string) =>
+  api.get('/report/generate-report', {
+    params: { month, year, ...(userId ? { user_id: userId } : {}) },
+    responseType: 'blob',
+  });
+
 // ─── Stock Placement Targets ──────────────────────────────────────────────────
 export const getPlacementTargetsApi = (month?: number, year?: number) =>
   api.get('/placement', { params: { month, year } });

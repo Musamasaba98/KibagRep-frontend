@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { FiFileText, FiCheckCircle, FiXCircle, FiClock, FiSend, FiUsers } from "react-icons/fi";
-import { getTodayReportApi, submitDailyReportApi, getMyReportsApi, getCompanyObserversApi } from "../../../services/api";
+import { FiFileText, FiCheckCircle, FiXCircle, FiClock, FiSend, FiUsers, FiDownload } from "react-icons/fi";
+import { getTodayReportApi, submitDailyReportApi, getMyReportsApi, getCompanyObserversApi, downloadReportApi } from "../../../services/api";
 
 interface DailyReport {
   id: string;
@@ -51,6 +51,26 @@ const Reports = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [dlMonth, setDlMonth] = useState(() => new Date().getMonth() + 1);
+  const [dlYear,  setDlYear]  = useState(() => new Date().getFullYear());
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const res = await downloadReportApi(dlMonth, dlYear);
+      const url = URL.createObjectURL(new Blob([res.data]));
+      const a   = document.createElement("a");
+      a.href    = url;
+      a.download = `Report_${dlMonth}_${dlYear}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // silently fail — server may return error blob
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -108,8 +128,57 @@ const Reports = () => {
 
   const canSubmit = today && (today.status === "DRAFT" || today.status === "REJECTED");
 
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const thisYear = new Date().getFullYear();
+  const years = [thisYear - 1, thisYear];
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
+
+      {/* Download monthly report */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+          <FiDownload className="w-4 h-4 text-[#16a34a]" />
+          <h2 className="font-poppins-bold text-gray-800 text-base">Download Monthly Report</h2>
+        </div>
+        <div className="px-5 py-4 flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-poppins-semibold text-gray-500">Month</label>
+            <select
+              value={dlMonth}
+              onChange={(e) => setDlMonth(Number(e.target.value))}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-poppins outline-none focus:border-[#16a34a] bg-white"
+            >
+              {MONTHS.map((m, i) => (
+                <option key={i + 1} value={i + 1}>{m}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-poppins-semibold text-gray-500">Year</label>
+            <select
+              value={dlYear}
+              onChange={(e) => setDlYear(Number(e.target.value))}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-poppins outline-none focus:border-[#16a34a] bg-white"
+            >
+              {years.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-poppins-semibold px-4 py-2 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            style={{ transition: "background-color 0.15s" }}
+          >
+            <FiDownload className="w-4 h-4" />
+            {downloading ? "Generating…" : "Download Excel"}
+          </button>
+          <p className="text-xs font-poppins text-gray-400 w-full">
+            Generates the Veeram-style daily report with all visits, samples, and pharmacy coverage for the selected month.
+          </p>
+        </div>
+      </div>
+
       {/* Today's report */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
