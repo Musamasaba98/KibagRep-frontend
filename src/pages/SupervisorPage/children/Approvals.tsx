@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { LuClipboardCheck, LuCheck, LuChevronDown, LuChevronUp, LuCalendarDays } from "react-icons/lu";
-import { FiCheckCircle, FiXCircle } from "react-icons/fi";
+import { FiCheckCircle, FiXCircle, FiEye } from "react-icons/fi";
 import { TbStethoscope } from "react-icons/tb";
+import ReportPreviewSlideOver from "../components/ReportPreviewSlideOver";
 import {
   getPendingReportsApi, approveReportApi, rejectReportApi,
   getPendingCyclesApi, approveCycleApi, rejectCycleApi,
@@ -83,6 +84,7 @@ const Empty = ({ label }: { label: string }) => (
 // ─── Main component ───────────────────────────────────────────────────────────
 const Approvals = () => {
   const [tab, setTab] = useState<Tab>("reports");
+  const [previewReport, setPreviewReport] = useState<PendingReport | null>(null);
   const [reports, setReports]       = useState<PendingReport[]>([]);
   const [cycles, setCycles]         = useState<PendingCycle[]>([]);
   const [expenses, setExpenses]     = useState<PendingExpense[]>([]);
@@ -186,6 +188,24 @@ const Approvals = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+
+      {previewReport && (
+        <ReportPreviewSlideOver
+          reportId={previewReport.id}
+          repName={`${previewReport.user.firstname} ${previewReport.user.lastname}`}
+          reportDate={previewReport.report_date}
+          visitCount={previewReport.visits_count}
+          sampleCount={previewReport.samples_count}
+          status="SUBMITTED"
+          summary={previewReport.summary}
+          onClose={() => setPreviewReport(null)}
+          onActioned={() => {
+            setReports(p => p.filter(r => r.id !== previewReport.id));
+            setPreviewReport(null);
+          }}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-[#f0fdf4] flex items-center justify-center shrink-0">
@@ -243,6 +263,11 @@ const Approvals = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      <button onClick={() => setPreviewReport(r)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#16a34a] hover:border-[#16a34a]/30 focus-visible:outline-none"
+                        style={{ transition: "background-color 0.15s, color 0.15s" }}>
+                        <FiEye className="w-3.5 h-3.5" /> Preview
+                      </button>
                       <button onClick={() => approveReport(r.id)}
                         className="flex items-center font-poppins gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                         style={{ transition: "background-color 0.15s" }}>

@@ -10,11 +10,11 @@ import {
 } from "react-icons/lu";
 import { BsDroplet } from "react-icons/bs";
 import { IoCalendarOutline, IoWarningOutline } from "react-icons/io5";
-import { FiCheckCircle, FiXCircle, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiCheckCircle, FiXCircle, FiChevronDown, FiChevronUp, FiEye } from "react-icons/fi";
 import { TbUserCheck, TbSend } from "react-icons/tb";
+import ReportPreviewSlideOver from "../components/ReportPreviewSlideOver";
 import {
   getCompanyFeedApi,
-  getDailyReportActivitiesApi,
   getPendingReportsApi,
   approveReportApi,
   rejectReportApi,
@@ -160,9 +160,7 @@ const Dashboard = () => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [expandedReport, setExpandedReport] = useState<string | null>(null);
-  const [reportActivities, setReportActivities] = useState<Record<string, Activity[]>>({});
-  const [loadingActivities, setLoadingActivities] = useState<Record<string, boolean>>({});
+  const [previewReport, setPreviewReport] = useState<PendingReport | null>(null);
   const [expandedCycle, setExpandedCycle] = useState<string | null>(null);
   const [actioningReport, setActioningReport] = useState<string | null>(null);
   const [actioningCycle, setActioningCycle] = useState<string | null>(null);
@@ -300,17 +298,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleToggleReport = (id: string) => {
-    if (expandedReport === id) { setExpandedReport(null); return; }
-    setExpandedReport(id);
-    if (!reportActivities[id]) {
-      setLoadingActivities((p) => ({ ...p, [id]: true }));
-      getDailyReportActivitiesApi(id)
-        .then((res) => setReportActivities((p) => ({ ...p, [id]: res.data?.data ?? [] })))
-        .catch(() => setReportActivities((p) => ({ ...p, [id]: [] })))
-        .finally(() => setLoadingActivities((p) => ({ ...p, [id]: false })));
-    }
-  };
 
   const handleForwardRec = async (id: string) => {
     setActioningRec(id);
@@ -386,6 +373,24 @@ const Dashboard = () => {
   return (
     <div className="w-full p-4 md:p-6 flex flex-col gap-6">
 
+      {/* ── Report preview slide-over ── */}
+      {previewReport && (
+        <ReportPreviewSlideOver
+          reportId={previewReport.id}
+          repName={`${previewReport.user.firstname} ${previewReport.user.lastname}`}
+          reportDate={previewReport.report_date}
+          visitCount={previewReport.visits_count}
+          sampleCount={previewReport.samples_count}
+          status={previewReport.status}
+          summary={previewReport.summary}
+          onClose={() => setPreviewReport(null)}
+          onActioned={() => {
+            setPendingReports(p => p.filter(r => r.id !== previewReport.id));
+            setPreviewReport(null);
+          }}
+        />
+      )}
+
       {/* ── Page header ── */}
       <div>
         <h1 className="font-poppins-extrabold text-[#1a1a1a] text-xl tracking-tight">Supervisor Dashboard</h1>
@@ -445,7 +450,6 @@ const Dashboard = () => {
           </div>
           <div className="flex flex-col divide-y divide-orange-50">
             {pendingReports.map((r) => {
-              const isExpanded = expandedReport === r.id;
               const isActioning = actioningReport === r.id;
               return (
                 <div key={r.id}>
@@ -488,132 +492,15 @@ const Dashboard = () => {
                         </>
                       )}
                       <button
-                        onClick={() => handleToggleReport(r.id)}
-                        className="text-gray-400 hover:text-gray-600 focus-visible:outline-none"
-                        style={{ transition: "color 0.15s" }}
+                        onClick={() => setPreviewReport(r)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#16a34a] hover:border-[#16a34a]/30 focus-visible:outline-none"
+                        style={{ transition: "background-color 0.15s, color 0.15s" }}
+                        title="Preview report"
                       >
-                        {isExpanded ? <FiChevronUp className="w-4 h-4" /> : <FiChevronDown className="w-4 h-4" />}
+                        <FiEye className="w-3.5 h-3.5" /> Preview
                       </button>
                     </div>
                   </div>
-                  {isExpanded && (
-                    <div className="px-6 pb-5 pt-1">
-                      {loadingActivities[r.id] ? (
-                        <div className="flex items-center gap-2 py-4 text-xs text-gray-400">
-                          <div className="w-4 h-4 rounded-full border-2 border-gray-200 border-t-orange-400 animate-spin" />
-                          Loading visit log…
-                        </div>
-                      ) : (
-                        <div className="rounded-xl border border-orange-100 overflow-hidden">
-                          {/* Report header */}
-                          <div className="bg-orange-50 px-4 py-2.5 flex items-center justify-between gap-4 border-b border-orange-100">
-                            <div className="flex items-center gap-3 text-xs text-gray-600">
-                              <span className="font-black text-[#1a1a1a]">{r.user.firstname} {r.user.lastname}</span>
-                              <span className="text-gray-300">·</span>
-                              <span>{format(new Date(r.report_date), "EEEE, d MMMM yyyy")}</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-xs shrink-0">
-                              <span className="font-bold text-[#1a1a1a]">{r.visits_count} visit{r.visits_count !== 1 ? "s" : ""}</span>
-                              {r.samples_count > 0 && (
-                                <span className="font-bold text-[#16a34a]">{r.samples_count} samples</span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Column headers */}
-                          <div className="grid text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-orange-50 px-0"
-                            style={{ gridTemplateColumns: "2.5rem 3.5rem 1fr 1fr 1fr 5rem" }}>
-                            <span className="px-3 py-2">#</span>
-                            <span className="px-2 py-2">Time</span>
-                            <span className="px-3 py-2">Doctor</span>
-                            <span className="px-3 py-2">Facility · Town</span>
-                            <span className="px-3 py-2">Products Detailed</span>
-                            <span className="px-3 py-2 text-right">Smp · Flags</span>
-                          </div>
-
-                          {/* Visit rows */}
-                          {(reportActivities[r.id] ?? []).length === 0 ? (
-                            <div className="px-4 py-4 text-xs text-gray-400">No visit activities found for this date.</div>
-                          ) : (
-                            (reportActivities[r.id] ?? []).map((a, idx) => {
-                              const allProducts = [
-                                ...(a.products_detailed ?? []).map(p => p.product_name),
-                              ];
-                              if (a.focused_product && !allProducts.includes(a.focused_product.product_name)) {
-                                allProducts.unshift(a.focused_product.product_name);
-                              }
-                              return (
-                                <div
-                                  key={a.id}
-                                  className={`grid border-b border-orange-50 last:border-0 text-xs ${a.gps_anomaly ? "bg-red-50/40" : idx % 2 === 0 ? "bg-white" : "bg-orange-50/20"}`}
-                                  style={{ gridTemplateColumns: "2.5rem 3.5rem 1fr 1fr 1fr 5rem" }}
-                                >
-                                  <span className="px-3 py-3 text-gray-400 font-mono">{idx + 1}</span>
-                                  <span className="px-2 py-3 text-gray-500 font-mono">{format(new Date(a.date), "HH:mm")}</span>
-                                  <div className="px-3 py-3 min-w-0">
-                                    <p className="font-semibold text-[#1a1a1a] truncate">
-                                      {a.activity_type === "pharmacy"
-                                        ? (a.pharmacy?.pharmacy_name ?? "Pharmacy")
-                                        : (a.doctor?.doctor_name ?? "Unknown HCP")}
-                                    </p>
-                                    {a.activity_type !== "pharmacy" && (a.doctor?.speciality ?? []).length > 0 && (
-                                      <p className="text-[10px] text-gray-400 truncate">{(a.doctor?.speciality ?? []).join(", ")}</p>
-                                    )}
-                                  </div>
-                                  <div className="px-3 py-3 min-w-0">
-                                    <p className="text-gray-600 truncate">
-                                      {a.activity_type === "pharmacy" ? (a.pharmacy?.location ?? "—") : (a.doctor?.location ?? "—")}
-                                    </p>
-                                    <p className="text-[10px] text-gray-400 truncate">
-                                      {a.activity_type === "pharmacy" ? a.pharmacy?.town : a.doctor?.town}
-                                    </p>
-                                  </div>
-                                  <div className="px-3 py-3 min-w-0">
-                                    {allProducts.length > 0 ? (
-                                      <div className="flex flex-wrap gap-1">
-                                        {allProducts.map((p, i) => (
-                                          <span key={i} className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[#f0fdf4] text-[#16a34a] border border-[#dcfce7]">{p}</span>
-                                        ))}
-                                      </div>
-                                    ) : <span className="text-gray-300">—</span>}
-                                    {a.nca_reason && (
-                                      <p className="text-[10px] text-amber-600 mt-0.5">NCA: {a.nca_reason}</p>
-                                    )}
-                                  </div>
-                                  <div className="px-3 py-3 flex flex-col items-end gap-1">
-                                    {a.samples_given > 0 && (
-                                      <span className="font-bold text-[#16a34a]">{a.samples_given}</span>
-                                    )}
-                                    {a.gps_anomaly && (
-                                      <span className="flex items-center gap-0.5 text-[10px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded-full">
-                                        <MdOutlineGpsOff className="w-3 h-3" /> GPS
-                                      </span>
-                                    )}
-                                    {a.outcome && (
-                                      <span className="text-[10px] text-gray-400 text-right">{a.outcome}</span>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })
-                          )}
-
-                          {/* Footer totals */}
-                          {(reportActivities[r.id] ?? []).length > 0 && (
-                            <div className="flex items-center justify-between px-4 py-2.5 bg-orange-50 border-t border-orange-100 text-xs">
-                              <span className="text-gray-500">
-                                {r.summary && <span className="italic text-gray-400">"{r.summary}"</span>}
-                              </span>
-                              <div className="flex items-center gap-4">
-                                <span className="text-gray-500">Total visits: <span className="font-bold text-[#1a1a1a]">{r.visits_count}</span></span>
-                                <span className="text-gray-500">Total samples: <span className="font-bold text-[#16a34a]">{r.samples_count}</span></span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               );
             })}

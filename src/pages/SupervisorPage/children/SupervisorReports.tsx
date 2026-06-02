@@ -43,7 +43,7 @@ interface Activity {
   samples_given?: number; nca_reason?: string | null; gps_anomaly_flag?: boolean;
   doctor?: { doctor_name: string; location?: string; town?: string } | null;
   pharmacy?: { pharmacy_name: string; location?: string; town?: string } | null;
-  focused_product?: { product_name: string } | null;
+  focused_product?: { id: string; product_name: string } | null;
   date: string;
 }
 type StatusTab = "SUBMITTED" | "APPROVED" | "REJECTED" | "ALL";
@@ -239,54 +239,70 @@ const SupervisorReports = () => {
                                 </div>
                                 {/* Column headers */}
                                 <div className="grid bg-[#f0fdf4] border-b border-[#dcfce7] px-3 py-1.5"
-                                  style={{ gridTemplateColumns: "1.5rem 1fr 5rem 4rem 4rem" }}>
+                                  style={{ gridTemplateColumns: "1.5rem 1fr 1fr 3.5rem 4rem" }}>
                                   <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase">#</span>
                                   <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase">Doctor / Facility</span>
-                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase text-center">Focus Product</span>
-                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase text-center">Samples</span>
+                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase">Products Detailed</span>
+                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase text-center">Smp</span>
                                   <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase text-center">Type</span>
                                 </div>
                                 {/* Doctor rows */}
-                                {docActs.map((act, idx) => (
-                                  <div key={act.id}
-                                    className={`grid items-center px-3 py-2 border-b border-gray-50 last:border-0 ${idx % 2 === 1 ? "bg-[#f9fefb]" : "bg-white"}`}
-                                    style={{ gridTemplateColumns: "1.5rem 1fr 5rem 4rem 4rem" }}>
-                                    <span className="text-[10px] font-poppins-bold text-gray-400">{idx + 1}</span>
-                                    <div className="min-w-0">
-                                      <p className={`text-xs font-poppins-semibold truncate ${act.nca_reason ? "text-amber-700 italic" : "text-[#1a1a1a]"}`}>
-                                        {act.nca_reason ? `NCA — ` : ""}{act.doctor?.doctor_name ?? "Unknown"}
-                                      </p>
-                                      <p className="text-[10px] font-poppins text-gray-400 truncate">
-                                        {[act.doctor?.location, act.doctor?.town].filter(Boolean).join(" · ") || "—"}
-                                      </p>
-                                      {act.nca_reason && (
-                                        <p className="text-[10px] font-poppins text-amber-600 truncate">↳ {act.nca_reason}</p>
-                                      )}
-                                      {act.gps_anomaly_flag && (
-                                        <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 mt-0.5">GPS flag</span>
-                                      )}
+                                {docActs.map((act, idx) => {
+                                  const detailedProducts: { id: string; product_name: string }[] =
+                                    (act as any).products_detailed ?? [];
+                                  const focusedId = act.focused_product?.id;
+                                  // Build unified product list: focused first (starred), then others
+                                  const allProds = [
+                                    ...(act.focused_product ? [{ ...act.focused_product, isFocus: true }] : []),
+                                    ...detailedProducts
+                                      .filter(p => p.id !== focusedId)
+                                      .map(p => ({ ...p, isFocus: false })),
+                                  ];
+                                  return (
+                                    <div key={act.id}
+                                      className={`grid items-start px-3 py-2 border-b border-gray-50 last:border-0 ${idx % 2 === 1 ? "bg-[#f9fefb]" : "bg-white"}`}
+                                      style={{ gridTemplateColumns: "1.5rem 1fr 1fr 3.5rem 4rem" }}>
+                                      <span className="text-[10px] font-poppins-bold text-gray-400 pt-0.5">{idx + 1}</span>
+                                      <div className="min-w-0">
+                                        <p className={`text-xs font-poppins-semibold truncate ${act.nca_reason ? "text-amber-700 italic" : "text-[#1a1a1a]"}`}>
+                                          {act.nca_reason ? "NCA — " : ""}{act.doctor?.doctor_name ?? "Unknown"}
+                                        </p>
+                                        <p className="text-[10px] font-poppins text-gray-400 truncate">
+                                          {[act.doctor?.location, act.doctor?.town].filter(Boolean).join(" · ") || "—"}
+                                        </p>
+                                        {act.nca_reason && (
+                                          <p className="text-[10px] font-poppins text-amber-600 truncate">↳ {act.nca_reason}</p>
+                                        )}
+                                        {act.gps_anomaly_flag && (
+                                          <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 mt-0.5">GPS flag</span>
+                                        )}
+                                      </div>
+                                      <div className="flex flex-wrap gap-1 pt-0.5">
+                                        {allProds.length > 0 ? allProds.map(p => (
+                                          <span key={p.id} className={`text-[9px] font-poppins-semibold px-1.5 py-0.5 rounded-md border ${
+                                            p.isFocus
+                                              ? "bg-[#dcfce7] text-[#16a34a] border-[#86efac]"
+                                              : "bg-gray-50 text-gray-500 border-gray-200"
+                                          }`}>
+                                            {p.isFocus ? "★ " : ""}{p.product_name}
+                                          </span>
+                                        )) : <span className="text-gray-300 text-[10px]">—</span>}
+                                      </div>
+                                      <div className="text-center pt-0.5">
+                                        {(act.samples_given ?? 0) > 0
+                                          ? <span className="text-xs font-poppins-bold text-blue-700">{act.samples_given}</span>
+                                          : <span className="text-gray-300 text-[10px]">—</span>}
+                                      </div>
+                                      <div className="text-center pt-0.5">
+                                        {act.visit_type && (
+                                          <span className={`text-[9px] font-poppins-bold px-1.5 py-0.5 rounded-full border ${VTYPE[act.visit_type ?? ""] ?? ""}`}>
+                                            {act.visit_type}
+                                          </span>
+                                        )}
+                                      </div>
                                     </div>
-                                    <div className="text-center min-w-0 px-1">
-                                      {act.focused_product ? (
-                                        <span className="text-[9px] font-poppins-semibold text-[#16a34a] bg-[#dcfce7] px-1.5 py-0.5 rounded-md truncate block">
-                                          {act.focused_product.product_name}
-                                        </span>
-                                      ) : <span className="text-gray-300 text-[10px]">—</span>}
-                                    </div>
-                                    <div className="text-center">
-                                      {(act.samples_given ?? 0) > 0
-                                        ? <span className="text-xs font-poppins-bold text-blue-700">{act.samples_given}</span>
-                                        : <span className="text-gray-300 text-[10px]">—</span>}
-                                    </div>
-                                    <div className="text-center">
-                                      {act.visit_type && (
-                                        <span className={`text-[9px] font-poppins-bold px-1.5 py-0.5 rounded-full border ${VTYPE[act.visit_type ?? ""] ?? ""}`}>
-                                          {act.visit_type}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             )}
 
