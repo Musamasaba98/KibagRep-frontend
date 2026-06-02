@@ -17,6 +17,8 @@ import {
   getCompanyFeedApi,
   getPendingExpenseClaimsApi,
   getCompanyReportsApi,
+  getTerritoriesApi,
+  getCompanyTeamsApi,
 } from "../../../services/api";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -112,6 +114,8 @@ const Dashboard = () => {
   const [counts, setCounts] = useState<MasterCounts>({ doctors: null, pharmacies: null, products: null, facilities: null });
   const [kpis, setKpis] = useState<PeopleKpis>({ totalReps: null, activeToday: null, pendingExpenses: null, compliancePct: null });
   const [repCompliance, setRepCompliance] = useState<RepCompliance[]>([]);
+  const [territoriesCount, setTerritoriesCount] = useState<number | null>(null);
+  const [teamsCount, setTeamsCount] = useState<number | null>(null);
 
   // ── Load master data counts ──────────────────────────────────────────────
   useEffect(() => {
@@ -120,13 +124,17 @@ const Dashboard = () => {
       getPharmaciesApi(),
       getCompanyProductsApi(),
       getFacilitiesApi(),
-    ]).then(([doc, pha, pro, fac]) => {
+      getTerritoriesApi(),
+      getCompanyTeamsApi(),
+    ]).then(([doc, pha, pro, fac, terr, teams]) => {
       setCounts({
         doctors:    doc.status === "fulfilled" ? (doc.value.data?.data ?? doc.value.data ?? []).length : null,
         pharmacies: pha.status === "fulfilled" ? (pha.value.data?.data ?? pha.value.data ?? []).length : null,
         products:   pro.status === "fulfilled" ? (pro.value.data?.data ?? pro.value.data ?? []).length : null,
         facilities: fac.status === "fulfilled" ? (fac.value.data?.data ?? fac.value.data ?? []).length : null,
       });
+      if (terr.status === "fulfilled") setTerritoriesCount((terr.value.data?.data ?? []).length);
+      if (teams.status === "fulfilled") setTeamsCount((teams.value.data?.data ?? []).length);
     }).finally(() => setMasterLoading(false));
   }, []);
 
@@ -206,12 +214,24 @@ const Dashboard = () => {
     }).finally(() => setCompLoading(false));
   }, []);
 
+  // ── Getting Started checklist (shown until all steps complete) ───────────
+  const setupSteps = [
+    { label: "Add your products",     done: (counts.products ?? 0) > 0,      to: "/admin/products",    hint: "Define the SKUs your reps will detail" },
+    { label: "Create territories",    done: (territoriesCount ?? 0) > 0,      to: "/admin/territories", hint: "Define town and upcountry coverage zones" },
+    { label: "Add team members",      done: (kpis.totalReps ?? 0) > 0,        to: "/admin/users",       hint: "Register reps, supervisors, and managers" },
+    { label: "Create teams",          done: (teamsCount ?? 0) > 0,            to: "/admin/teams",       hint: "Group reps by product line or region" },
+    { label: "Add doctors to HCP list", done: (counts.doctors ?? 0) > 0,      to: "/admin/doctors",     hint: "Build the master doctor list for your reps" },
+  ];
+  const setupDone = setupSteps.every(s => s.done);
+  const setupComplete = !masterLoading && !peopleLoading && setupDone;
+  const setupLoading = masterLoading || peopleLoading;
+
   // ── Quick actions config ─────────────────────────────────────────────────
   const quickActions = [
-    { icon: RiFileExcel2Line, iconColor: "text-[#16a34a]", iconBg: "bg-green-50", title: "Upload Doctor List", desc: "Bulk import from Excel", to: "/sales-admin/upload" },
-    { icon: FaFileArrowUp, iconColor: "text-teal-600", iconBg: "bg-teal-50", title: "Upload Pharmacy List", desc: "Bulk import from Excel", to: "/sales-admin/upload" },
-    { icon: FaCirclePlus, iconColor: "text-purple-600", iconBg: "bg-purple-50", title: "Add Team Member", desc: "Register a new user", to: "/sales-admin/users" },
-    { icon: FaFileLines, iconColor: "text-amber-600", iconBg: "bg-amber-50", title: "Generate Report", desc: "Export filtered field data", to: "/sales-admin/reports" },
+    { icon: RiFileExcel2Line, iconColor: "text-[#16a34a]", iconBg: "bg-green-50", title: "Upload Doctor List", desc: "Bulk import from Excel", to: "/admin/upload" },
+    { icon: FaFileArrowUp, iconColor: "text-teal-600", iconBg: "bg-teal-50", title: "Upload Pharmacy List", desc: "Bulk import from Excel", to: "/admin/upload" },
+    { icon: FaCirclePlus, iconColor: "text-purple-600", iconBg: "bg-purple-50", title: "Add Team Member", desc: "Register a new user", to: "/admin/users" },
+    { icon: FaFileLines, iconColor: "text-amber-600", iconBg: "bg-amber-50", title: "Generate Report", desc: "Export filtered field data", to: "/admin/reports" },
   ];
 
   // ── People KPI card config ───────────────────────────────────────────────
@@ -230,6 +250,49 @@ const Dashboard = () => {
 
   return (
     <div className="w-full p-6 flex flex-col gap-6">
+
+      {/* ── Getting Started ── */}
+      {!setupComplete && (
+        <div className="bg-white rounded-2xl border border-[#dcfce7] shadow-[0_2px_12px_0_rgba(22,163,74,0.08)] overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+            <div>
+              <h2 className="font-black text-[#1a2530] text-base">Company Setup</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Complete these steps before sharing access with your field team</p>
+            </div>
+            {!setupLoading && (
+              <span className="text-xs font-bold text-[#16a34a] bg-[#f0fdf4] px-2.5 py-1 rounded-full border border-[#dcfce7]">
+                {setupSteps.filter(s => s.done).length} / {setupSteps.length} done
+              </span>
+            )}
+          </div>
+          <div className="divide-y divide-gray-50">
+            {setupSteps.map((step) => (
+              <div key={step.label} className="flex items-center gap-4 px-5 py-3.5">
+                {setupLoading ? (
+                  <div className="w-5 h-5 rounded-full bg-gray-100 animate-pulse shrink-0" />
+                ) : step.done ? (
+                  <LuCircleCheck className="w-5 h-5 text-[#16a34a] shrink-0" />
+                ) : (
+                  <LuTriangleAlert className="w-5 h-5 text-amber-400 shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-semibold ${step.done ? "text-gray-400 line-through" : "text-[#1a2530]"}`}>{step.label}</p>
+                  {!step.done && <p className="text-xs text-gray-400 mt-0.5">{step.hint}</p>}
+                </div>
+                {!step.done && !setupLoading && (
+                  <button
+                    onClick={() => navigate(step.to)}
+                    className="shrink-0 text-xs font-bold text-[#16a34a] hover:text-[#15803d] px-3 py-1.5 rounded-lg border border-[#dcfce7] hover:bg-[#f0fdf4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
+                    style={{ transition: "background-color 0.15s" }}
+                  >
+                    Set up →
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Section 1: Master Data Summary ── */}
       <div>

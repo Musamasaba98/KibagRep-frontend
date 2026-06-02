@@ -66,7 +66,7 @@ const Cycles = () => {
   const handleReject = async (id: string, note: string) => {
     setActioning(id);
     try {
-      await rejectCycleApi(id, note);
+      await rejectCycleApi(id, { note });
       setCycles((p) => p.filter((c) => c.id !== id));
     } catch {
       setError("Failed to reject cycle.");

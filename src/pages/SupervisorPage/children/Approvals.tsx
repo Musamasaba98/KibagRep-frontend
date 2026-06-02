@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { LuClipboardCheck, LuCheck, LuX, LuChevronDown, LuChevronUp } from "react-icons/lu";
+import { LuClipboardCheck, LuCheck, LuChevronDown, LuChevronUp, LuCalendarDays } from "react-icons/lu";
 import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 import { TbStethoscope } from "react-icons/tb";
 import {
@@ -7,6 +7,7 @@ import {
   getPendingCyclesApi, approveCycleApi, rejectCycleApi,
   getPendingExpenseClaimsApi, approveExpenseClaimApi, rejectExpenseClaimApi,
   getRecommendationsApi, approveRecommendationApi, rejectRecommendationApi, forwardRecommendationApi,
+  getPendingTourPlansApi, approveTourPlanApi, rejectTourPlanApi,
 } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -31,8 +32,19 @@ interface Recommendation {
   recommended_by: { id: string; firstname: string; lastname: string };
   unplanned_visit_count: number;
 }
+interface TourPlanEntry {
+  id: string; day_number: number; entry_type: string; slot: string;
+  doctor?: { doctor_name: string; town?: string; cadre?: string } | null;
+  pharmacy?: { pharmacy_name: string; town?: string } | null;
+  notes?: string | null;
+}
+interface PendingTourPlan {
+  id: string; month: number; year: number; created_at: string;
+  user: { id: string; firstname: string; lastname: string };
+  entries: TourPlanEntry[];
+}
 
-type Tab = "reports" | "cycles" | "expenses" | "recs";
+type Tab = "reports" | "cycles" | "expenses" | "recs" | "tourplans";
 const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const FMT = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
@@ -60,7 +72,7 @@ const RejectInput = ({ onConfirm }: { onConfirm: (note: string) => void }) => {
   );
 };
 
-// ─── Section wrapper ──────────────────────────────────────────────────────────
+// ─── Empty state ──────────────────────────────────────────────────────────────
 const Empty = ({ label }: { label: string }) => (
   <div className="py-16 flex flex-col items-center gap-2 text-gray-400">
     <LuClipboardCheck className="w-10 h-10 opacity-30" />
@@ -71,13 +83,15 @@ const Empty = ({ label }: { label: string }) => (
 // ─── Main component ───────────────────────────────────────────────────────────
 const Approvals = () => {
   const [tab, setTab] = useState<Tab>("reports");
-  const [reports, setReports] = useState<PendingReport[]>([]);
-  const [cycles, setCycles] = useState<PendingCycle[]>([]);
-  const [expenses, setExpenses] = useState<PendingExpense[]>([]);
-  const [recs, setRecs] = useState<Recommendation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [actioning, setActioning] = useState<string | null>(null);
-  const [expandedCycle, setExpandedCycle] = useState<string | null>(null);
+  const [reports, setReports]       = useState<PendingReport[]>([]);
+  const [cycles, setCycles]         = useState<PendingCycle[]>([]);
+  const [expenses, setExpenses]     = useState<PendingExpense[]>([]);
+  const [recs, setRecs]             = useState<Recommendation[]>([]);
+  const [tourplans, setTourplans]   = useState<PendingTourPlan[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [actioning, setActioning]   = useState<string | null>(null);
+  const [expandedCycle, setExpandedCycle]     = useState<string | null>(null);
+  const [expandedTourPlan, setExpandedTourPlan] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -86,11 +100,13 @@ const Approvals = () => {
       getPendingCyclesApi().then(r => setCycles(r.data?.data ?? [])).catch(() => {}),
       getPendingExpenseClaimsApi().then(r => setExpenses(r.data?.data ?? [])).catch(() => {}),
       getRecommendationsApi().then(r => setRecs((r.data?.data ?? []).filter((x: Recommendation) => x.status === "PENDING"))).catch(() => {}),
+      getPendingTourPlansApi().then(r => setTourplans(r.data?.data ?? [])).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
+  // ─── Handlers ────────────────────────────────────────────────────────────────
   const approveReport = async (id: string) => {
     setActioning(id);
     await approveReportApi(id).catch(() => {});
@@ -99,7 +115,7 @@ const Approvals = () => {
   };
   const rejectReport = async (id: string, note: string) => {
     setActioning(id);
-    await rejectReportApi(id, { reason: note }).catch(() => {});
+    await rejectReportApi(id, { note }).catch(() => {});
     setReports(p => p.filter(r => r.id !== id));
     setActioning(null);
   };
@@ -109,9 +125,9 @@ const Approvals = () => {
     setCycles(p => p.filter(c => c.id !== id));
     setActioning(null);
   };
-  const rejectCycle = async (id: string, reason: string) => {
+  const rejectCycle = async (id: string, note: string) => {
     setActioning(id);
-    await rejectCycleApi(id, { reason }).catch(() => {});
+    await rejectCycleApi(id, { note }).catch(() => {});
     setCycles(p => p.filter(c => c.id !== id));
     setActioning(null);
   };
@@ -121,9 +137,9 @@ const Approvals = () => {
     setExpenses(p => p.filter(e => e.id !== id));
     setActioning(null);
   };
-  const rejectExpense = async (id: string, reason: string) => {
+  const rejectExpense = async (id: string, note: string) => {
     setActioning(id);
-    await rejectExpenseClaimApi(id, { reason }).catch(() => {});
+    await rejectExpenseClaimApi(id, { note }).catch(() => {});
     setExpenses(p => p.filter(e => e.id !== id));
     setActioning(null);
   };
@@ -145,15 +161,28 @@ const Approvals = () => {
     setRecs(p => p.filter(r => r.id !== id));
     setActioning(null);
   };
+  const approveTourPlan = async (id: string) => {
+    setActioning(id);
+    await approveTourPlanApi(id).catch(() => {});
+    setTourplans(p => p.filter(t => t.id !== id));
+    setActioning(null);
+  };
+  const rejectTourPlan = async (id: string, note: string) => {
+    setActioning(id);
+    await rejectTourPlanApi(id, { review_note: note }).catch(() => {});
+    setTourplans(p => p.filter(t => t.id !== id));
+    setActioning(null);
+  };
 
   const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: "reports",  label: "Daily Reports", count: reports.length },
-    { key: "cycles",   label: "Call Cycles",   count: cycles.length },
-    { key: "expenses", label: "Expenses",       count: expenses.length },
-    { key: "recs",     label: "HCP Recs",       count: recs.length },
+    { key: "reports",   label: "Daily Reports", count: reports.length },
+    { key: "cycles",    label: "Call Cycles",   count: cycles.length },
+    { key: "tourplans", label: "Tour Plans",    count: tourplans.length },
+    { key: "expenses",  label: "Expenses",      count: expenses.length },
+    { key: "recs",      label: "HCP Recs",      count: recs.length },
   ];
 
-  const totalPending = reports.length + cycles.length + expenses.length + recs.length;
+  const totalPending = reports.length + cycles.length + expenses.length + recs.length + tourplans.length;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -170,17 +199,17 @@ const Approvals = () => {
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6">
+      {/* Tab bar — scrollable on mobile */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6 overflow-x-auto">
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-poppins-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
-              tab === t.key ? "bg-white text-[#16a34a] shadow-[0_1px_4px_rgba(0,0,0,0.08)]" : "text-gray-500 hover:text-[#1a1a1a]"
+            className={`flex-shrink-0 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-[11px] sm:text-sm font-poppins-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+              tab === t.key ? "bg-white text-[#16a34a]" : "text-gray-500 hover:text-[#1a1a1a]"
             }`}
             style={{ transition: "background-color 0.15s, color 0.15s" }}>
             {t.label}
             {t.count > 0 && (
-              <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full ${
+              <span className={`text-[10px] font-poppins px-1.5 py-0.5 rounded-full ${
                 tab === t.key ? "bg-[#16a34a] text-white" : "bg-orange-500 text-white"}`}>
                 {t.count}
               </span>
@@ -196,7 +225,7 @@ const Approvals = () => {
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
 
-          {/* ── REPORTS ── */}
+          {/* ── DAILY REPORTS ── */}
           {tab === "reports" && (
             reports.length === 0 ? <Empty label="No pending daily reports" /> :
             <div className="divide-y divide-gray-50">
@@ -227,7 +256,7 @@ const Approvals = () => {
             </div>
           )}
 
-          {/* ── CYCLES ── */}
+          {/* ── CALL CYCLES ── */}
           {tab === "cycles" && (
             cycles.length === 0 ? <Empty label="No pending call cycles" /> :
             <div className="divide-y divide-gray-50">
@@ -240,7 +269,7 @@ const Approvals = () => {
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{c.user.firstname} {c.user.lastname}</p>
-                        <p className="text-xs font-poppins text-gray-500">{MONTHS[c.month]} {c.year} · {c.items.length} doctors</p>
+                        <p className="text-xs font-poppins text-gray-500">{MONTHS[c.month]} {c.year} · {(c.items ?? []).length} doctors</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
@@ -260,7 +289,7 @@ const Approvals = () => {
                   </div>
                   {expandedCycle === c.id && (
                     <div className="mt-3 ml-12 grid grid-cols-1 gap-1">
-                      {c.items.map(item => (
+                      {(c.items ?? []).map(item => (
                         <div key={item.id} className="flex items-center justify-between text-xs py-1 px-2.5 bg-gray-50 rounded-lg">
                           <span className="font-poppins-semibold text-[#1a1a1a]">{item.doctor.doctor_name}</span>
                           <span className="text-gray-400 font-poppins">{item.doctor.town} · Tier {item.tier} · {item.frequency}×/mo</span>
@@ -270,6 +299,95 @@ const Approvals = () => {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* ── TOUR PLANS ── */}
+          {tab === "tourplans" && (
+            tourplans.length === 0 ? <Empty label="No pending tour plans" /> :
+            <div className="divide-y divide-gray-50">
+              {tourplans.map(tp => {
+                const isExpanded = expandedTourPlan === tp.id;
+                const isActioning = actioning === tp.id;
+                const uniqueDays = new Set((tp.entries ?? []).map(e => e.day_number)).size;
+                const clinicianCount = (tp.entries ?? []).filter(e => e.entry_type === "CLINICIAN").length;
+                const pharmacyCount  = (tp.entries ?? []).filter(e => e.entry_type === "PHARMACY").length;
+
+                return (
+                  <div key={tp.id} className={`p-4 ${isActioning ? "opacity-50 pointer-events-none" : ""}`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center shrink-0 text-xs font-bold text-sky-700">
+                          {tp.user.firstname[0]}{tp.user.lastname[0]}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{tp.user.firstname} {tp.user.lastname}</p>
+                          <p className="text-xs font-poppins text-gray-500">
+                            {MONTHS[tp.month]} {tp.year}
+                            {uniqueDays > 0 && ` · ${uniqueDays} day${uniqueDays !== 1 ? "s" : ""} planned`}
+                            {clinicianCount > 0 && ` · ${clinicianCount} HCP${clinicianCount !== 1 ? "s" : ""}`}
+                            {pharmacyCount > 0 && ` · ${pharmacyCount} pharmacies`}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => setExpandedTourPlan(isExpanded ? null : tp.id)}
+                          className="flex items-center font-poppins gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50"
+                          style={{ transition: "background-color 0.15s" }}>
+                          {isExpanded ? <LuChevronUp className="w-3.5 h-3.5" /> : <LuChevronDown className="w-3.5 h-3.5" />}
+                          View
+                        </button>
+                        <button onClick={() => approveTourPlan(tp.id)}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                          style={{ transition: "background-color 0.15s" }}>
+                          <LuCheck className="w-3.5 h-3.5" /> Approve
+                        </button>
+                        <RejectInput onConfirm={note => rejectTourPlan(tp.id, note)} />
+                      </div>
+                    </div>
+
+                    {isExpanded && (tp.entries ?? []).length > 0 && (
+                      <div className="mt-3 ml-12 space-y-1">
+                        {/* Group by day */}
+                        {Array.from(new Set((tp.entries ?? []).map(e => e.day_number))).sort((a, b) => a - b).map(day => {
+                          const dayEntries = (tp.entries ?? []).filter(e => e.day_number === day);
+                          return (
+                            <div key={day}>
+                              <p className="text-[10px] font-poppins-bold text-gray-400 uppercase tracking-wider mb-1">
+                                Day {day}
+                              </p>
+                              {dayEntries.map(entry => (
+                                <div key={entry.id} className="flex items-center gap-2 text-xs py-1 px-2.5 bg-gray-50 rounded-lg mb-0.5">
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                                    entry.slot === "MORNING" ? "bg-amber-50 text-amber-600" : "bg-sky-50 text-sky-600"
+                                  }`}>{entry.slot}</span>
+                                  <span className="font-poppins-semibold text-[#1a1a1a] truncate">
+                                    {entry.doctor?.doctor_name ?? entry.pharmacy?.pharmacy_name ?? "—"}
+                                  </span>
+                                  <span className="text-gray-400 font-poppins truncate">
+                                    {entry.doctor?.town ?? entry.pharmacy?.town ?? ""}
+                                  </span>
+                                  {entry.notes && (
+                                    <span className="text-gray-300 font-poppins truncate italic">{entry.notes}</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {isExpanded && (tp.entries ?? []).length === 0 && (
+                      <div className="mt-3 ml-12 flex items-center gap-2 text-xs text-gray-400">
+                        <LuCalendarDays className="w-3.5 h-3.5" />
+                        No entries added to this plan yet
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 

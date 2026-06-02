@@ -7,6 +7,7 @@ const uiSlice = createSlice({
     showUnplanned: false,
     showNca: false,
     showSidebarPanel: true,
+    showSupervisorSidebar:false
   },
   reducers: {
     toggleShowMenu: (state) => {
@@ -21,10 +22,17 @@ const uiSlice = createSlice({
     toggleSidebarPanel: (state) => {
       state.showSidebarPanel = !state.showSidebarPanel;
     },
+    toggleSupervisorPannel:(state)=>{
+       if(state.showSupervisorSidebar){
+          state.showSupervisorSidebar = false
+       }else{
+        state.showSupervisorSidebar = true
+       }
+    }
   },
 });
 
-export const { toggleShowMenu, toggleShowUnplanned, toggleShowNca, toggleSidebarPanel } =
+export const { toggleShowMenu,toggleSupervisorPannel ,toggleShowUnplanned, toggleShowNca, toggleSidebarPanel } =
   uiSlice.actions;
 
 export default uiSlice;

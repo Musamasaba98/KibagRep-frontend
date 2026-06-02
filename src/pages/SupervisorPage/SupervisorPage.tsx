@@ -5,13 +5,13 @@ import Sidebar from "./components/Sidebar";
 
 const SupervisorPage = () => {
   return (
-    <div className="flex h-screen overflow-y-auto bg-gray-50">
-      <Sidebar />
+    <div className="flex overflow-y-auto h-screen pb-11 bg-gray-50">
+      <Sidebar/>
       {/* main content container */}
-      <div className="w-full ml-64">
+      <div className="w-full sm:ml-64">
         <Navbar />
         {/* page content */}
-        <div className="w-full">
+        <div className="w-full pb-16">
           <Outlet />
         </div>
       </div>

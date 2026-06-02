@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import { useSelector } from "react-redux";
-import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap, BiBookOpen } from "react-icons/bi";
+import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap, BiBookOpen, BiCoffee } from "react-icons/bi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { BsCardChecklist } from "react-icons/bs";
 import { FaUserMd, FaHistory } from "react-icons/fa";
@@ -430,6 +430,7 @@ interface DayRowProps {
   onNca?: (doctorId: string, doctorName: string) => void;
   onViewProfile?: (doctorId: string, doctorName: string) => void;
   onLogPharmacy?: (pharmacyId: string, pharmacyName: string, location?: string) => void;
+  visitedPharmacyIds: string[];
 }
 
 interface DayActivity {
@@ -681,6 +682,7 @@ const Sidebar = () => {
 
           <div className="w-8 h-px bg-gray-100 my-1.5" />
 
+          <NavItem to="/rep-page/events" icon={BiCoffee} label="Field Events" />
           <NavItem to="/rep-page/near-me" icon={FaLocationCrosshairs} label="Near Me" />
           <NavItem to="/rep-page/library" icon={BiBookOpen} label="Library" />
         </div>

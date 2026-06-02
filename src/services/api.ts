@@ -1,8 +1,17 @@
 import axios from "axios";
 import { store } from "../store/store";
 import { logout } from "../store/authSlice";
+import { enqueue } from "../lib/offlineQueue";
 
-const BASE_URL = "http://localhost:4000/api";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000/api";
+
+// Endpoints that should be queued when offline (write operations by reps)
+const QUEUEABLE = [
+  "/field-doctor/add-doctor-activity",
+  "/field-doctor/add-nca",
+  "/field-pharmacy",
+  "/daily-report",
+];
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -18,14 +27,45 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auto-logout on 401
+// Auto-logout on 401; auto-queue on network failure for rep write endpoints
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
       store.dispatch(logout());
       window.location.href = "/login";
+      return Promise.reject(error);
     }
+
+    // No response = network error while offline
+    if (!error.response && !navigator.onLine) {
+      const cfg = error.config;
+      const method: "POST" | "PUT" = cfg.method?.toUpperCase() === "PUT" ? "PUT" : "POST";
+      // cfg.url is the relative path from the axios instance (e.g. "/field-doctor/add-doctor-activity")
+      const urlPath = cfg.url ?? "";
+      const shouldQueue = QUEUEABLE.some((p) => urlPath.includes(p));
+
+      if (shouldQueue && cfg.data) {
+        await enqueue({
+          type: urlPath.includes("nca") ? "nca"
+              : urlPath.includes("pharmacy") ? "pharmacy_visit"
+              : urlPath.includes("daily-report") ? "daily_report"
+              : "doctor_visit",
+          payload: typeof cfg.data === "string" ? JSON.parse(cfg.data) : cfg.data,
+          endpoint: `${BASE_URL}${urlPath}`,
+          method,
+        });
+        // Return a synthetic queued response so the UI doesn't crash
+        return Promise.resolve({
+          data: { success: true, queued: true, message: "Saved offline — will sync when back online" },
+          status: 202,
+          statusText: "Queued",
+          headers: {},
+          config: cfg,
+        });
+      }
+    }
+
     return Promise.reject(error);
   }
 );
@@ -61,7 +101,12 @@ export const adminResetPasswordApi = (userId: string, new_password: string) => a
 // ─── Teams ───────────────────────────────────────────────────────────────────
 export const getTeamsApi = () => api.get("/team");
 export const getCompanyTeamsApi = () => api.get("/team/company");
-export const createCompanyTeamApi = (team_name: string) => api.post("/team/company", { team_name });
+export const createCompanyTeamApi = (team_name: string, supervisor_id?: string) => api.post("/team/company", { team_name, supervisor_id });
+export const renameCompanyTeamApi = (id: string, team_name: string) => api.put(`/team/company/${id}`, { team_name });
+export const updateCompanyTeamApi = (id: string, data: { team_name?: string; supervisor_id?: string | null }) => api.put(`/team/company/${id}`, data);
+export const deleteCompanyTeamApi = (id: string) => api.delete(`/team/company/${id}`);
+export const addTeamProductApi = (teamId: string, product_id: string) => api.post(`/team/company/${teamId}/products`, { product_id });
+export const removeTeamProductApi = (teamId: string, productId: string) => api.delete(`/team/company/${teamId}/products/${productId}`);
 
 // ─── Company Management (Super Admin) ────────────────────────────────────────
 export const getAllCompaniesApi = () => api.get("/company");
@@ -75,8 +120,12 @@ export const getMyCompanyApi = () => api.get("/company/mine");
 export const getCompanyUsersApi = () => api.get("/user/company/users");
 export const addUserToCompanyApi = (data: { userId: string; role: string; company_id?: string; team_id?: string }) =>
   api.post("/user/company/add", data);
-export const updateCompanyUserApi = (userId: string, data: { role?: string; team_id?: string | null }) =>
-  api.put(`/user/company/${userId}`, data);
+export const updateCompanyUserApi = (userId: string, data: {
+  role?: string;
+  team_id?: string | null;
+  territory_id?: string | null;
+  secondary_territory_id?: string | null;
+}) => api.put(`/user/company/${userId}`, data);
 export const removeUserFromCompanyApi = (userId: string) => api.delete(`/user/company/${userId}`);
 export const getUnassignedUsersApi = () => api.get("/user/unassigned");
 export const getAllPlatformUsersApi = (params?: { q?: string; role?: string; company_id?: string }) =>
@@ -94,14 +143,14 @@ export const signupApi = (data: unknown) => api.post('/user/addUser', data);
 // ─── Doctor Activities ────────────────────────────────────────────────────────
 export const addDoctorActivityApi = (data: unknown) => api.post('/field-doctor/add-doctor-activity', data);
 export const addNcaApi = (data: unknown) => api.post('/field-doctor/add-nca', data);
-export const getActivityHistoryApi = (params?: string) => api.get(`/field-doctor/history${params ? '?' + params : ''}`);
+export const getActivityHistoryApi = (params?: { days?: number; limit?: number; page?: number }) => api.get('/field-doctor/history', { params });
 export const getTodayActivitiesApi = () => api.get('/field-doctor/today');
-export const getCompanyFeedApi = (params?: { days?: number }) =>
+export const getCompanyFeedApi = (params?: { days?: number; limit?: number }) =>
   api.get('/field-doctor/company-feed', { params });
 
 // ─── Pharmacy Activities ──────────────────────────────────────────────────────
 export const addPharmacyActivityApi = (data: unknown) => api.post('/field-pharmacy/add-pharmacy-activity', data);
-export const getPharmacyActivityHistoryApi = () => api.get('/field-pharmacy/history');
+export const getPharmacyActivityHistoryApi = (params?: { days?: number; limit?: number }) => api.get('/field-pharmacy/history', { params });
 
 // ─── Products (alias) ─────────────────────────────────────────────────────────
 export const getProductsApi = () => api.get('/product/company');
@@ -114,15 +163,15 @@ export const getCurrentCycleApi = () => api.get('/cycle/current');
 export const submitCycleApi = (id: string) => api.post(`/cycle/${id}/submit`);
 export const getPendingCyclesApi = () => api.get('/cycle/pending');
 export const approveCycleApi = (id: string) => api.put(`/cycle/${id}/approve`);
-export const rejectCycleApi = (id: string, data: { reason: string }) => api.put(`/cycle/${id}/reject`, data);
+export const rejectCycleApi = (id: string, data: { note: string }) => api.put(`/cycle/${id}/reject`, data);
 
 // ─── Daily Reports ────────────────────────────────────────────────────────────
 export const getTodayReportApi = () => api.get('/daily-report/today');
 export const submitDailyReportApi = (data: unknown) => api.post('/daily-report/submit', data);
-export const getMyReportsApi = () => api.get('/daily-report/my');
+export const getMyReportsApi = (days?: number) => api.get('/daily-report/my', { params: days ? { days } : undefined });
 export const getPendingReportsApi = () => api.get('/daily-report/pending');
 export const approveReportApi = (id: string) => api.put(`/daily-report/${id}/approve`);
-export const rejectReportApi = (id: string, data: { reason: string }) => api.put(`/daily-report/${id}/reject`, data);
+export const rejectReportApi = (id: string, data?: { note?: string }) => api.put(`/daily-report/${id}/reject`, data);
 export const getCompanyObserversApi = () => api.get('/daily-report/observers');
 export const getCompanyReportsApi = (params?: string) => api.get(`/daily-report/company${params ? '?' + params : ''}`);
 export const getJfwReportsApi = () => api.get('/daily-report/jfw');
@@ -145,9 +194,9 @@ export const addCycleItemApi = (data: { doctor_id: string; tier?: string; freque
 export const removeCycleItemApi = (itemId: string) => api.delete(`/cycle/current/items/${itemId}`);
 export const recommendDoctorApi = (doctorId: string) => api.post('/doctor/recommend', { doctor_id: doctorId });
 export const reportNewClinicianApi = (data: { clinician_name: string; clinician_cadre?: string; clinician_location?: string; clinician_contact?: string }) => api.post('/doctor/report-clinician', data);
-export const getRecommendationsApi = () => api.get('/doctor/recommendations');
+export const getRecommendationsApi = (status?: string) => api.get('/doctor/recommendations', { params: status ? { status } : undefined });
 export const approveRecommendationApi = (id: string) => api.put(`/doctor/recommendations/${id}/approve`);
-export const rejectRecommendationApi = (id: string, note?: string) => api.put(`/doctor/recommendations/${id}/reject`, { note });
+export const rejectRecommendationApi = (id: string, note?: string) => api.put(`/doctor/recommendations/${id}/reject`, { review_note: note });
 export const forwardRecommendationApi = (id: string) => api.put(`/doctor/recommendations/${id}/forward`);
 
 // ─── Facilities ───────────────────────────────────────────────────────────────
@@ -161,7 +210,7 @@ export const removeExpenseItemApi = (claimId: string, itemId: string) => api.del
 export const submitExpenseClaimApi = (claimId: string) => api.put(`/expense/${claimId}/submit`);
 export const getPendingExpenseClaimsApi = () => api.get('/expense/pending');
 export const approveExpenseClaimApi = (claimId: string) => api.put(`/expense/${claimId}/approve`);
-export const rejectExpenseClaimApi = (claimId: string, data: { reason: string }) => api.put(`/expense/${claimId}/reject`, data);
+export const rejectExpenseClaimApi = (claimId: string, data: { note: string }) => api.put(`/expense/${claimId}/reject`, data);
 
 // ─── Territories ──────────────────────────────────────────────────────────────
 export const getTerritoriesApi = () => api.get('/territory');
@@ -178,6 +227,9 @@ export const updateTourPlanDayApi = (id: string, data: unknown) => api.put(`/tou
 export const addTourPlanEntryApi = (id: string, data: unknown) => api.post(`/tour-plan/${id}/entries`, data);
 export const removeTourPlanEntryApi = (id: string, entryId: string) => api.delete(`/tour-plan/${id}/entries/${entryId}`);
 export const submitTourPlanApi = (id: string) => api.put(`/tour-plan/${id}/submit`);
+export const getPendingTourPlansApi = () => api.get('/tour-plan/pending');
+export const approveTourPlanApi = (id: string) => api.put(`/tour-plan/${id}/approve`);
+export const rejectTourPlanApi = (id: string, data: { review_note: string }) => api.put(`/tour-plan/${id}/reject`, data);
 
 // ─── Daily Report (extended) ──────────────────────────────────────────────────
 export const getDailyReportActivitiesApi = (id: string) => api.get(`/daily-report/${id}/activities`);
@@ -190,3 +242,16 @@ export const getTeamMapApi = (days?: number) => api.get(`/supervisor/team-map${d
 export const getMyTargetApi = () => api.get('/target/my');
 export const getTeamTargetsApi = (month?: number, year?: number) => api.get(`/target/team${month && year ? '?month=' + month + '&year=' + year : ''}`);
 export const setTargetApi = (data: unknown) => api.post('/target', data);
+
+// ─── Field Events (OPD Breakfasts, CME, Launches, etc.) ──────────────────────
+export const getFieldEventsApi = (params?: { status?: string; type?: string; month?: number; year?: number }) =>
+  api.get('/field-events', { params });
+export const createFieldEventApi = (data: unknown) => api.post('/field-events', data);
+export const updateFieldEventApi = (id: string, data: unknown) => api.put(`/field-events/${id}`, data);
+export const deleteFieldEventApi = (id: string) => api.delete(`/field-events/${id}`);
+
+// ─── Stock Placement Targets ──────────────────────────────────────────────────
+export const getPlacementTargetsApi = (month?: number, year?: number) =>
+  api.get('/placement', { params: { month, year } });
+export const upsertPlacementTargetApi = (data: unknown) => api.post('/placement', data);
+export const bulkUpsertPlacementTargetsApi = (data: unknown) => api.post('/placement/bulk', data);

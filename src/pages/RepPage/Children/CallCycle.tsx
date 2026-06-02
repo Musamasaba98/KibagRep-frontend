@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getCurrentCycleApi, submitCycleApi } from "../../../services/api";
 import { format } from "date-fns";
 import { FiCheck, FiLock, FiAlertCircle, FiSend } from "react-icons/fi";
@@ -15,10 +16,19 @@ interface Doctor {
 interface CycleItem {
   id: string;
   tier: "A" | "B" | "C";
+  list_type?: DoctorListType;
   frequency: number;
   visits_done: number;
   doctor: Doctor;
 }
+
+type DoctorListType = "KBL" | "BL" | "FOCUS";
+
+const LIST_TYPE_CONFIG: Record<DoctorListType, { label: string; cls: string }> = {
+  KBL:   { label: "KBL",   cls: "bg-amber-50 text-amber-700 border-amber-300" },
+  BL:    { label: "BL",    cls: "bg-gray-100 text-gray-500 border-gray-200"   },
+  FOCUS: { label: "FOCUS", cls: "bg-violet-50 text-violet-700 border-violet-300" },
+};
 
 interface Cycle {
   id: string;
@@ -26,6 +36,7 @@ interface Cycle {
   year: number;
   status: "DRAFT" | "SUBMITTED" | "APPROVED" | "LOCKED";
   approved_at: string | null;
+  review_note: string | null;
   items: CycleItem[];
 }
 
@@ -45,6 +56,7 @@ const STATUS_CONFIG = {
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const CallCycle = () => {
+  const navigate = useNavigate();
   const [cycle, setCycle] = useState<Cycle | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -147,6 +159,17 @@ const CallCycle = () => {
         </div>
       </div>
 
+      {/* ── Rejection notice (shown when supervisor sent the cycle back) ── */}
+      {cycle.status === "DRAFT" && cycle.review_note && (
+        <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <FiAlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-poppins-semibold text-red-700">Cycle returned by supervisor</p>
+            <p className="text-xs font-poppins text-red-600 mt-0.5">{cycle.review_note}</p>
+          </div>
+        </div>
+      )}
+
       {/* ── Progress bar ── */}
       <div className="bg-white rounded-xl p-4 border-solid border border-gray-200">
         <div className="flex items-center justify-between mb-2">
@@ -173,8 +196,15 @@ const CallCycle = () => {
       {cycle.items.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-200 rounded-xl">
           <BsClipboardCheck className="w-8 h-8 text-gray-300 mb-2" />
-          <p className="text-gray-500 font-poppinssemibold">No doctors added to this cycle yet</p>
-          <p className="text-gray-400 font-poppins text-sm mt-1">Go to the Doctors page and add doctors to your call cycle</p>
+          <p className="text-gray-500 font-poppins-semibold text-sm">No doctors in this cycle yet</p>
+          <p className="text-gray-400 font-poppins text-xs mt-1 mb-4">Add doctors from your company list to build your monthly call cycle</p>
+          <button
+            onClick={() => navigate("/rep-page/doctors")}
+            className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-poppins-semibold px-4 py-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a] focus-visible:ring-offset-2"
+            style={{ transition: "background-color 0.15s" }}
+          >
+            Go to Doctors →
+          </button>
         </div>
       ) : (
         (["A", "B", "C"] as const).map((tier) => {
@@ -209,7 +239,17 @@ const CallCycle = () => {
 
                       {/* Doctor info */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-poppins-semibold text-gray-800 truncate text-sm">{item.doctor.doctor_name}</p>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="font-poppins-semibold text-gray-800 truncate text-sm">{item.doctor.doctor_name}</p>
+                          {item.list_type && (() => {
+                            const ltCfg = LIST_TYPE_CONFIG[item.list_type];
+                            return (
+                              <span className={`shrink-0 text-[10px] font-poppins-bold px-1.5 py-0.5 rounded border ${ltCfg.cls}`}>
+                                {ltCfg.label}
+                              </span>
+                            );
+                          })()}
+                        </div>
                         <p className="text-xs font-poppins text-gray-400 truncate">{item.doctor.town}</p>
                       </div>
 

@@ -11,7 +11,7 @@ const ROLE_HOME: Record<string, string> = {
   Supervisor:  "/supervisor",
   Manager:     "/manager",
   COUNTRY_MGR: "/country",
-  SALES_ADMIN: "/sales-admin",
+  SALES_ADMIN: "/admin",
   SUPER_ADMIN: "/super-admin",
   USER:        "/rep-page",
 };
@@ -30,7 +30,7 @@ const Login = () => {
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(""); setLoading(true);
     try {

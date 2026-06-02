@@ -6,7 +6,7 @@ interface AuthUser {
   firstname: string;
   lastname: string;
   email: string;
-  role: "SUPER_ADMIN" | "COUNTRY_MGR" | "Manager" | "Supervisor" | "MedicalRep" | "USER";
+  role: "SUPER_ADMIN" | "SALES_ADMIN" | "COUNTRY_MGR" | "Manager" | "Supervisor" | "MedicalRep" | "USER";
   contact?: string;
   gender?: string;
 }

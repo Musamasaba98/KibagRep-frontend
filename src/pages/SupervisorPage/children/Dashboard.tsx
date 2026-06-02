@@ -217,7 +217,7 @@ const Dashboard = () => {
   const handleRejectReport = async (id: string, note: string) => {
     setActioningReport(id);
     try {
-      await rejectReportApi(id, note as any);
+      await rejectReportApi(id, { note });
       setPendingReports((p) => p.filter((r) => r.id !== id));
     } catch {
       setError("Failed to reject report.");
@@ -241,7 +241,7 @@ const Dashboard = () => {
   const handleRejectCycle = async (id: string, note: string) => {
     setActioningCycle(id);
     try {
-      await rejectCycleApi(id, note);
+      await rejectCycleApi(id, { note });
       setPendingCycles((p) => p.filter((c) => c.id !== id));
     } catch {
       setError("Failed to reject cycle.");
@@ -265,7 +265,7 @@ const Dashboard = () => {
   const handleRejectExpense = async (id: string, note: string) => {
     setActioningExpense(id);
     try {
-      await rejectExpenseClaimApi(id, note);
+      await rejectExpenseClaimApi(id, { note });
       setPendingExpenses((p) => p.filter((e) => e.id !== id));
     } catch {
       setError("Failed to reject expense claim.");
@@ -382,7 +382,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="w-full p-6 flex flex-col gap-6">
+    <div className="w-full p-4 md:p-6 flex flex-col gap-6">
 
       {/* ── Page header ── */}
       <div>
@@ -428,7 +428,7 @@ const Dashboard = () => {
 
       {/* ── Approval Queue ── */}
 
-      {/* Block 1 — Pending Daily Reports */}
+      {/* -----------------------Block 1 — Pending Daily Reports ---------------------------*/}
       {!loading && pendingReports.length > 0 && (
         <div className="bg-white rounded-2xl border border-orange-100 shadow-sm shadow-orange-50">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-orange-100">
@@ -449,7 +449,8 @@ const Dashboard = () => {
                 <div key={r.id}>
                   <div className="flex items-center justify-between gap-4 px-6 py-4">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
+                      {/* the rep name short forms */}
+                      <div className="w-9 hidden sm:flex h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] items-center justify-center flex-shrink-0">
                         <span className="text-[#16a34a] font-black text-sm">
                           {r.user.firstname.charAt(0)}{r.user.lastname.charAt(0)}
                         </span>
@@ -519,7 +520,7 @@ const Dashboard = () => {
 
                           {/* Column headers */}
                           <div className="grid text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-orange-50 px-0"
-                               style={{ gridTemplateColumns: "2.5rem 3.5rem 1fr 1fr 1fr 5rem" }}>
+                            style={{ gridTemplateColumns: "2.5rem 3.5rem 1fr 1fr 1fr 5rem" }}>
                             <span className="px-3 py-2">#</span>
                             <span className="px-2 py-2">Time</span>
                             <span className="px-3 py-2">Doctor</span>
@@ -682,7 +683,7 @@ const Dashboard = () => {
                     <div className="mt-3 rounded-xl border border-violet-100 overflow-hidden">
                       {/* Column headers */}
                       <div className="grid text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-violet-50 border-b border-violet-100"
-                           style={{ gridTemplateColumns: "2rem 1fr 1fr 3.5rem 3.5rem" }}>
+                        style={{ gridTemplateColumns: "2rem 1fr 1fr 3.5rem 3.5rem" }}>
                         <span className="px-3 font-poppins py-2">#</span>
                         <span className="px-3 font-poppins py-2">Doctor</span>
                         <span className="px-3 font-poppins py-2">Facility · Town</span>
@@ -691,10 +692,10 @@ const Dashboard = () => {
                       </div>
 
                       {/* Rows sorted by tier A → B → C */}
-                      {["A","B","C"].flatMap((tier) =>
-                        c.items
+                      {["A", "B", "C"].flatMap((tier) =>
+                        (c.items ?? [])
                           .filter((item) => item.tier === tier)
-                          .map((item, idx, arr) => (
+                          .map((item) => (
                             <div
                               key={item.id}
                               className={`grid items-center border-b border-violet-50 last:border-0 text-xs
@@ -702,7 +703,7 @@ const Dashboard = () => {
                               style={{ gridTemplateColumns: "2rem 1fr 1fr 3.5rem 3.5rem" }}
                             >
                               <span className="px-3 py-3 text-gray-300 font-poppins text-[10px]">
-                                {c.items.filter(i => i.tier === tier).indexOf(item) + 1}
+                                {(c.items ?? []).filter(i => i.tier === tier).indexOf(item) + 1}
                               </span>
                               <div className="px-3 py-3 min-w-0">
                                 <p className="font-poppins-semibold text-[#1a1a1a] truncate">{item.doctor.doctor_name}</p>
@@ -715,11 +716,10 @@ const Dashboard = () => {
                                 {item.doctor.town && <p className="text-[10px] text-gray-400 truncate">{item.doctor.town}</p>}
                               </div>
                               <div className="px-3 py-3 flex justify-center">
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-poppins-black ${
-                                  tier === "A" ? "bg-green-100 text-[#16a34a]"
-                                  : tier === "B" ? "bg-amber-100 text-amber-600"
-                                  : "bg-gray-100 text-gray-500"
-                                }`}>{tier}</span>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-poppins-black ${tier === "A" ? "bg-green-100 text-[#16a34a]"
+                                    : tier === "B" ? "bg-amber-100 text-amber-600"
+                                      : "bg-gray-100 text-gray-500"
+                                  }`}>{tier}</span>
                               </div>
                               <span className="px-3 py-3 text-center font-poppins-bold text-gray-600">{item.frequency}×</span>
                             </div>
@@ -729,11 +729,11 @@ const Dashboard = () => {
                       {/* Tier summary footer */}
                       <div className="flex items-center gap-4 px-4 py-2.5 bg-violet-50 border-t border-violet-100 text-[11px]">
                         <span className="text-gray-400">Totals:</span>
-                        {tierCounts.A > 0 && <span className="font-poppins-bold text-[#16a34a]">Tier A: {tierCounts.A} × {c.items.filter(i=>i.tier==="A").reduce((s,i)=>s+i.frequency,0)} visits</span>}
-                        {tierCounts.B > 0 && <span className="font-poppins-bold text-amber-500">Tier B: {tierCounts.B} × {c.items.filter(i=>i.tier==="B").reduce((s,i)=>s+i.frequency,0)} visits</span>}
-                        {tierCounts.C > 0 && <span className="font-poppins-bold text-gray-400">Tier C: {tierCounts.C} × {c.items.filter(i=>i.tier==="C").reduce((s,i)=>s+i.frequency,0)} visits</span>}
+                        {tierCounts.A > 0 && <span className="font-poppins-bold text-[#16a34a]">Tier A: {tierCounts.A} × {(c.items ?? []).filter(i => i.tier === "A").reduce((s, i) => s + i.frequency, 0)} visits</span>}
+                        {tierCounts.B > 0 && <span className="font-poppins-bold text-amber-500">Tier B: {tierCounts.B} × {(c.items ?? []).filter(i => i.tier === "B").reduce((s, i) => s + i.frequency, 0)} visits</span>}
+                        {tierCounts.C > 0 && <span className="font-poppins-bold text-gray-400">Tier C: {tierCounts.C} × {(c.items ?? []).filter(i => i.tier === "C").reduce((s, i) => s + i.frequency, 0)} visits</span>}
                         <span className="ml-auto text-gray-500 font-semibold">
-                          Total target: {c.items.reduce((s,i)=>s+i.frequency,0)} visits/month
+                          Total target: {(c.items ?? []).reduce((s, i) => s + i.frequency, 0)} visits/month
                         </span>
                       </div>
                     </div>
@@ -806,12 +806,12 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* ── Rep Performance Table ── */}
+      {/* -----------------------------------THE REP PERFORMANCE TABLE--------------------------------------------------------------- */}
       <div className="bg-white rounded-2xl border border-gray-100">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
             <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Rep Performance</h2>
-            <p className="text-xs font-poppins text-[#454545] mt-0.5">Cycle adherence, visit frequency &amp; field alerts — {new Date().toLocaleString("default", { month: "long", year: "numeric" })}</p>
+            <p className="text-xs sm:block hidden font-poppins text-[#454545] mt-0.5">Cycle adherence, visit frequency &amp; field alerts — {new Date().toLocaleString("default", { month: "long", year: "numeric" })}</p>
           </div>
           {!loading && teamPerf.length > 0 && (
             <span className="text-xs font-poppins-semibold text-[#16a34a] bg-[#f0fdf4] px-3 py-1 rounded-full border border-[#dcfce7]">
@@ -855,21 +855,21 @@ const Dashboard = () => {
                   const status = isInactive
                     ? { label: "Inactive", cls: "bg-red-50 text-red-600", icon: FaArrowTrendDown, iconCls: "text-red-500" }
                     : lowCycle
-                    ? { label: "Behind", cls: "bg-amber-50 text-amber-600", icon: FaArrowTrendDown, iconCls: "text-amber-500" }
-                    : { label: "On Track", cls: "bg-green-50 text-[#16a34a]", icon: FaArrowTrendUp, iconCls: "text-[#16a34a]" };
+                      ? { label: "Behind", cls: "bg-amber-50 text-amber-600", icon: FaArrowTrendDown, iconCls: "text-amber-500" }
+                      : { label: "On Track", cls: "bg-green-50 text-[#16a34a]", icon: FaArrowTrendUp, iconCls: "text-[#16a34a]" };
                   const StatusIcon = status.icon;
 
                   const lastSeenLabel = daysSince === null
                     ? "Never"
                     : daysSince === 0 ? "Today"
-                    : daysSince === 1 ? "Yesterday"
-                    : `${daysSince}d ago`;
+                      : daysSince === 1 ? "Yesterday"
+                        : `${daysSince}d ago`;
 
                   return (
                     <tr key={row.user.id} className={`hover:bg-gray-50/60 ${isInactive ? "bg-red-50/30" : ""}`} style={{ transition: "background-color 0.15s" }}>
                       <td className="px-6 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] hidden sm:flex items-center justify-center flex-shrink-0">
                             <span className="text-[#16a34a] font-poppins-extrabold text-xs">
                               {row.user.firstname.charAt(0)}{row.user.lastname.charAt(0)}
                             </span>
@@ -1137,9 +1137,8 @@ const Dashboard = () => {
               return (
                 <div key={rec.id} className="px-6 py-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between gap-x-6">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      isNewClinician ? "bg-amber-50 border border-amber-200" : "bg-[#f0fdf4] border border-[#dcfce7]"
-                    }`}>
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${isNewClinician ? "bg-amber-50 border border-amber-200" : "bg-[#f0fdf4] border border-[#dcfce7]"
+                      }`}>
                       <TbUserCheck className={`w-4 h-4 ${isNewClinician ? "text-amber-600" : "text-[#16a34a]"}`} />
                     </div>
                     <div className="min-w-0">

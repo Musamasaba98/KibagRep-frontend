@@ -105,7 +105,7 @@ const SupervisorReports = () => {
   const handleReject = async (id: string, reason: string) => {
     setActioning(id);
     try {
-      await rejectReportApi(id, { reason });
+      await rejectReportApi(id, { note: reason });
       setReports((p) => p.map((r) => r.id === id ? { ...r, status: "REJECTED" as const, review_note: reason } : r));
     } catch { setError("Failed to reject."); }
     finally { setActioning(null); }
@@ -144,7 +144,7 @@ const SupervisorReports = () => {
         <div className="flex border-b border-gray-100">
           {TABS.map(({ key, label }) => (
             <button key={key} onClick={() => { setTab(key); setExpanded(null); }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-sm font-poppins-semibold focus-visible:outline-none ${tab === key ? "text-[#16a34a] border-b-2 border-[#16a34a] bg-[#f0fdf4]/50" : "text-gray-400 hover:text-gray-600"}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 text-xs sm:text-sm font-poppins sm:font-poppins-semibold focus-visible:outline-none ${tab === key ? "text-[#16a34a] border-b-2 border-[#16a34a] bg-[#f0fdf4]/50" : "text-gray-400 hover:text-gray-600"}`}
               style={{ transition: "color 0.15s" }}>
               {label}
               {key === "SUBMITTED" && pendingCount > 0 && !loading && (
@@ -174,7 +174,7 @@ const SupervisorReports = () => {
               return (
                 <div key={rep.id}>
                   <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 hover:bg-gray-50/60 cursor-pointer" onClick={() => toggleExpand(rep.id)}>
-                    <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] hidden sm:flex items-center justify-center flex-shrink-0">
                       <span className="text-[#16a34a] font-poppins-bold text-xs">{INITIALS(rep)}</span>
                     </div>
                     <div className="flex-1 min-w-0">
