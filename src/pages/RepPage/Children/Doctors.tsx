@@ -265,6 +265,8 @@ function ReportClinicianModal({ onClose, onSuccess }: { onClose: () => void; onS
 // ─── Main component ───────────────────────────────────────────────────────────
 type Scope = "company" | "all";
 
+const PAGE_SIZE = 25;
+
 const Doctors = () => {
   const [searchParams] = useSearchParams();
   const [scope, setScope] = useState<Scope>("company");
@@ -272,6 +274,9 @@ const Doctors = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [cycleIds, setCycleIds] = useState<Set<string>>(new Set());
   const [adding, setAdding] = useState<Record<string, boolean>>({});
   const [recommending, setRecommending] = useState<Record<string, boolean>>({});
@@ -280,13 +285,19 @@ const Doctors = () => {
   const [profileDoctor, setProfileDoctor] = useState<Doctor | null>(null);
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const loadDoctors = useCallback((s: Scope) => {
+  const loadDoctors = useCallback((s: Scope, p: number, q: string) => {
     setLoading(true);
     setError("");
-    const fetch = s === "company" ? getCompanyDoctorListApi : getDoctorDirectoryApi;
-    Promise.all([fetch(), getCurrentCycleApi()])
+    const params = { page: p, limit: PAGE_SIZE, ...(q.trim() ? { q: q.trim() } : {}) };
+    Promise.all([
+      s === "company" ? getCompanyDoctorListApi(params) : getDoctorDirectoryApi(params),
+      getCurrentCycleApi(),
+    ])
       .then(([docRes, cycleRes]) => {
         const raw = docRes.data.data ?? [];
+        const meta = docRes.data.meta ?? {};
+        setTotalPages(meta.pages ?? 1);
+        setTotalCount(meta.total ?? raw.length);
         const normalized: Doctor[] =
           s === "company"
             ? raw.map((cd: any) => ({
@@ -317,9 +328,27 @@ const Doctors = () => {
       })
       .catch(() => setError("Failed to load doctors"))
       .finally(() => setLoading(false));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { loadDoctors(scope); }, [scope, loadDoctors]);
+  // Reset to page 1 when scope changes
+  useEffect(() => {
+    setPage(1);
+    loadDoctors(scope, 1, search);
+  }, [scope]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Debounce search — re-fetch from page 1
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      loadDoctors(scope, 1, search);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Page change
+  useEffect(() => {
+    loadDoctors(scope, page, search);
+  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Open profile modal when navigated with highlight=id from sidebar
   const highlightId = searchParams.get("highlight");
@@ -329,16 +358,8 @@ const Doctors = () => {
     if (doc) setProfileDoctor(doc);
   }, [highlightId, loading, doctors]);
 
-  const filtered =
-    search.length >= 1
-      ? doctors.filter(
-          (d) =>
-            d.doctor_name.toLowerCase().includes(search.toLowerCase()) ||
-            d.town?.toLowerCase().includes(search.toLowerCase()) ||
-            d.location?.toLowerCase().includes(search.toLowerCase()) ||
-            d.speciality?.some((s) => s.toLowerCase().includes(search.toLowerCase()))
-        )
-      : doctors;
+  // Server-side search + pagination — no client-side filter needed
+  const filtered = doctors;
 
   const handleAddToCycle = useCallback(
     async (doctorId: string) => {
@@ -620,6 +641,55 @@ const Doctors = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ── Pagination ── */}
+      {totalPages > 1 && !loading && !error && (
+        <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
+          <p className="text-xs font-poppins text-gray-400">
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of <span className="font-poppins-semibold text-gray-600">{totalCount}</span>
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            >
+              ‹
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+              .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+                if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…");
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((p, i) =>
+                p === "…" ? (
+                  <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-gray-300 text-xs">…</span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={`w-8 h-8 rounded-lg text-xs font-poppins-semibold border focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] ${
+                      p === page
+                        ? "bg-[#16a34a] border-[#16a34a] text-white"
+                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            >
+              ›
+            </button>
+          </div>
         </div>
       )}
 

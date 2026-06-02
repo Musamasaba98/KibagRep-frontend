@@ -133,7 +133,8 @@ export const getAllPlatformUsersApi = (params?: { q?: string; role?: string; com
 export const searchUsersApi = (q: string) => api.get(`/user/search?q=${encodeURIComponent(q)}`);
 
 // ─── HCP Doctor List (company-scoped) ─────────────────────────────────────────
-export const getCompanyDoctorListApi = () => api.get("/doctor");
+export const getCompanyDoctorListApi = (params?: { q?: string; page?: number; limit?: number }) =>
+  api.get("/doctor", { params });
 export const setDoctorTierApi = (doctorId: string, data: { tier: string; visit_frequency?: number; notes?: string }) =>
   api.put(`/doctor/${doctorId}/tier`, data);
 
