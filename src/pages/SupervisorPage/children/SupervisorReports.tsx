@@ -250,7 +250,7 @@ const SupervisorReports = () => {
                                   <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.pharmacy.location, act.pharmacy.town].filter(Boolean).join(" - ") || "-"}</p>
                                 )}
                                 {act.activity_type === "doctor" && act.doctor && (
-                                  <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.doctor.location, act.doctor.town].filter(Boolean).join(" - ") || "-"}</p>
+                                  <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.doctor?.location, act.doctor?.town].filter(Boolean).join(" - ") || "-"}</p>
                                 )}
                                 {act.visit_type === "NCA" && act.nca_reason && <p className="text-xs text-amber-700 mt-0.5">Reason: {act.nca_reason}</p>}
                                 {act.focused_product && <p className="text-xs font-poppins text-[#16a34a] mt-0.5">{act.focused_product.product_name}{(act.samples_given ?? 0) > 0 ? ` · ${act.samples_given ?? 0} samples` : ""}</p>}

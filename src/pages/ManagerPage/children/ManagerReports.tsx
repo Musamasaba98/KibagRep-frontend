@@ -30,12 +30,14 @@ interface Report {
 
 interface Activity {
   id: string;
-  visit_type: "PLANNED" | "UNPLANNED" | "NCA";
-  samples_given: number;
-  nca_reason: string | null;
-  gps_anomaly_flag: boolean;
-  doctor: { doctor_name: string; town?: string } | null;
-  focused_product: { product_name: string } | null;
+  activity_type?: "doctor" | "pharmacy";
+  visit_type?: "PLANNED" | "UNPLANNED" | "NCA";
+  samples_given?: number;
+  nca_reason?: string | null;
+  gps_anomaly_flag?: boolean;
+  doctor?: { doctor_name: string; town?: string } | null;
+  pharmacy?: { pharmacy_name: string; town?: string } | null;
+  focused_product?: { product_name: string } | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -63,13 +65,15 @@ const StatusPill = ({ status }: { status: Report["status"] }) => {
   );
 };
 
-const VisitTypePill = ({ type }: { type: Activity["visit_type"] }) => {
-  const map: Record<Activity["visit_type"], { label: string; cls: string }> = {
-    PLANNED:   { label: "Planned",   cls: "bg-[#f0fdf4] text-[#15803d]" },
-    UNPLANNED: { label: "Unplanned", cls: "bg-sky-50 text-sky-700" },
-    NCA:       { label: "NCA",       cls: "bg-amber-50 text-amber-700" },
-  };
-  const { label, cls } = map[type];
+const VTYPE_MAP: Record<string, { label: string; cls: string }> = {
+  PLANNED:   { label: "Planned",   cls: "bg-[#f0fdf4] text-[#15803d]" },
+  UNPLANNED: { label: "Unplanned", cls: "bg-sky-50 text-sky-700" },
+  NCA:       { label: "NCA",       cls: "bg-amber-50 text-amber-700" },
+};
+
+const VisitTypePill = ({ type }: { type?: string }) => {
+  if (!type) return null;
+  const { label, cls } = VTYPE_MAP[type] ?? { label: type, cls: "bg-gray-100 text-gray-500" };
   return (
     <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cls}`}>{label}</span>
   );
@@ -77,44 +81,56 @@ const VisitTypePill = ({ type }: { type: Activity["visit_type"] }) => {
 
 // ─── Activity row ─────────────────────────────────────────────────────────────
 
-const ActivityRow = ({ act }: { act: Activity }) => (
-  <div className="flex items-start gap-3 py-2.5 border-b border-gray-50 last:border-0">
-    <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
-      <FiUser className="w-3.5 h-3.5 text-gray-400" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <p className="text-xs font-poppins-semibold text-[#222f36] truncate">
-          {act.doctor?.doctor_name ?? "Unknown HCP"}
-        </p>
-        {act.doctor?.town && (
+const ActivityRow = ({ act }: { act: Activity }) => {
+  const isPharmacy = act.activity_type === "pharmacy";
+  const samples = act.samples_given ?? 0;
+  return (
+    <div className="flex items-start gap-3 py-2.5 border-b border-gray-50 last:border-0">
+      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${isPharmacy ? "bg-violet-50" : "bg-gray-100"}`}>
+        {isPharmacy
+          ? <FiPackage className="w-3.5 h-3.5 text-violet-400" />
+          : <FiUser className="w-3.5 h-3.5 text-gray-400" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <p className="text-xs font-poppins-semibold text-[#222f36] truncate">
+            {isPharmacy ? (act.pharmacy?.pharmacy_name ?? "Unknown Pharmacy") : (act.doctor?.doctor_name ?? "Unknown HCP")}
+          </p>
+          {isPharmacy
+            ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700">Pharmacy</span>
+            : <VisitTypePill type={act.visit_type} />
+          }
+          {!isPharmacy && act.gps_anomaly_flag && (
+            <span className="flex items-center gap-0.5 text-[9px] font-poppins-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
+              <MdOutlineWarningAmber className="w-2.5 h-2.5" />
+              GPS
+            </span>
+          )}
+        </div>
+        {isPharmacy && act.pharmacy?.town && (
+          <span className="text-[10px] font-poppins text-gray-400">{act.pharmacy.town}</span>
+        )}
+        {!isPharmacy && act.doctor?.town && (
           <span className="text-[10px] font-poppins text-gray-400">{act.doctor.town}</span>
         )}
-        <VisitTypePill type={act.visit_type} />
-        {act.gps_anomaly_flag && (
-          <span className="flex items-center gap-0.5 text-[9px] font-poppins-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-full">
-            <MdOutlineWarningAmber className="w-2.5 h-2.5" />
-            GPS
-          </span>
+        {act.focused_product && (
+          <div className="flex items-center gap-1 mt-0.5">
+            <FiPackage className="w-3 h-3 text-gray-300" />
+            <p className="text-[10px] font-poppins text-gray-400">{act.focused_product.product_name}</p>
+          </div>
+        )}
+        {act.nca_reason && (
+          <p className="text-[10px] font-poppins text-amber-600 mt-0.5 italic">NCA: {act.nca_reason}</p>
         )}
       </div>
-      {act.focused_product && (
-        <div className="flex items-center gap-1 mt-0.5">
-          <FiPackage className="w-3 h-3 text-gray-300" />
-          <p className="text-[10px] font-poppins text-gray-400">{act.focused_product.product_name}</p>
-        </div>
-      )}
-      {act.nca_reason && (
-        <p className="text-[10px] font-poppins text-amber-600 mt-0.5 italic">NCA: {act.nca_reason}</p>
+      {samples > 0 && (
+        <span className="text-[10px] font-poppins-semibold text-[#15803d] bg-[#f0fdf4] px-2 py-0.5 rounded-full shrink-0">
+          {samples} sample{samples !== 1 ? "s" : ""}
+        </span>
       )}
     </div>
-    {act.samples_given > 0 && (
-      <span className="text-[10px] font-poppins-semibold text-[#15803d] bg-[#f0fdf4] px-2 py-0.5 rounded-full shrink-0">
-        {act.samples_given} sample{act.samples_given !== 1 ? "s" : ""}
-      </span>
-    )}
-  </div>
-);
+  );
+};
 
 // ─── Reject inline form ───────────────────────────────────────────────────────
 
