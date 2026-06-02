@@ -1,8 +1,17 @@
 import axios from "axios";
 import { store } from "../store/store";
 import { logout } from "../store/authSlice";
+import { enqueue } from "../lib/offlineQueue";
 
 const BASE_URL = "http://localhost:4000/api";
+
+// Endpoints that should be queued when offline (write operations by reps)
+const QUEUEABLE = [
+  "/field-doctor/add-doctor-activity",
+  "/field-doctor/add-nca",
+  "/field-pharmacy",
+  "/daily-report",
+];
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -18,14 +27,45 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auto-logout on 401
+// Auto-logout on 401; auto-queue on network failure for rep write endpoints
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
       store.dispatch(logout());
       window.location.href = "/login";
+      return Promise.reject(error);
     }
+
+    // No response = network error while offline
+    if (!error.response && !navigator.onLine) {
+      const cfg = error.config;
+      const method: "POST" | "PUT" = cfg.method?.toUpperCase() === "PUT" ? "PUT" : "POST";
+      // cfg.url is the relative path from the axios instance (e.g. "/field-doctor/add-doctor-activity")
+      const urlPath = cfg.url ?? "";
+      const shouldQueue = QUEUEABLE.some((p) => urlPath.includes(p));
+
+      if (shouldQueue && cfg.data) {
+        await enqueue({
+          type: urlPath.includes("nca") ? "nca"
+              : urlPath.includes("pharmacy") ? "pharmacy_visit"
+              : urlPath.includes("daily-report") ? "daily_report"
+              : "doctor_visit",
+          payload: typeof cfg.data === "string" ? JSON.parse(cfg.data) : cfg.data,
+          endpoint: `${BASE_URL}${urlPath}`,
+          method,
+        });
+        // Return a synthetic queued response so the UI doesn't crash
+        return Promise.resolve({
+          data: { success: true, queued: true, message: "Saved offline — will sync when back online" },
+          status: 202,
+          statusText: "Queued",
+          headers: {},
+          config: cfg,
+        });
+      }
+    }
+
     return Promise.reject(error);
   }
 );
@@ -61,7 +101,12 @@ export const adminResetPasswordApi = (userId: string, new_password: string) => a
 // ─── Teams ───────────────────────────────────────────────────────────────────
 export const getTeamsApi = () => api.get("/team");
 export const getCompanyTeamsApi = () => api.get("/team/company");
-export const createCompanyTeamApi = (team_name: string) => api.post("/team/company", { team_name });
+export const createCompanyTeamApi = (team_name: string, supervisor_id?: string) => api.post("/team/company", { team_name, supervisor_id });
+export const renameCompanyTeamApi = (id: string, team_name: string) => api.put(`/team/company/${id}`, { team_name });
+export const updateCompanyTeamApi = (id: string, data: { team_name?: string; supervisor_id?: string | null }) => api.put(`/team/company/${id}`, data);
+export const deleteCompanyTeamApi = (id: string) => api.delete(`/team/company/${id}`);
+export const addTeamProductApi = (teamId: string, product_id: string) => api.post(`/team/company/${teamId}/products`, { product_id });
+export const removeTeamProductApi = (teamId: string, productId: string) => api.delete(`/team/company/${teamId}/products/${productId}`);
 
 // ─── Company Management (Super Admin) ────────────────────────────────────────
 export const getAllCompaniesApi = () => api.get("/company");
@@ -204,3 +249,9 @@ export const getFieldEventsApi = (params?: { status?: string; type?: string; mon
 export const createFieldEventApi = (data: unknown) => api.post('/field-events', data);
 export const updateFieldEventApi = (id: string, data: unknown) => api.put(`/field-events/${id}`, data);
 export const deleteFieldEventApi = (id: string) => api.delete(`/field-events/${id}`);
+
+// ─── Stock Placement Targets ──────────────────────────────────────────────────
+export const getPlacementTargetsApi = (month?: number, year?: number) =>
+  api.get('/placement', { params: { month, year } });
+export const upsertPlacementTargetApi = (data: unknown) => api.post('/placement', data);
+export const bulkUpsertPlacementTargetsApi = (data: unknown) => api.post('/placement/bulk', data);

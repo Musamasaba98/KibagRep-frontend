@@ -8,6 +8,7 @@ import { MdArrowBack, MdLocationOn } from "react-icons/md";
 import { FaChartPie } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleShowMenu, toggleSidebarPanel } from '../../../store/uiStateSlice';
+import OfflineSyncBadge from '../../../componets/OfflineSync/OfflineSyncBadge';
 
 // ─── GPS location hook ────────────────────────────────────────────────────────
 
@@ -129,8 +130,9 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Center: location only */}
-            <div className="flex-1 flex flex-col items-center">
+            {/* Center: offline badge + location */}
+            <div className="flex-1 flex flex-col items-center gap-0.5">
+              <OfflineSyncBadge />
               {!locating && locationName && (
                 <span className="flex items-center gap-0.5 text-[11px] text-[#16a34a] font-semibold">
                   <MdLocationOn className="w-3 h-3 shrink-0" />

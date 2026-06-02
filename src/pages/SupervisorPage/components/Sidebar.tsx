@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { FaHouse, FaUserGroup } from "react-icons/fa6";
+import { FaHouse, FaUserGroup, FaMugHot } from "react-icons/fa6";
 import { GoGear } from "react-icons/go";
 import { BsBell } from "react-icons/bs";
 import { IoCalendarOutline } from "react-icons/io5";
@@ -71,6 +71,7 @@ const Sidebar = () => {
     { to: "/supervisor/analysis",              icon: TbChartBar,       label: "Analysis"      },
     { to: "/supervisor/doctors",               icon: LuStethoscope,    label: "HCP Directory" },
     { to: "/supervisor/jfw",                   icon: GrTask,           label: "JFW"           },
+    { to: "/supervisor/events",                icon: FaMugHot,         label: "Field Events"  },
     { to: "/supervisor/reports",               icon: TbReport,         label: "Reports"       },
   ];
 

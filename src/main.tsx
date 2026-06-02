@@ -47,16 +47,14 @@ import SupervisorReps from "./pages/SupervisorPage/children/Reps";
 import SupervisorApprovals from "./pages/SupervisorPage/children/Approvals";
 import SupervisorCycles from "./pages/SupervisorPage/children/Cycles";
 import SupervisorJfw from "./pages/SupervisorPage/children/Jfw";
+import SupervisorEvents from "./pages/SupervisorPage/children/Events";
 import SupervisorReports from "./pages/SupervisorPage/children/SupervisorReports";
 import SupervisorDoctors from "./pages/SupervisorPage/children/Doctors";
 import SupervisorTeamMap from "./pages/SupervisorPage/children/TeamMap";
 import SupervisorAnalysis from "./pages/SupervisorPage/children/Analysis";
 import SupervisorRepDetail from "./pages/SupervisorPage/children/RepDetail";
 
-// Admin
-import AdminPage from "./pages/AdminPage/AdminPage";
-import AdminDashboard from "./pages/AdminPage/children/Dashboard";
-import AdminDoctors from "./pages/AdminPage/children/Doctors";
+// Admin (children used inside SalesAdminPage routes)
 import AdminCompliance from "./pages/AdminPage/children/Compliance";
 import AdminTeams from "./pages/AdminPage/children/Teams";
 import AdminExpenses from "./pages/AdminPage/children/Expenses";
@@ -84,6 +82,7 @@ import SalesAdminFacilities from "./pages/SalesAdminPage/children/Facilities";
 import SalesAdminBulkUpload from "./pages/SalesAdminPage/children/BulkUpload";
 import SalesAdminCycles from "./pages/SalesAdminPage/children/Cycles";
 import SalesAdminReports from "./pages/SalesAdminPage/children/Reports";
+import SalesAdminPlacement from "./pages/SalesAdminPage/children/StockPlacement";
 
 // Auth extras
 import ForgotPassword from "./pages/Authentication/ForgotPassword";
@@ -175,6 +174,7 @@ const router = createBrowserRouter([
           { path: "analysis", element: <SupervisorAnalysis /> },
           { path: "doctors", element: <SupervisorDoctors /> },
           { path: "jfw", element: <SupervisorJfw /> },
+          { path: "events", element: <SupervisorEvents /> },
           { path: "reports", element: <SupervisorReports /> },
           { path: "messages", element:<Messages/>}
         ],
@@ -220,8 +220,10 @@ const router = createBrowserRouter([
           { path: "upload", element: <SalesAdminBulkUpload /> },
           { path: "cycles", element: <SalesAdminCycles /> },
           { path: "reports", element: <SalesAdminReports /> },
+          { path: "placement", element: <SalesAdminPlacement /> },
           { path: "compliance", element: <AdminCompliance /> },
           { path: "teams", element: <AdminTeams /> },
+          { path: "territories", element: <TerritoryManagement /> },
           { path: "expenses", element: <AdminExpenses /> },
           { path: "leave", element: <AdminLeave /> },
         ],

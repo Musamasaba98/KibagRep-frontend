@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../../store/authSlice";
 import {
   FaHouse, FaUserDoctor, FaHospital, FaBoxOpen, FaBuildingColumns,
-  FaArrowUpFromBracket, FaRotate, FaFileLines, FaUsers, FaPills,
+  FaArrowUpFromBracket, FaRotate, FaFileLines, FaUsers, FaPills, FaWarehouse, FaMap,
 } from "react-icons/fa6";
 import { LuClipboardCheck, LuWallet, LuCalendarClock } from "react-icons/lu";
 import { BsBell } from "react-icons/bs";
@@ -47,11 +47,13 @@ const Sidebar = ({ onNav }: { onNav?: () => void }) => {
     { to: "/admin/facilities",            icon: FaBuildingColumns,    label: "Facilities",   showBadge: false },
     { to: "/admin/upload",                icon: FaArrowUpFromBracket, label: "Bulk Upload",  showBadge: false },
     { to: "/admin/cycles",                icon: FaRotate,             label: "Call Cycles",  showBadge: false },
+    { to: "/admin/placement",             icon: FaWarehouse,          label: "Stock Targets", showBadge: false },
     { to: "/admin/reports",               icon: FaFileLines,          label: "Reports",      showBadge: false },
   ];
 
   const peopleLinks = [
     { to: "/admin/users",                 icon: FaUsers,              label: "Team Members", showBadge: false },
+    { to: "/admin/territories",           icon: FaMap,                label: "Territories",  showBadge: false },
     { to: "/admin/compliance",            icon: LuClipboardCheck,     label: "Compliance",   showBadge: true  },
     { to: "/admin/expenses",              icon: LuWallet,             label: "Expenses",     showBadge: true  },
     { to: "/admin/leave",                 icon: LuCalendarClock,      label: "Leave",        showBadge: false },

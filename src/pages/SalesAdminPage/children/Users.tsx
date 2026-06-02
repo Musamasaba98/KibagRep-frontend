@@ -4,14 +4,19 @@ import { FaUserPlus, FaUsers, FaEllipsisVertical, FaTrash, FaXmark, FaEnvelope, 
 import { format } from "date-fns";
 import {
   getCompanyUsersApi, getCompanyTeamsApi, createCompanyTeamApi,
-  updateCompanyUserApi, removeUserFromCompanyApi,
+  updateCompanyUserApi, removeUserFromCompanyApi, getTerritoriesApi,
 } from "../../../services/api";
 import AddUserModal from "../../../componets/AddUserModal/AddUserModal";
 
+interface Territory {
+  id: string; name: string; territory_type?: string; region?: string;
+}
 interface CompanyUser {
   id: string; username: string; firstname: string; lastname: string;
   role: string; email: string; contact?: string;
   team?: { id: string; team_name: string } | null;
+  territory?: Territory | null;
+  secondary_territory?: Territory | null;
   date_of_joining: string;
 }
 interface Team { id: string; team_name: string; }
@@ -27,37 +32,48 @@ const ROLE_COLOR: Record<string, string> = {
   Supervisor: "bg-teal-100 text-teal-700", MedicalRep: "bg-green-100 text-[#16a34a]",
   USER: "bg-gray-100 text-gray-500",
 };
+// Sales Admin can only manage field-force roles; Country Manager and Company Admin are set by the platform admin
 const ROLE_OPTIONS = [
   { value: "MedicalRep",  label: "Medical Rep" },
   { value: "Supervisor",  label: "Supervisor" },
   { value: "Manager",     label: "Manager" },
-  { value: "COUNTRY_MGR", label: "Country Manager" },
-  { value: "SALES_ADMIN", label: "Company Admin" },
 ];
 
 // ── Profile Drawer ─────────────────────────────────────────────────────────
 
 const ProfileDrawer = ({
-  user, teams, onClose, onRemove, onRoleChange, onTeamChange,
+  user, teams, territories, onClose, onRemove, onSave,
 }: {
   user: CompanyUser;
   teams: Team[];
+  territories: Territory[];
   onClose: () => void;
   onRemove: (id: string) => void;
-  onRoleChange: (id: string, role: string) => Promise<void>;
-  onTeamChange: (id: string, teamId: string) => Promise<void>;
+  onSave: (id: string, patch: { role?: string; team_id?: string | null; territory_id?: string | null; secondary_territory_id?: string | null }) => Promise<void>;
 }) => {
-  const [roleVal, setRoleVal]   = useState(user.role);
-  const [teamVal, setTeamVal]   = useState(user.team?.id ?? "");
-  const [saving, setSaving]     = useState(false);
+  const [roleVal, setRoleVal]     = useState(user.role);
+  const [teamVal, setTeamVal]     = useState(user.team?.id ?? "");
+  const [terrVal, setTerrVal]     = useState(user.territory?.id ?? "");
+  const [secTerrVal, setSecTerrVal] = useState(user.secondary_territory?.id ?? "");
+  const [saving, setSaving]       = useState(false);
 
   const initials = `${user.firstname[0] ?? ""}${user.lastname[0] ?? ""}`.toUpperCase();
+
+  const isDirty =
+    roleVal !== user.role ||
+    teamVal !== (user.team?.id ?? "") ||
+    terrVal !== (user.territory?.id ?? "") ||
+    secTerrVal !== (user.secondary_territory?.id ?? "");
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      if (roleVal !== user.role) await onRoleChange(user.id, roleVal);
-      if (teamVal !== (user.team?.id ?? "")) await onTeamChange(user.id, teamVal);
+      await onSave(user.id, {
+        role: roleVal !== user.role ? roleVal : undefined,
+        team_id: teamVal !== (user.team?.id ?? "") ? (teamVal || null) : undefined,
+        territory_id: terrVal !== (user.territory?.id ?? "") ? (terrVal || null) : undefined,
+        secondary_territory_id: secTerrVal !== (user.secondary_territory?.id ?? "") ? (secTerrVal || null) : undefined,
+      });
       onClose();
     } finally {
       setSaving(false);
@@ -148,13 +164,47 @@ const ProfileDrawer = ({
               {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
             </select>
           </div>
+
+          {/* Primary territory */}
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Primary Territory</label>
+            <select
+              value={terrVal}
+              onChange={(e) => setTerrVal(e.target.value)}
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
+            >
+              <option value="">None</option>
+              {territories.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}{t.territory_type ? ` (${t.territory_type})` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Secondary territory */}
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Secondary Territory</label>
+            <select
+              value={secTerrVal}
+              onChange={(e) => setSecTerrVal(e.target.value)}
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
+            >
+              <option value="">None</option>
+              {territories.filter((t) => t.id !== terrVal).map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}{t.territory_type ? ` (${t.territory_type})` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Footer actions */}
         <div className="px-5 py-4 border-t border-gray-100 flex flex-col gap-2">
           <button
             onClick={handleSave}
-            disabled={saving || (roleVal === user.role && teamVal === (user.team?.id ?? ""))}
+            disabled={saving || !isDirty}
             className="w-full py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
             style={{ transition: "background-color 0.15s" }}
           >
@@ -181,6 +231,7 @@ const Users = () => {
   const actorRole = useSelector((s: any) => s.auth?.user?.role ?? "SALES_ADMIN");
   const [users, setUsers]           = useState<CompanyUser[]>([]);
   const [teams, setTeams]           = useState<Team[]>([]);
+  const [territories, setTerritories] = useState<Territory[]>([]);
   const [loading, setLoading]       = useState(true);
   const [showAdd, setShowAdd]       = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
@@ -192,9 +243,13 @@ const Users = () => {
 
   const load = () => {
     setLoading(true);
-    Promise.all([getCompanyUsersApi(), getCompanyTeamsApi()])
-      .then(([ur, tr]) => { setUsers(ur.data.data ?? []); setTeams(tr.data.data ?? []); })
-      .catch(() => setError("Failed to load"))
+    Promise.allSettled([getCompanyUsersApi(), getCompanyTeamsApi(), getTerritoriesApi()])
+      .then(([ur, tr, terr]) => {
+        if (ur.status === "fulfilled") setUsers(ur.value.data?.data ?? []);
+        else setError("Failed to load users");
+        if (tr.status === "fulfilled") setTeams(tr.value.data?.data ?? []);
+        if (terr.status === "fulfilled") setTerritories(terr.value.data?.data ?? []);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -206,14 +261,15 @@ const Users = () => {
     catch { alert("Failed to remove user"); }
   };
 
-  const handleTeamChange = async (userId: string, team_id: string) => {
-    try { await updateCompanyUserApi(userId, { team_id: team_id || null }); load(); }
-    catch { alert("Failed to update team"); }
-  };
-
-  const handleRoleChange = async (userId: string, role: string) => {
-    try { await updateCompanyUserApi(userId, { role }); load(); }
-    catch { alert("Failed to update role"); }
+  const handleSave = async (userId: string, patch: { role?: string; team_id?: string | null; territory_id?: string | null; secondary_territory_id?: string | null }) => {
+    const body: Record<string, unknown> = {};
+    if (patch.role !== undefined) body.role = patch.role;
+    if (patch.team_id !== undefined) body.team_id = patch.team_id;
+    if (patch.territory_id !== undefined) body.territory_id = patch.territory_id;
+    if (patch.secondary_territory_id !== undefined) body.secondary_territory_id = patch.secondary_territory_id;
+    if (Object.keys(body).length === 0) return;
+    try { await updateCompanyUserApi(userId, body); load(); }
+    catch { alert("Failed to save changes"); }
   };
 
   const handleCreateTeam = async (e: React.SyntheticEvent) => {
@@ -343,10 +399,10 @@ const Users = () => {
         <ProfileDrawer
           user={drawerUser}
           teams={teams}
+          territories={territories}
           onClose={() => setDrawerUser(null)}
           onRemove={(id) => { handleRemove(id); setDrawerUser(null); }}
-          onRoleChange={handleRoleChange}
-          onTeamChange={handleTeamChange}
+          onSave={handleSave}
         />
       )}
 
