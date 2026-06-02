@@ -213,52 +213,140 @@ const SupervisorReports = () => {
                         </div>
                       ) : repActs.length === 0 ? (
                         <p className="text-xs font-poppins text-gray-400 py-1">No visit activities recorded.</p>
-                      ) : (
-                        <div className="flex flex-col gap-1.5">
-                          {(() => {
-                            const docActs = repActs.filter(a => a.activity_type === "doctor");
-                            const pharmActs = repActs.filter(a => a.activity_type === "pharmacy");
-                            return (
-                              <p className="text-[11px] font-poppins-bold text-gray-400 uppercase tracking-widest">
-                                {docActs.length} HCP visit{docActs.length !== 1 ? "s" : ""}
-                                {pharmActs.length > 0 && ` · ${pharmActs.length} pharmacy visit${pharmActs.length !== 1 ? "s" : ""}`}
-                              </p>
-                            );
-                          })()}
-                          {repActs.map((act) => (
-                            <div key={act.id} className="bg-white rounded-xl border border-gray-100 px-3.5 py-2.5 flex items-start gap-3">
-                              {act.activity_type === "pharmacy"
-                                ? <TbPill className="w-4 h-4 mt-0.5 flex-shrink-0 text-violet-500" />
-                                : <TbActivityHeartbeat className={`w-4 h-4 mt-0.5 flex-shrink-0 ${act.visit_type === "NCA" ? "text-amber-500" : act.visit_type === "UNPLANNED" ? "text-sky-500" : "text-[#16a34a]"}`} />
-                              }
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  {act.activity_type === "pharmacy" ? (
-                                    <>
-                                      <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{act.pharmacy?.pharmacy_name ?? "Unknown Pharmacy"}</p>
-                                      <span className="text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full border bg-violet-50 text-violet-700 border-violet-200">Pharmacy</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{act.doctor?.doctor_name ?? "Unknown HCP"}</p>
-                                      {act.visit_type && <span className={`text-[10px] font-poppins-bold px-1.5 py-0.5 rounded-full border ${VTYPE[act.visit_type ?? ""] ?? ""}`}>{act.visit_type}</span>}
-                                      {act.gps_anomaly_flag && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">GPS flag</span>}
-                                    </>
+                      ) : (() => {
+                        const docActs   = repActs.filter(a => a.activity_type === "doctor");
+                        const pharmActs = repActs.filter(a => a.activity_type === "pharmacy");
+                        const totalSamples = docActs.reduce((s, a) => s + (a.samples_given ?? 0), 0);
+                        return (
+                          <div className="flex flex-col gap-3">
+
+                            {/* ── Doctor Visits Section ── */}
+                            {docActs.length > 0 && (
+                              <div className="rounded-xl overflow-hidden border border-[#dcfce7]">
+                                {/* Section header */}
+                                <div className="bg-[#16a34a] px-3 py-2 flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <TbActivityHeartbeat className="w-4 h-4 text-white" />
+                                    <span className="text-xs font-poppins-bold text-white uppercase tracking-wider">
+                                      HCP Visits — {docActs.length}
+                                    </span>
+                                  </div>
+                                  {totalSamples > 0 && (
+                                    <span className="text-[10px] font-poppins-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full">
+                                      {totalSamples} samples total
+                                    </span>
                                   )}
                                 </div>
-                                {act.activity_type === "pharmacy" && act.pharmacy && (
-                                  <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.pharmacy.location, act.pharmacy.town].filter(Boolean).join(" - ") || "-"}</p>
-                                )}
-                                {act.activity_type === "doctor" && act.doctor && (
-                                  <p className="text-xs text-gray-400 font-poppins mt-0.5">{[act.doctor?.location, act.doctor?.town].filter(Boolean).join(" - ") || "-"}</p>
-                                )}
-                                {act.visit_type === "NCA" && act.nca_reason && <p className="text-xs text-amber-700 mt-0.5">Reason: {act.nca_reason}</p>}
-                                {act.focused_product && <p className="text-xs font-poppins text-[#16a34a] mt-0.5">{act.focused_product.product_name}{(act.samples_given ?? 0) > 0 ? ` · ${act.samples_given ?? 0} samples` : ""}</p>}
+                                {/* Column headers */}
+                                <div className="grid bg-[#f0fdf4] border-b border-[#dcfce7] px-3 py-1.5"
+                                  style={{ gridTemplateColumns: "1.5rem 1fr 5rem 4rem 4rem" }}>
+                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase">#</span>
+                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase">Doctor / Facility</span>
+                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase text-center">Focus Product</span>
+                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase text-center">Samples</span>
+                                  <span className="text-[9px] font-poppins-bold text-[#16a34a] uppercase text-center">Type</span>
+                                </div>
+                                {/* Doctor rows */}
+                                {docActs.map((act, idx) => (
+                                  <div key={act.id}
+                                    className={`grid items-center px-3 py-2 border-b border-gray-50 last:border-0 ${idx % 2 === 1 ? "bg-[#f9fefb]" : "bg-white"}`}
+                                    style={{ gridTemplateColumns: "1.5rem 1fr 5rem 4rem 4rem" }}>
+                                    <span className="text-[10px] font-poppins-bold text-gray-400">{idx + 1}</span>
+                                    <div className="min-w-0">
+                                      <p className={`text-xs font-poppins-semibold truncate ${act.nca_reason ? "text-amber-700 italic" : "text-[#1a1a1a]"}`}>
+                                        {act.nca_reason ? `NCA — ` : ""}{act.doctor?.doctor_name ?? "Unknown"}
+                                      </p>
+                                      <p className="text-[10px] font-poppins text-gray-400 truncate">
+                                        {[act.doctor?.location, act.doctor?.town].filter(Boolean).join(" · ") || "—"}
+                                      </p>
+                                      {act.nca_reason && (
+                                        <p className="text-[10px] font-poppins text-amber-600 truncate">↳ {act.nca_reason}</p>
+                                      )}
+                                      {act.gps_anomaly_flag && (
+                                        <span className="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 mt-0.5">GPS flag</span>
+                                      )}
+                                    </div>
+                                    <div className="text-center min-w-0 px-1">
+                                      {act.focused_product ? (
+                                        <span className="text-[9px] font-poppins-semibold text-[#16a34a] bg-[#dcfce7] px-1.5 py-0.5 rounded-md truncate block">
+                                          {act.focused_product.product_name}
+                                        </span>
+                                      ) : <span className="text-gray-300 text-[10px]">—</span>}
+                                    </div>
+                                    <div className="text-center">
+                                      {(act.samples_given ?? 0) > 0
+                                        ? <span className="text-xs font-poppins-bold text-blue-700">{act.samples_given}</span>
+                                        : <span className="text-gray-300 text-[10px]">—</span>}
+                                    </div>
+                                    <div className="text-center">
+                                      {act.visit_type && (
+                                        <span className={`text-[9px] font-poppins-bold px-1.5 py-0.5 rounded-full border ${VTYPE[act.visit_type ?? ""] ?? ""}`}>
+                                          {act.visit_type}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                            )}
+
+                            {/* ── Pharmacy Coverage Section ── */}
+                            {pharmActs.length > 0 && (
+                              <div className="rounded-xl overflow-hidden border border-violet-200">
+                                {/* Section header */}
+                                <div className="bg-violet-700 px-3 py-2 flex items-center gap-2">
+                                  <TbPill className="w-4 h-4 text-white" />
+                                  <span className="text-xs font-poppins-bold text-white uppercase tracking-wider">
+                                    Pharmacy Coverage — {pharmActs.length}
+                                  </span>
+                                </div>
+                                {/* Column headers */}
+                                <div className="grid bg-violet-50 border-b border-violet-100 px-3 py-1.5"
+                                  style={{ gridTemplateColumns: "1fr 5rem 1fr" }}>
+                                  <span className="text-[9px] font-poppins-bold text-violet-700 uppercase">Pharmacy / Location</span>
+                                  <span className="text-[9px] font-poppins-bold text-violet-700 uppercase text-center">Contact</span>
+                                  <span className="text-[9px] font-poppins-bold text-violet-700 uppercase">Stock on Shelf</span>
+                                </div>
+                                {/* Pharmacy rows */}
+                                {pharmActs.map((act, idx) => {
+                                  const stockNoted = (act as any).stock_noted ?? {};
+                                  const productsInStock: { id: string; product_name: string }[] = (act as any).products_in_stock ?? [];
+                                  return (
+                                    <div key={act.id}
+                                      className={`grid items-start px-3 py-2 border-b border-violet-50 last:border-0 gap-2 ${idx % 2 === 1 ? "bg-violet-50/40" : "bg-white"}`}
+                                      style={{ gridTemplateColumns: "1fr 5rem 1fr" }}>
+                                      <div className="min-w-0">
+                                        <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate">
+                                          {act.pharmacy?.pharmacy_name ?? "Unknown Pharmacy"}
+                                        </p>
+                                        <p className="text-[10px] font-poppins text-gray-400 truncate">
+                                          {[act.pharmacy?.location, act.pharmacy?.town].filter(Boolean).join(" · ") || "—"}
+                                        </p>
+                                      </div>
+                                      <div className="text-center">
+                                        <span className="text-[10px] font-poppins text-gray-500">
+                                          {(act.pharmacy as any)?.contact ?? "—"}
+                                        </span>
+                                      </div>
+                                      <div className="flex flex-wrap gap-1">
+                                        {productsInStock.length > 0 ? productsInStock.map((p) => {
+                                          const qty = stockNoted[p.id] ?? 0;
+                                          return (
+                                            <span key={p.id} className={`text-[9px] font-poppins-semibold px-1.5 py-0.5 rounded-md border ${qty > 0 ? "bg-violet-50 text-violet-700 border-violet-200" : "bg-gray-50 text-gray-400 border-gray-200"}`}>
+                                              {p.product_name}{qty > 0 ? ` ×${qty}` : ""}
+                                            </span>
+                                          );
+                                        }) : <span className="text-[10px] font-poppins text-gray-300 italic">No stock recorded</span>}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+
+                          </div>
+                        );
+                      })()}
                       {rep.status === "SUBMITTED" && (
                         <div className="flex items-center gap-2 pt-1">
                           {isActioning ? (
