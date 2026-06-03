@@ -258,10 +258,12 @@ interface DoctorOption { id: string; doctor_name: string; town?: string; }
 
 const AddEntryModal = ({
   day,
+  todayPlanEntries = [],
   onClose,
   onOpenLogVisit,
 }: {
   day: Date;
+  todayPlanEntries?: TodayPlanEntry[];
   onClose: () => void;
   onOpenLogVisit?: (doctorId?: string, doctorName?: string) => void;
 }) => {
@@ -273,6 +275,7 @@ const AddEntryModal = ({
   const [selectedId, setSelectedId]   = useState("");
   const [selectedLabel, setSelectedLabel] = useState("");
   const [showList, setShowList]       = useState(false);
+  const [plannedWarning, setPlannedWarning] = useState(false);
 
   // Leave fields
   const [leaveType, setLeaveType] = useState("Annual Leave");
@@ -297,6 +300,11 @@ const AddEntryModal = ({
     setSelectedLabel(`${d.doctor_name} — ${d.town ?? ""}`);
     setSearch("");
     setShowList(false);
+    // Check if this doctor is already on today's tour plan
+    const isPlanned = todayPlanEntries.some(
+      (e) => e.entry_type === "CLINICIAN" && e.doctor_id === d.id
+    );
+    if (isPlanned) setPlannedWarning(true);
   };
 
   const handleSubmit = useCallback(
@@ -393,12 +401,41 @@ const AddEntryModal = ({
                   </div>
                 )}
               </div>
-              <button
-                type="submit"
-                className="w-full py-2 text-sm font-poppins-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-              >
-                {selectedId ? `Log visit for ${selectedLabel.split(" —")[0]} →` : "Open Log Visit Form →"}
-              </button>
+              {/* Planned-doctor warning */}
+              {plannedWarning && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 flex flex-col gap-2">
+                  <p className="text-xs font-poppins-semibold text-amber-800">
+                    ⚠️ {selectedLabel.split(" —")[0]} is already on your plan for today.
+                  </p>
+                  <p className="text-[11px] font-poppins text-amber-700 leading-snug">
+                    Logging a second visit will mark it as unplanned. You can also proceed directly to the planned tile.
+                  </p>
+                  <div className="flex gap-2 pt-0.5">
+                    <button
+                      type="submit"
+                      className="flex-1 py-1.5 text-xs font-poppins-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-lg focus-visible:outline-none"
+                    >
+                      Log anyway (unplanned)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedId(""); setSelectedLabel(""); setPlannedWarning(false); }}
+                      className="flex-1 py-1.5 text-xs font-poppins-semibold text-amber-700 bg-white border border-amber-200 hover:bg-amber-50 rounded-lg focus-visible:outline-none"
+                    >
+                      Choose different doctor
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!plannedWarning && (
+                <button
+                  type="submit"
+                  className="w-full py-2 text-sm font-poppins-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                >
+                  {selectedId ? `Log unplanned visit — ${selectedLabel.split(" —")[0]} →` : "Open Log Visit Form →"}
+                </button>
+              )}
             </>
           ) : (
             <>
@@ -522,7 +559,8 @@ const DayRow = ({ day, activities, todayPlanEntries, onAddClick, onLogVisit, onN
       name: a.doctorName,
       town: a.town,
       visited: true,
-      label: (a.visitType === "UNPLANNED" ? "unplanned" : undefined) as "unplanned" | undefined,
+      // activityTiles are visits to doctors NOT on the tour plan — always unplanned for today
+      label: isToday ? "unplanned" as const : undefined,
     }));
 
   const allTiles = [...plannedTiles, ...activityTiles];
@@ -694,8 +732,10 @@ const Sidebar = () => {
   }, []);
 
   const handleAddClick = useCallback((day: Date) => {
+    // On mobile close the overlay so the modal renders on clean screen
+    if (isMobile && showPanel) dispatch(toggleSidebarPanel());
     setModalDay(day);
-  }, []);
+  }, [isMobile, showPanel, dispatch]);
 
   return (
     <>
@@ -787,8 +827,14 @@ const Sidebar = () => {
       {modalDay && (
         <AddEntryModal
           day={modalDay}
+          todayPlanEntries={isSameDay(modalDay, new Date()) ? todayPlanEntries : []}
           onClose={() => setModalDay(null)}
-          onOpenLogVisit={(doctorId, doctorName) => setVisitModal({ doctorId: doctorId ?? "", doctorName: doctorName ?? "" })}
+          onOpenLogVisit={(doctorId, doctorName) => {
+            setModalDay(null);
+            // Close sidebar on mobile so LogVisitModal renders on clean screen
+            if (isMobile && showPanel) dispatch(toggleSidebarPanel());
+            setVisitModal({ doctorId: doctorId ?? "", doctorName: doctorName ?? "" });
+          }}
         />
       )}
 
