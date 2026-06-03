@@ -160,11 +160,21 @@ export const getProductsApi = () => api.get('/product/company');
 export const getSampleBalancesApi = () => api.get('/sample-balance/my');
 
 // ─── Call Cycles ──────────────────────────────────────────────────────────────
-export const getCurrentCycleApi = () => api.get('/cycle/current');
+export const getCurrentCycleApi = (month?: number, year?: number) =>
+  api.get('/cycle/current', { params: { ...(month && { month }), ...(year && { year }) } });
 export const submitCycleApi = (id: string) => api.post(`/cycle/${id}/submit`);
+export const carryForwardCycleApi = () => api.post('/cycle/carry-forward');
 export const getPendingCyclesApi = () => api.get('/cycle/pending');
 export const approveCycleApi = (id: string) => api.put(`/cycle/${id}/approve`);
 export const rejectCycleApi = (id: string, data: { note: string }) => api.put(`/cycle/${id}/reject`, data);
+
+// ─── Late Submission Requests ─────────────────────────────────────────────────
+export const createLateRequestApi = (data: { type: 'CYCLE' | 'TOUR_PLAN'; month: number; year: number; note: string }) =>
+  api.post('/late-requests', data);
+export const getMyLateRequestsApi = () => api.get('/late-requests/my');
+export const getPendingLateRequestsApi = () => api.get('/late-requests/pending');
+export const approveLateRequestApi = (id: string) => api.put(`/late-requests/${id}/approve`);
+export const rejectLateRequestApi = (id: string, data?: { note?: string }) => api.put(`/late-requests/${id}/reject`, data);
 
 // ─── Daily Reports ────────────────────────────────────────────────────────────
 export const getTodayReportApi = () => api.get('/daily-report/today');

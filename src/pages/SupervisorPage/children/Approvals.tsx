@@ -9,6 +9,7 @@ import {
   getPendingExpenseClaimsApi, approveExpenseClaimApi, rejectExpenseClaimApi,
   getRecommendationsApi, approveRecommendationApi, rejectRecommendationApi, forwardRecommendationApi,
   getPendingTourPlansApi, approveTourPlanApi, rejectTourPlanApi,
+  getPendingLateRequestsApi, approveLateRequestApi, rejectLateRequestApi,
 } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -45,7 +46,13 @@ interface PendingTourPlan {
   entries: TourPlanEntry[];
 }
 
-type Tab = "reports" | "cycles" | "expenses" | "recs" | "tourplans";
+interface LateRequest {
+  id: string; type: "CYCLE" | "TOUR_PLAN"; month: number; year: number;
+  note: string; status: string; review_note: string | null;
+  user: { id: string; firstname: string; lastname: string };
+}
+
+type Tab = "reports" | "cycles" | "expenses" | "recs" | "tourplans" | "late";
 const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const FMT = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
@@ -90,6 +97,7 @@ const Approvals = () => {
   const [expenses, setExpenses]     = useState<PendingExpense[]>([]);
   const [recs, setRecs]             = useState<Recommendation[]>([]);
   const [tourplans, setTourplans]   = useState<PendingTourPlan[]>([]);
+  const [lateRequests, setLateRequests] = useState<LateRequest[]>([]);
   const [loading, setLoading]       = useState(true);
   const [actioning, setActioning]   = useState<string | null>(null);
   const [expandedCycle, setExpandedCycle]     = useState<string | null>(null);
@@ -103,6 +111,7 @@ const Approvals = () => {
       getPendingExpenseClaimsApi().then(r => setExpenses(r.data?.data ?? [])).catch(() => {}),
       getRecommendationsApi().then(r => setRecs((r.data?.data ?? []).filter((x: Recommendation) => x.status === "PENDING"))).catch(() => {}),
       getPendingTourPlansApi().then(r => setTourplans(r.data?.data ?? [])).catch(() => {}),
+      getPendingLateRequestsApi().then(r => setLateRequests(r.data?.data ?? [])).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -175,6 +184,18 @@ const Approvals = () => {
     setTourplans(p => p.filter(t => t.id !== id));
     setActioning(null);
   };
+  const approveLate = async (id: string) => {
+    setActioning(id);
+    await approveLateRequestApi(id).catch(() => {});
+    setLateRequests(p => p.filter(r => r.id !== id));
+    setActioning(null);
+  };
+  const rejectLate = async (id: string, note: string) => {
+    setActioning(id);
+    await rejectLateRequestApi(id, { note }).catch(() => {});
+    setLateRequests(p => p.filter(r => r.id !== id));
+    setActioning(null);
+  };
 
   const tabs: { key: Tab; label: string; count: number }[] = [
     { key: "reports",   label: "Daily Reports", count: reports.length },
@@ -182,9 +203,10 @@ const Approvals = () => {
     { key: "tourplans", label: "Tour Plans",    count: tourplans.length },
     { key: "expenses",  label: "Expenses",      count: expenses.length },
     { key: "recs",      label: "HCP Recs",      count: recs.length },
+    { key: "late",      label: "Late Requests", count: lateRequests.length },
   ];
 
-  const totalPending = reports.length + cycles.length + expenses.length + recs.length + tourplans.length;
+  const totalPending = reports.length + cycles.length + expenses.length + recs.length + tourplans.length + lateRequests.length;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -495,6 +517,53 @@ const Approvals = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {tab === "late" && (
+            lateRequests.length === 0 ? <Empty label="No pending late-submission requests" /> :
+            <div className="space-y-3">
+              {lateRequests.map(req => {
+                const repName = `${req.user.firstname} ${req.user.lastname}`;
+                const typeLabel = req.type === "CYCLE" ? "Call Cycle" : "Tour Plan";
+                const monthName = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][req.month];
+                return (
+                  <div key={req.id} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                          <span className="text-sm font-poppins-bold text-amber-700">
+                            {req.user.firstname[0]}{req.user.lastname[0]}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-poppins-semibold text-gray-800">{repName}</p>
+                          <p className="text-xs font-poppins text-gray-400">
+                            {typeLabel} · {monthName} {req.year} · late submission request
+                          </p>
+                        </div>
+                      </div>
+                      <span className="shrink-0 text-[10px] font-poppins-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        PENDING
+                      </span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg px-3 py-2.5 text-sm font-poppins text-gray-700 border border-gray-100">
+                      <span className="text-xs font-poppins-semibold text-gray-400 block mb-1">Rep's note</span>
+                      {req.note}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => approveLate(req.id)}
+                        disabled={actioning === req.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                        style={{ transition: "background-color 0.15s" }}>
+                        <FiCheckCircle className="w-3.5 h-3.5" /> Approve
+                      </button>
+                      <RejectInput onConfirm={note => rejectLate(req.id, note)} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 

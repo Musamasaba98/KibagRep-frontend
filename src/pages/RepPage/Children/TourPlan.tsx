@@ -33,7 +33,10 @@ import {
   removeTourPlanEntryApi,
   submitTourPlanApi,
   searchPharmaciesApi,
+  createLateRequestApi,
+  getMyLateRequestsApi,
 } from "../../../services/api";
+import { differenceInDays } from "date-fns";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -756,21 +759,87 @@ const CycleCoveragePanel = ({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+interface LateRequest {
+  id: string; type: string; month: number; year: number;
+  status: "PENDING" | "APPROVED" | "REJECTED"; note: string; review_note: string | null;
+}
+
+// ─── Late Request Modal (Tour Plan) ──────────────────────────────────────────
+const TourPlanLateModal = ({
+  month, year, existing, onClose, onSent,
+}: { month: number; year: number; existing: LateRequest | null; onClose: () => void; onSent: (r: LateRequest) => void }) => {
+  const [note, setNote] = useState(existing?.note ?? "");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+  const handleSend = async () => {
+    if (!note.trim()) { setErr("Please write a note."); return; }
+    setSaving(true);
+    try {
+      const res = await createLateRequestApi({ type: "TOUR_PLAN", month, year, note });
+      onSent(res.data.data);
+    } catch { setErr("Failed to send. Try again."); }
+    finally { setSaving(false); }
+  };
+  return (
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 px-4">
+      <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden">
+        <div className="bg-amber-500 px-5 py-4">
+          <h2 className="text-white font-poppins-bold text-lg">Request Late Submission</h2>
+          <p className="text-amber-100 text-xs font-poppins mt-0.5">Tour plan deadline was the 5th. Explain the delay.</p>
+        </div>
+        <div className="p-5 space-y-3">
+          {err && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{err}</p>}
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={4}
+            placeholder="Explain why you're submitting late…"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm font-poppins outline-none focus:border-amber-500 resize-none" />
+          {existing?.status === "REJECTED" && existing.review_note && (
+            <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <span className="font-semibold">Previous rejection:</span> {existing.review_note}
+            </p>
+          )}
+          <div className="flex gap-3">
+            <button onClick={handleSend} disabled={saving}
+              className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white font-poppins-semibold py-2.5 rounded-lg text-sm"
+              style={{ transition: "opacity 0.15s" }}>
+              {saving ? "Sending…" : "Send Request"}
+            </button>
+            <button onClick={onClose}
+              className="px-5 border border-gray-300 text-gray-600 hover:bg-gray-50 font-poppins-semibold py-2.5 rounded-lg text-sm">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TourPlan = () => {
   const [plan, setPlan]           = useState<TourPlan | null>(null);
   const [cycle, setCycle]         = useState<Cycle | null>(null);
+  const [lateReq, setLateReq]     = useState<LateRequest | null>(null);
   const [loading, setLoading]     = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [showLateModal, setShowLateModal] = useState(false);
 
   const now = new Date();
   const monthLabel = format(now, "MMMM yyyy");
 
   useEffect(() => {
-    getCurrentTourPlanApi()
-      .then((res) => {
-        setPlan(res.data.data.plan);
-        setCycle(res.data.data.cycle);
+    Promise.all([
+      getCurrentTourPlanApi(),
+      getMyLateRequestsApi(),
+    ])
+      .then(([planRes, lateRes]) => {
+        const p: TourPlan | null = planRes.data.data.plan;
+        setPlan(p);
+        setCycle(planRes.data.data.cycle);
+        if (p) {
+          const reqs: LateRequest[] = lateRes.data.data ?? [];
+          const match = reqs.find((r) => r.type === "TOUR_PLAN" && r.month === p.month && r.year === p.year);
+          setLateReq(match ?? null);
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -864,7 +933,10 @@ const TourPlan = () => {
       const res = await submitTourPlanApi(plan.id);
       setPlan(res.data.data);
     } catch (err: any) {
-      setSubmitError(err?.response?.data?.error ?? "Failed to submit");
+      const code = err?.response?.data?.error;
+      if (code === "LATE_SUBMISSION_REQUIRED") { setShowLateModal(true); }
+      else if (code === "CYCLE_NOT_APPROVED") { setSubmitError("Your call cycle for this month must be approved before submitting the tour plan."); }
+      else { setSubmitError(err?.response?.data?.message ?? "Failed to submit"); }
     } finally {
       setSubmitting(false);
     }
@@ -872,6 +944,19 @@ const TourPlan = () => {
 
   const locked = plan?.status === "SUBMITTED" || plan?.status === "APPROVED";
   const statusCfg = plan ? STATUS_CFG[plan.status] : null;
+
+  // Deadline: 5th of the plan's own month
+  const tourDeadline = plan ? new Date(plan.year, plan.month - 1, 5, 23, 59, 59) : null;
+  const isPastDeadline = tourDeadline ? new Date() > tourDeadline : false;
+  const deadlineDays = tourDeadline ? differenceInDays(tourDeadline, new Date()) : 0;
+  const deadlineBadge = !tourDeadline ? null
+    : deadlineDays < 0  ? { label: `Overdue by ${Math.abs(deadlineDays)}d`, cls: "bg-red-50 text-red-600 border-red-200" }
+    : deadlineDays === 0 ? { label: "Due today", cls: "bg-red-50 text-red-600 border-red-200" }
+    : deadlineDays <= 5  ? { label: `${deadlineDays}d left`, cls: "bg-amber-50 text-amber-700 border-amber-200" }
+    : { label: `Due ${format(tourDeadline, "d MMM")}`, cls: "bg-gray-100 text-gray-500 border-gray-200" };
+  const lateApproved = lateReq?.status === "APPROVED";
+  const latePending  = lateReq?.status === "PENDING";
+  const cycleApproved = cycle?.status === "APPROVED" || cycle?.status === "LOCKED";
 
   if (loading) {
     return (
@@ -882,6 +967,15 @@ const TourPlan = () => {
   }
 
   return (
+    <>
+    {showLateModal && plan && (
+      <TourPlanLateModal
+        month={plan.month} year={plan.year}
+        existing={lateReq}
+        onClose={() => setShowLateModal(false)}
+        onSent={(r) => { setLateReq(r); setShowLateModal(false); }}
+      />
+    )}
     <div className="flex gap-5">
       {/* ── Main column ── */}
       <div className="flex-1 min-w-0 flex flex-col gap-5">
@@ -898,23 +992,75 @@ const TourPlan = () => {
                 {monthlyExpense.toLocaleString()} UGX total expenses
               </span>
             )}
+            {/* Deadline badge */}
+            {plan?.status === "DRAFT" && deadlineBadge && (
+              <span className={`flex items-center gap-1.5 text-[11px] font-poppins-semibold px-2.5 py-1 rounded-full border ${deadlineBadge.cls}`}>
+                <FiAlertTriangle className="w-3 h-3" />{deadlineBadge.label}
+              </span>
+            )}
             {statusCfg && (
               <span className={`text-xs font-poppins-bold px-3 py-1.5 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
                 {statusCfg.label}
               </span>
             )}
-            {plan?.status === "DRAFT" && (
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-[#16a34a] hover:bg-[#15803d] text-white rounded-xl disabled:opacity-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-              >
+            {/* Submit / late-request buttons */}
+            {plan?.status === "DRAFT" && cycleApproved && !isPastDeadline && (
+              <button onClick={handleSubmit} disabled={submitting}
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-[#16a34a] hover:bg-[#15803d] text-white rounded-xl disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                style={{ transition: "background-color 0.15s" }}>
                 <FiSend className="w-3.5 h-3.5" />
                 {submitting ? "Submitting…" : "Submit for Approval"}
               </button>
             )}
+            {plan?.status === "DRAFT" && cycleApproved && isPastDeadline && (
+              lateApproved ? (
+                <button onClick={handleSubmit} disabled={submitting}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-[#16a34a] hover:bg-[#15803d] text-white rounded-xl disabled:opacity-50"
+                  style={{ transition: "background-color 0.15s" }}>
+                  <FiSend className="w-3.5 h-3.5" />
+                  {submitting ? "Submitting…" : "Submit (Late — Approved)"}
+                </button>
+              ) : latePending ? (
+                <span className="flex items-center gap-1.5 text-xs font-poppins-semibold px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
+                  <FiAlertTriangle className="w-3.5 h-3.5" /> Late request pending…
+                </span>
+              ) : (
+                <button onClick={() => setShowLateModal(true)}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-xl"
+                  style={{ transition: "background-color 0.15s" }}>
+                  <FiAlertTriangle className="w-3.5 h-3.5" /> Request Late Submission
+                </button>
+              )
+            )}
           </div>
         </div>
+
+        {/* Cycle not approved banner */}
+        {plan?.status === "DRAFT" && !cycleApproved && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-start gap-3">
+            <FiAlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-poppins-semibold text-amber-700">Call cycle not approved yet</p>
+              <p className="text-xs font-poppins text-amber-600 mt-0.5">
+                Your supervisor must approve your call cycle before you can submit this tour plan.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Late request rejected banner */}
+        {lateReq?.status === "REJECTED" && (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-3">
+            <FiAlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-poppins-semibold text-red-700">Late request rejected</p>
+              {lateReq.review_note && <p className="text-xs font-poppins text-red-600 mt-0.5">{lateReq.review_note}</p>}
+              <button onClick={() => setShowLateModal(true)} className="text-xs font-poppins-semibold text-red-600 underline mt-1">
+                Submit a new request →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Validation banners */}
         {plan?.status === "REJECTED" && plan.review_note && (
@@ -974,6 +1120,7 @@ const TourPlan = () => {
         />
       </div>
     </div>
+    </>
   );
 };
 
