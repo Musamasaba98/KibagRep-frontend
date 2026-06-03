@@ -24,7 +24,7 @@ import LogVisitModal from "../../../componets/LogVisitModal/LogVisitModal";
 import LogPharmacyModal from "../../../componets/LogPharmacyModal/LogPharmacyModal";
 import Ncapopup from "../../../componets/NcaPoppup/Ncapopup";
 import { NavLink, useNavigate } from "react-router-dom";
-import { getActivityHistoryApi, getTodayTourPlanApi } from "../../../services/api";
+import { getActivityHistoryApi, getTodayTourPlanApi, getCompanyDoctorListApi } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -254,6 +254,8 @@ const PharmacyTile = ({
 
 type FormTab = "unplanned" | "leave";
 
+interface DoctorOption { id: string; doctor_name: string; town?: string; }
+
 const AddEntryModal = ({
   day,
   onClose,
@@ -261,41 +263,59 @@ const AddEntryModal = ({
 }: {
   day: Date;
   onClose: () => void;
-  onOpenLogVisit?: () => void;
+  onOpenLogVisit?: (doctorId?: string, doctorName?: string) => void;
 }) => {
   const [tab, setTab] = useState<FormTab>("unplanned");
 
-  // Unplanned visit fields
-  const [doctorName, setDoctorName] = useState("");
-  const [visitNotes, setVisitNotes] = useState("");
+  // Doctor search
+  const [doctors, setDoctors]         = useState<DoctorOption[]>([]);
+  const [search, setSearch]           = useState("");
+  const [selectedId, setSelectedId]   = useState("");
+  const [selectedLabel, setSelectedLabel] = useState("");
+  const [showList, setShowList]       = useState(false);
 
   // Leave fields
   const [leaveType, setLeaveType] = useState("Annual Leave");
   const [leaveNotes, setLeaveNotes] = useState("");
+  const [submitting] = useState(false);
 
-  const [submitting, setSubmitting] = useState(false);
+  useEffect(() => {
+    getCompanyDoctorListApi().then((r) => {
+      const raw = r.data.data ?? r.data ?? [];
+      setDoctors(raw.map((item: any) => item.doctor ?? item));
+    }).catch(() => {});
+  }, []);
+
+  const filtered = search.length >= 2
+    ? doctors.filter((d) =>
+        d.doctor_name?.toLowerCase().includes(search.toLowerCase()) ||
+        d.town?.toLowerCase().includes(search.toLowerCase()))
+    : [];
+
+  const handleSelect = (d: DoctorOption) => {
+    setSelectedId(d.id);
+    setSelectedLabel(`${d.doctor_name} — ${d.town ?? ""}`);
+    setSearch("");
+    setShowList(false);
+  };
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (tab === "unplanned") {
-        // Open the proper Log Visit modal which has full doctor search + product
         onClose();
-        onOpenLogVisit?.();
+        onOpenLogVisit?.(selectedId || undefined, selectedLabel || undefined);
         return;
       }
-      // Leave / NCA — just close for now (no backend for day-off yet)
       onClose();
     },
-    [tab, onClose, onOpenLogVisit]
+    [tab, onClose, onOpenLogVisit, selectedId, selectedLabel]
   );
 
   const modal = (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       {/* backdrop */}
       <div className="absolute inset-0 bg-black/30" />
@@ -336,32 +356,48 @@ const AddEntryModal = ({
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4">
           {tab === "unplanned" ? (
             <>
-              <div>
-                <label className="text-[11px] font-semibold text-gray-500 mb-1 block">Doctor name</label>
+              <div className="relative">
+                <label className="text-[11px] font-poppins-semibold text-gray-500 mb-1 block">
+                  Search doctor <span className="text-gray-400 font-normal">(optional — you can also search in the next step)</span>
+                </label>
                 <input
                   type="text"
-                  placeholder="Dr. Kato"
-                  value={doctorName}
-                  onChange={(e) => setDoctorName(e.target.value)}
+                  placeholder="Type name or town…"
+                  value={selectedLabel || search}
+                  onChange={(e) => {
+                    setSelectedId("");
+                    setSelectedLabel("");
+                    setSearch(e.target.value);
+                    setShowList(true);
+                  }}
+                  onFocus={() => setShowList(true)}
                   className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] transition-colors"
                 />
-              </div>
-              <div>
-                <label className="text-[11px] font-semibold text-gray-500 mb-1 block">Notes (optional)</label>
-                <textarea
-                  placeholder="Outcome, products discussed…"
-                  value={visitNotes}
-                  onChange={(e) => setVisitNotes(e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] resize-none transition-colors"
-                />
+                {showList && filtered.length > 0 && (
+                  <ul className="absolute z-10 bg-white border border-gray-200 rounded-xl w-full mt-1 max-h-44 overflow-y-auto shadow-lg custom-scrollbar">
+                    {filtered.map((d) => (
+                      <li
+                        key={d.id}
+                        onMouseDown={() => handleSelect(d)}
+                        className="px-3 py-2.5 hover:bg-green-50 cursor-pointer text-sm flex items-center justify-between"
+                      >
+                        <span className="font-poppins-semibold text-[#222f36]">{d.doctor_name}</span>
+                        {d.town && <span className="text-xs text-gray-400 ml-2">{d.town}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {showList && search.length >= 2 && filtered.length === 0 && (
+                  <div className="absolute z-10 bg-white border border-gray-200 rounded-xl w-full mt-1 px-3 py-2.5 text-sm text-gray-400 shadow">
+                    No doctors found
+                  </div>
+                )}
               </div>
               <button
                 type="submit"
-                disabled={submitting || !doctorName.trim()}
-                className="w-full py-2 text-sm font-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                className="w-full py-2 text-sm font-poppins-semibold text-white bg-[#16a34a] rounded-xl hover:bg-[#15803d] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
               >
-                {"Open Log Visit Form →"}
+                {selectedId ? `Log visit for ${selectedLabel.split(" —")[0]} →` : "Open Log Visit Form →"}
               </button>
             </>
           ) : (
@@ -681,8 +717,8 @@ const Sidebar = () => {
         transition: isMobile ? "transform 250ms ease" : "width 250ms ease",
       }}
     >
-      {/* left nav strip — icon-only with hover tooltips */}
-      <div className="w-[72px] flex flex-col h-full border-r border-gray-200 shrink-0 bg-white">
+      {/* left nav strip — desktop only, hidden on mobile */}
+      <div className={`${isMobile ? "hidden" : "flex"} w-[72px] flex-col h-full border-r border-gray-200 shrink-0 bg-white`}>
         {/* scrollable nav items */}
         <div className="flex-1 overflow-y-auto scrollbar-none py-3 flex flex-col items-center gap-0.5">
           <NavItem to="/rep-page" icon={BiHome} label="Home" end />
@@ -718,7 +754,7 @@ const Sidebar = () => {
       <div
         className="h-full flex flex-col overflow-hidden"
         style={{
-          width: showPanel ? "calc(320px - 72px)" : 0,
+          width: isMobile ? (showPanel ? "280px" : 0) : (showPanel ? "calc(320px - 72px)" : 0),
           opacity: showPanel ? 1 : 0,
           transition: "width 250ms ease, opacity 200ms ease",
           pointerEvents: showPanel ? "auto" : "none",
@@ -749,7 +785,11 @@ const Sidebar = () => {
 
       {/* modal — rendered to body via portal */}
       {modalDay && (
-        <AddEntryModal day={modalDay} onClose={() => setModalDay(null)} onOpenLogVisit={() => setVisitModal({ doctorId: "", doctorName: "" })} />
+        <AddEntryModal
+          day={modalDay}
+          onClose={() => setModalDay(null)}
+          onOpenLogVisit={(doctorId, doctorName) => setVisitModal({ doctorId: doctorId ?? "", doctorName: doctorName ?? "" })}
+        />
       )}
 
       {/* Log Visit modal — triggered from sidebar chip */}
