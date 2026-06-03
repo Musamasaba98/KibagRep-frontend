@@ -24,7 +24,7 @@ import LogVisitModal from "../../../componets/LogVisitModal/LogVisitModal";
 import LogPharmacyModal from "../../../componets/LogPharmacyModal/LogPharmacyModal";
 import Ncapopup from "../../../componets/NcaPoppup/Ncapopup";
 import { NavLink, useNavigate } from "react-router-dom";
-import { getActivityHistoryApi, getTodayTourPlanApi, getCompanyDoctorListApi } from "../../../services/api";
+import { getActivityHistoryApi, getTodayTourPlanApi, getCompanyDoctorListApi, getPharmacyActivityHistoryApi } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -698,11 +698,15 @@ const Sidebar = () => {
   }, [showPanel]);
 
   useEffect(() => {
+    const todayKey = format(new Date(), "yyyy-MM-dd");
+
     Promise.all([
       getActivityHistoryApi({ days: 31, limit: 500 }),
       getTodayTourPlanApi(),
+      getPharmacyActivityHistoryApi({ days: 1, limit: 200 }),
     ])
-      .then(([histRes, planRes]) => {
+      .then(([histRes, planRes, pharmRes]) => {
+        // Doctor activities
         const activities: DoctorActivity[] = histRes.data?.data ?? [];
         const byDay: Record<string, DayActivity[]> = {};
         for (const a of activities) {
@@ -718,8 +722,20 @@ const Sidebar = () => {
         }
         setActivitiesByDay(byDay);
 
+        // Tour plan
         const entries: TodayPlanEntry[] = planRes.data?.data ?? [];
         setTodayPlanEntries(entries);
+
+        // Seed visitedPharmacyIds from today's pharmacy activities so the
+        // tick persists across page refreshes
+        const pharmActivities: any[] = pharmRes.data?.data ?? [];
+        const todayVisitedIds = pharmActivities
+          .filter((a) => format(new Date(a.date), "yyyy-MM-dd") === todayKey)
+          .map((a) => a.pharmacy_id)
+          .filter(Boolean);
+        if (todayVisitedIds.length > 0) {
+          setVisitedPharmacyIds(todayVisitedIds);
+        }
       })
       .catch(() => {
         // silently ignore — UI degrades gracefully
@@ -814,7 +830,10 @@ const Sidebar = () => {
                   onLogVisit={(id, name) => setVisitModal({ doctorId: id, doctorName: name })}
                   onNca={(id, name) => setNcaModal({ doctorId: id, doctorName: name })}
                   onViewProfile={(id) => navigate(`/rep-page/doctors?highlight=${id}`)}
-                  onLogPharmacy={(id, name, loc) => setPharmModal({ pharmacyId: id, pharmacyName: name, location: loc })}
+                  onLogPharmacy={(id, name, loc) => {
+                    if (isMobile && showPanel) dispatch(toggleSidebarPanel());
+                    setPharmModal({ pharmacyId: id, pharmacyName: name, location: loc });
+                  }}
                   visitedPharmacyIds={visitedPharmacyIds}
                 />
               </div>
