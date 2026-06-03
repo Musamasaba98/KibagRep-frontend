@@ -62,15 +62,15 @@ const RepPage = () => {
 
       {fabOpen && <div className="fixed inset-0 z-30" onClick={() => setFabOpen(false)} />}
 
-      <div className="w-full bg-gray-50 h-screen overflow-x-hidden">
+      <div className="w-full bg-gray-50 h-screen flex flex-col overflow-hidden">
         <Navbar />
-        <div className="w-full flex">
+        <div className="flex flex-1 overflow-hidden">
           <Sidebar />
           <div
-            className="w-full p-4 md:p-7"
+            className="flex-1 overflow-y-auto p-4 md:p-7"
             style={{
               marginLeft: isMobile ? 0 : (showSidebarPanel ? 320 : 72),
-              paddingBottom: isMobile ? 96 : undefined,
+              paddingBottom: isMobile ? 96 : 32,
               transition: isMobile ? undefined : 'margin-left 250ms ease',
             }}
           >
