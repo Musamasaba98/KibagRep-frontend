@@ -827,9 +827,18 @@ const Sidebar = () => {
                   activities={activitiesByDay[key] ?? []}
                   todayPlanEntries={isToday ? todayPlanEntries : []}
                   onAddClick={handleAddClick}
-                  onLogVisit={(id, name) => setVisitModal({ doctorId: id, doctorName: name })}
-                  onNca={(id, name) => setNcaModal({ doctorId: id, doctorName: name })}
-                  onViewProfile={(id) => navigate(`/rep-page/doctors?highlight=${id}`)}
+                  onLogVisit={(id, name) => {
+                    if (isMobile && showPanel) dispatch(toggleSidebarPanel());
+                    setVisitModal({ doctorId: id, doctorName: name });
+                  }}
+                  onNca={(id, name) => {
+                    if (isMobile && showPanel) dispatch(toggleSidebarPanel());
+                    setNcaModal({ doctorId: id, doctorName: name });
+                  }}
+                  onViewProfile={(id) => {
+                    if (isMobile && showPanel) dispatch(toggleSidebarPanel());
+                    navigate(`/rep-page/doctors?highlight=${id}`);
+                  }}
                   onLogPharmacy={(id, name, loc) => {
                     if (isMobile && showPanel) dispatch(toggleSidebarPanel());
                     setPharmModal({ pharmacyId: id, pharmacyName: name, location: loc });
