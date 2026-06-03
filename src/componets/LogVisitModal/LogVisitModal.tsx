@@ -265,12 +265,15 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
           {/* Additional product samples */}
           <div className="border border-dashed border-gray-200 rounded-xl overflow-hidden">
             <button type="button"
+              disabled={availableForExtra.length === 0 && extraSamples.length === 0}
               onClick={() => extraSamples.length > 0 ? setShowExtraSamples((v) => !v) : addExtraRow()}
-              className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50 focus-visible:outline-none"
+              className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none"
               style={{ transition: "background-color 0.15s" }}>
               <span className="flex font-poppins items-center gap-2">
                 <FaPlus className="w-3 h-3 text-[#16a34a]" />
-                Samples for other products
+                {availableForExtra.length === 0 && extraSamples.length === 0
+                  ? "No other products to sample"
+                  : "Samples for other products"}
                 {extraSamples.length > 0 && (
                   <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-[#f0fdf4] text-[#16a34a] font-poppins-bold border border-[#dcfce7]">
                     {extraSamples.reduce((s,r) => s + r.qty, 0)} units
