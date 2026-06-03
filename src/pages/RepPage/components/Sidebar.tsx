@@ -851,59 +851,56 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* modal — rendered to body via portal */}
-      {modalDay && (
-        <AddEntryModal
-          day={modalDay}
-          todayPlanEntries={isSameDay(modalDay, new Date()) ? todayPlanEntries : []}
-          onClose={() => setModalDay(null)}
-          onOpenLogVisit={(doctorId, doctorName) => {
-            setModalDay(null);
-            // Close sidebar on mobile so LogVisitModal renders on clean screen
-            if (isMobile && showPanel) dispatch(toggleSidebarPanel());
-            setVisitModal({ doctorId: doctorId ?? "", doctorName: doctorName ?? "" });
-          }}
-        />
-      )}
-
-      {/* Log Visit modal — triggered from sidebar chip */}
-      {visitModal && (
-        <LogVisitModal
-          initialDoctorId={visitModal.doctorId}
-          initialDoctorLabel={visitModal.doctorName}
-          onClose={() => setVisitModal(null)}
-          onSuccess={() => {
-            setVisitModal(null);
-            // Refresh activity history so the chip updates to visited
-            getTodayTourPlanApi(); // trigger sidebar re-fetch via parent if needed
-          }}
-        />
-      )}
-
-      {/* NCA modal — triggered from sidebar chip */}
-      {ncaModal && (
-        <Ncapopup
-          initialDoctorId={ncaModal.doctorId}
-          initialDoctorLabel={ncaModal.doctorName}
-          onClose={() => setNcaModal(null)}
-          onSuccess={() => setNcaModal(null)}
-        />
-      )}
-
-      {/* Log Pharmacy modal — triggered from pharmacy chip */}
-      {pharmModal && (
-        <LogPharmacyModal
-          pharmacyId={pharmModal.pharmacyId}
-          pharmacyName={pharmModal.pharmacyName}
-          pharmacyLocation={pharmModal.location}
-          onClose={() => setPharmModal(null)}
-          onSuccess={() => {
-            const id = pharmModal?.pharmacyId;
-            if (id) setVisitedPharmacyIds((prev) => [...prev, id]);
-          }}
-        />
-      )}
     </div>
+
+    {/* Portals — rendered directly to body so CSS transform on sidebar never traps them */}
+    {modalDay && ReactDOM.createPortal(
+      <AddEntryModal
+        day={modalDay}
+        todayPlanEntries={isSameDay(modalDay, new Date()) ? todayPlanEntries : []}
+        onClose={() => setModalDay(null)}
+        onOpenLogVisit={(doctorId, doctorName) => {
+          setModalDay(null);
+          setVisitModal({ doctorId: doctorId ?? "", doctorName: doctorName ?? "" });
+        }}
+      />,
+      document.body
+    )}
+
+    {visitModal && ReactDOM.createPortal(
+      <LogVisitModal
+        initialDoctorId={visitModal.doctorId}
+        initialDoctorLabel={visitModal.doctorName}
+        onClose={() => setVisitModal(null)}
+        onSuccess={() => setVisitModal(null)}
+      />,
+      document.body
+    )}
+
+    {ncaModal && ReactDOM.createPortal(
+      <Ncapopup
+        initialDoctorId={ncaModal.doctorId}
+        initialDoctorLabel={ncaModal.doctorName}
+        onClose={() => setNcaModal(null)}
+        onSuccess={() => setNcaModal(null)}
+      />,
+      document.body
+    )}
+
+    {pharmModal && ReactDOM.createPortal(
+      <LogPharmacyModal
+        pharmacyId={pharmModal.pharmacyId}
+        pharmacyName={pharmModal.pharmacyName}
+        pharmacyLocation={pharmModal.location}
+        onClose={() => setPharmModal(null)}
+        onSuccess={() => {
+          const id = pharmModal?.pharmacyId;
+          if (id) setVisitedPharmacyIds((prev) => [...prev, id]);
+          setPharmModal(null);
+        }}
+      />,
+      document.body
+    )}
     </>
   );
 };
