@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import { FaXmark, FaMagnifyingGlass, FaUserPlus, FaKey, FaCopy } from "react-icons/fa6";
 import { FiUserPlus, FiSearch } from "react-icons/fi";
 import { searchUsersApi, getCompanyTeamsApi, addUserToCompanyApi, createCompanyUserApi } from "../../services/api";
@@ -72,7 +73,10 @@ const genTempPassword = () => {
   );
 };
 
-const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add User to Company", companyId }: Props) => {
+const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add User to Company", companyId: companyIdProp }: Props) => {
+  const authUser: any = useSelector((s: any) => s.auth?.user);
+  // Use explicit prop first; fall back to the logged-in user's own company
+  const companyId = companyIdProp ?? authUser?.company_id ?? undefined;
   const [tab, setTab] = useState<"existing" | "new">("existing");
 
   // — Existing user tab —

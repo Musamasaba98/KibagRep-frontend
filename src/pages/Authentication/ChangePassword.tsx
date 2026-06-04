@@ -6,7 +6,7 @@ import { changePasswordApi } from "../../services/api";
 
 const ROLE_HOME: Record<string, string> = {
   SUPER_ADMIN:  "/super-admin",
-  COUNTRY_MGR:  "/super-admin",
+  COUNTRY_MGR:  "/country",
   SALES_ADMIN:  "/super-admin",
   Manager:      "/manager-page",
   Supervisor:   "/supervisor-page",
