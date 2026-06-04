@@ -9,6 +9,7 @@ interface AuthUser {
   role: "SUPER_ADMIN" | "SALES_ADMIN" | "COUNTRY_MGR" | "Manager" | "Supervisor" | "MedicalRep" | "USER";
   contact?: string;
   gender?: string;
+  company_id?: string | null;
 }
 
 interface AuthState {
