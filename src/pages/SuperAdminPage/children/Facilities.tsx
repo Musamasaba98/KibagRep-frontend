@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { FaBuildingColumns, FaPlus, FaXmark, FaMagnifyingGlass, FaLocationDot } from "react-icons/fa6";
 import { LuMapPin, LuPencil, LuCheck } from "react-icons/lu";
 import { MdOutlineGpsOff } from "react-icons/md";
@@ -183,11 +183,163 @@ const CoordinatePickerModal = ({ facilityName, initial, onSave, onClose, saving 
 };
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── Nominatim result type ────────────────────────────────────────────────────
+interface NominatimResult {
+  place_id: number;
+  display_name: string;
+  lat: string;
+  lon: string;
+  address?: {
+    hospital?: string; clinic?: string; amenity?: string;
+    road?: string; suburb?: string; city?: string; town?: string; village?: string;
+    county?: string; country?: string;
+  };
+}
+
+// ─── Map-search modal ─────────────────────────────────────────────────────────
+const MapSearchModal = ({
+  onSelect, onClose,
+}: {
+  onSelect: (r: NominatimResult) => void;
+  onClose: () => void;
+}) => {
+  const [q, setQ]           = useState("");
+  const [results, setResults] = useState<NominatimResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [pinned, setPinned] = useState<{ lat: number; lng: number; name: string } | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const search = async (query: string) => {
+    if (query.trim().length < 3) { setResults([]); return; }
+    setSearching(true);
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=8&countrycodes=ug`;
+      const res = await fetch(url, { headers: { "Accept-Language": "en" } });
+      const data: NominatimResult[] = await res.json();
+      setResults(data);
+    } catch { setResults([]); }
+    finally { setSearching(false); }
+  };
+
+  const handleChange = (val: string) => {
+    setQ(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => search(val), 600);
+  };
+
+  const handlePick = (r: NominatimResult) => {
+    setPinned({ lat: parseFloat(r.lat), lng: parseFloat(r.lon), name: r.display_name.split(",")[0] });
+    setResults([]);
+  };
+
+  const MapFlyTo = ({ center }: { center: [number, number] }) => {
+    const map = useMap();
+    useEffect(() => { map.flyTo(center, 16, { duration: 1 }); }, [center[0], center[1]]);
+    return null;
+  };
+
+  return (
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/55">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden" style={{ maxHeight: "90vh" }}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+          <div>
+            <h2 className="font-black text-[#1a2530] text-base">Search Facility on Map</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Type a name or address — results from OpenStreetMap</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1"><FaXmark className="w-4 h-4" /></button>
+        </div>
+
+        {/* Search bar */}
+        <div className="px-5 py-3 border-b border-gray-100 shrink-0 space-y-2">
+          <div className="relative">
+            <FaMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <input
+              autoFocus
+              type="text" value={q} onChange={e => handleChange(e.target.value)}
+              placeholder="e.g. Mulago Hospital, Kampala…"
+              className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20"
+            />
+            {searching && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />
+            )}
+          </div>
+
+          {/* Results dropdown */}
+          {results.length > 0 && (
+            <div className="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-52 overflow-y-auto">
+              {results.map(r => (
+                <button key={r.place_id} onClick={() => handlePick(r)}
+                  className="w-full text-left px-4 py-2.5 hover:bg-green-50 border-b border-gray-50 last:border-0"
+                  style={{ transition: "background-color 0.12s" }}>
+                  <p className="text-sm font-semibold text-gray-800 truncate">{r.display_name.split(",")[0]}</p>
+                  <p className="text-xs text-gray-400 truncate">{r.display_name.split(",").slice(1, 4).join(", ")}</p>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Map */}
+        <div className="flex-1 min-h-[300px] relative">
+          <MapContainer
+            center={pinned ? [pinned.lat, pinned.lng] : UGANDA_CENTER}
+            zoom={pinned ? 15 : 7}
+            style={{ width: "100%", height: "100%", minHeight: 300 }}
+            zoomControl>
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            />
+            {pinned && (
+              <>
+                <MapFlyTo center={[pinned.lat, pinned.lng]} />
+                <Marker position={[pinned.lat, pinned.lng]} icon={GREEN_ICON} />
+              </>
+            )}
+          </MapContainer>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-gray-100 shrink-0 flex items-center justify-between gap-3">
+          {pinned ? (
+            <>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-800 truncate">{pinned.name}</p>
+                <p className="text-xs text-gray-400">{pinned.lat.toFixed(6)}, {pinned.lng.toFixed(6)}</p>
+              </div>
+              <button
+                onClick={() => {
+                  const match = results.find(r => r.display_name.split(",")[0] === pinned.name);
+                  const synth: NominatimResult = match ?? {
+                    place_id: 0,
+                    display_name: pinned.name,
+                    lat: String(pinned.lat),
+                    lon: String(pinned.lng),
+                  };
+                  onSelect(synth);
+                }}
+                className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-semibold text-sm px-4 py-2 rounded-xl shrink-0"
+                style={{ transition: "background-color 0.15s" }}>
+                <LuCheck className="w-4 h-4" /> Add this facility
+              </button>
+            </>
+          ) : (
+            <p className="text-xs text-gray-400">Search and click a result to pin it, then confirm.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Facilities = () => {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading]       = useState(true);
   const [q, setQ]                   = useState("");
 
+  const [showMapSearch, setShowMapSearch]   = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [form, setForm]   = useState({ name: "", facility_type: "", town: "", location: "" });
   const [saving, setSaving]     = useState(false);
@@ -277,11 +429,18 @@ const Facilities = () => {
             )}
           </div>
         </div>
-        <button onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-[0_2px_8px_0_rgba(22,163,74,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-          style={{ transition: "background-color 0.15s" }}>
-          <FaPlus className="w-3.5 h-3.5" /><span>Add Facility</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowMapSearch(true)}
+            className="flex items-center gap-2 border border-[#16a34a] text-[#16a34a] text-sm font-semibold px-3.5 py-2.5 rounded-xl hover:bg-green-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            style={{ transition: "background-color 0.15s" }}>
+            <FaMagnifyingGlass className="w-3.5 h-3.5" /><span className="hidden sm:inline">Search Map</span>
+          </button>
+          <button onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-[0_2px_8px_0_rgba(22,163,74,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            style={{ transition: "background-color 0.15s" }}>
+            <FaPlus className="w-3.5 h-3.5" /><span>Add Facility</span>
+          </button>
+        </div>
       </div>
 
       {/* GPS coverage warning */}
@@ -453,6 +612,26 @@ const Facilities = () => {
           saving={savingCoords}
           onClose={() => setPickerTarget(null)}
           onSave={handleSaveCoords}
+        />
+      )}
+
+      {showMapSearch && (
+        <MapSearchModal
+          onClose={() => setShowMapSearch(false)}
+          onSelect={(r) => {
+            const namePart = r.display_name.split(",")[0].trim();
+            const addr = r.address;
+            const town = addr?.city ?? addr?.town ?? addr?.village ?? addr?.suburb ?? "";
+            setForm(prev => ({
+              ...prev,
+              name: namePart,
+              town,
+              location: [addr?.road, addr?.suburb].filter(Boolean).join(", ") || namePart,
+            }));
+            setCreateCoords({ lat: parseFloat(r.lat), lng: parseFloat(r.lon) });
+            setShowMapSearch(false);
+            setShowCreateModal(true);
+          }}
         />
       )}
     </div>

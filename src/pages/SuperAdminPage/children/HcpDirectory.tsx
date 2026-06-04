@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   FaStethoscope, FaMagnifyingGlass, FaPlus, FaXmark, FaLocationDot, FaHospital, FaBuildingColumns,
+  FaFileExcel, FaDownload, FaUpload,
 } from "react-icons/fa6";
 import { LuPencil, LuCheck, LuX, LuStar, LuChevronDown } from "react-icons/lu";
 import { MdOutlineGpsOff } from "react-icons/md";
+import { FiCheckSquare, FiSquare, FiEdit3 } from "react-icons/fi";
 import api from "../../../services/api";
+import {
+  bulkEditDoctorsApi, bulkUploadDoctorsApi, downloadDoctorTemplateApi,
+} from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -576,6 +581,154 @@ const AddDoctorModal = ({ onClose, onAdded }: { onClose: () => void; onAdded: ()
 
 // ─── Main HCP Directory Page ──────────────────────────────────────────────────
 
+// ─── Excel Upload Modal ───────────────────────────────────────────────────────
+const UploadModal = ({ onClose, onDone }: { onClose: () => void; onDone: () => void }) => {
+  const [file, setFile]       = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [result, setResult]   = useState<{ created: number; updated: number; errors: {row:string;error:string}[] } | null>(null);
+  const [err, setErr]         = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const downloadTemplate = async () => {
+    const res = await downloadDoctorTemplateApi();
+    const url = URL.createObjectURL(new Blob([res.data]));
+    const a = document.createElement("a"); a.href = url; a.download = "doctors_upload_template.xlsx"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
+    setUploading(true); setErr(""); setResult(null);
+    try {
+      const res = await bulkUploadDoctorsApi(file);
+      setResult(res.data);
+      onDone();
+    } catch (e: any) {
+      setErr(e.response?.data?.message || "Upload failed");
+    } finally { setUploading(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 px-4">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+        <div className="bg-[#16a34a] px-5 py-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-white font-bold text-lg">Upload Doctors (Excel)</h2>
+            <p className="text-green-100 text-xs mt-0.5">Creates new or updates existing by license / name match</p>
+          </div>
+          <button onClick={onClose} className="text-white/80 hover:text-white"><FaXmark className="w-5 h-5" /></button>
+        </div>
+        <div className="p-5 space-y-4">
+          <button onClick={downloadTemplate}
+            className="w-full flex items-center justify-center gap-2 border border-[#16a34a] text-[#16a34a] font-semibold text-sm py-2.5 rounded-xl hover:bg-green-50"
+            style={{ transition: "background-color 0.15s" }}>
+            <FaDownload className="w-3.5 h-3.5" /> Download Template
+          </button>
+
+          <div
+            onClick={() => inputRef.current?.click()}
+            className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-[#16a34a] hover:bg-green-50/30"
+            style={{ transition: "border-color 0.15s, background-color 0.15s" }}>
+            <FaFileExcel className="w-8 h-8 text-green-600 mx-auto mb-2" />
+            {file ? (
+              <p className="text-sm font-semibold text-gray-700">{file.name}</p>
+            ) : (
+              <p className="text-sm text-gray-400">Click to select your filled Excel file</p>
+            )}
+            <input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden"
+              onChange={e => { setFile(e.target.files?.[0] ?? null); setResult(null); setErr(""); }} />
+          </div>
+
+          {err && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{err}</p>}
+
+          {result && (
+            <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 space-y-1">
+              <p className="text-sm font-bold text-green-800">Upload complete</p>
+              <p className="text-xs text-green-700">{result.created} created · {result.updated} updated</p>
+              {result.errors.length > 0 && (
+                <div className="mt-1 space-y-0.5">
+                  {result.errors.map((e, i) => (
+                    <p key={i} className="text-xs text-red-600">{e.row}: {e.error}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button onClick={handleUpload} disabled={!file || uploading}
+              className="flex-1 flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm"
+              style={{ transition: "opacity 0.15s" }}>
+              <FaUpload className="w-3.5 h-3.5" />
+              {uploading ? "Uploading…" : "Upload & Process"}
+            </button>
+            <button onClick={onClose} className="px-5 border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold py-2.5 rounded-xl text-sm">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Bulk Edit Panel ──────────────────────────────────────────────────────────
+const CADRES_LIST = ["Doctor","Nurse","Midwife","Clinician","Pharmacist","Other"] as const;
+const TOWNS = ["Kampala","Entebbe","Jinja","Mbarara","Gulu","Mbale","Masaka","Lira","Fort Portal","Arua","Other"];
+
+const BulkEditPanel = ({
+  count, onApply, onClear,
+}: { count: number; onApply: (fields: Record<string, unknown>) => Promise<void>; onClear: () => void }) => {
+  const [cadre, setCadre]   = useState("");
+  const [town, setTown]     = useState("");
+  const [applying, setApplying] = useState(false);
+
+  const handleApply = async () => {
+    const fields: Record<string, unknown> = {};
+    if (cadre) fields.cadre = cadre;
+    if (town)  fields.town  = town;
+    if (!Object.keys(fields).length) return;
+    setApplying(true);
+    await onApply(fields);
+    setApplying(false);
+    setCadre(""); setTown("");
+  };
+
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-[#1a2530] text-white rounded-2xl shadow-2xl px-5 py-3.5 flex items-center gap-4 flex-wrap">
+      <span className="text-sm font-bold shrink-0">
+        <FiCheckSquare className="inline w-4 h-4 text-[#16a34a] mr-1.5" />{count} selected
+      </span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <select value={cadre} onChange={e => setCadre(e.target.value)}
+          className="bg-white/10 border border-white/20 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg outline-none hover:bg-white/20"
+          style={{ transition: "background-color 0.15s" }}>
+          <option value="">Set cadre…</option>
+          {CADRES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={town} onChange={e => setTown(e.target.value)}
+          className="bg-white/10 border border-white/20 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg outline-none hover:bg-white/20"
+          style={{ transition: "background-color 0.15s" }}>
+          <option value="">Set town…</option>
+          {TOWNS.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <button onClick={handleApply} disabled={applying || (!cadre && !town)}
+          className="flex items-center gap-1.5 bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-50 text-white text-xs font-bold px-3.5 py-1.5 rounded-lg"
+          style={{ transition: "background-color 0.15s" }}>
+          <FiEdit3 className="w-3.5 h-3.5" />{applying ? "Applying…" : "Apply"}
+        </button>
+      </div>
+      <button onClick={onClear}
+        className="text-gray-400 hover:text-white text-xs underline shrink-0"
+        style={{ transition: "color 0.15s" }}>
+        Clear
+      </button>
+    </div>
+  );
+};
+
+// ─── Main HCP Directory Page ──────────────────────────────────────────────────
+
 const HcpDirectory = () => {
   const [doctors, setDoctors]     = useState<Doctor[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -584,6 +737,8 @@ const HcpDirectory = () => {
   const [page, setPage]           = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAdd, setShowAdd]     = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const load = useCallback((p = 1, query = q) => {
@@ -612,6 +767,31 @@ const HcpDirectory = () => {
     setDoctors(prev => prev.map(d => d.id === updated.id ? { ...d, ...updated } : d));
   };
 
+  const toggleCheck = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCheckedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (checkedIds.size === doctors.length) {
+      setCheckedIds(new Set());
+    } else {
+      setCheckedIds(new Set(doctors.map(d => d.id)));
+    }
+  };
+
+  const handleBulkEdit = async (fields: Record<string, unknown>) => {
+    await bulkEditDoctorsApi([...checkedIds], fields);
+    setDoctors(prev => prev.map(d =>
+      checkedIds.has(d.id) ? { ...d, ...fields } as Doctor : d
+    ));
+    setCheckedIds(new Set());
+  };
+
   const withFacility    = doctors.filter(d => d.work_facilities?.length > 0).length;
   const withoutFacility = doctors.length - withFacility;
 
@@ -638,11 +818,18 @@ const HcpDirectory = () => {
             )}
           </div>
         </div>
-        <button onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-[0_2px_8px_0_rgba(22,163,74,0.25)]"
-          style={{ transition: "background-color 0.15s" }}>
-          <FaPlus className="w-3.5 h-3.5" /><span>Add HCP</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowUpload(true)}
+            className="flex items-center gap-2 border border-[#16a34a] text-[#16a34a] text-sm font-semibold px-3.5 py-2.5 rounded-xl hover:bg-green-50"
+            style={{ transition: "background-color 0.15s" }}>
+            <FaFileExcel className="w-3.5 h-3.5" /><span className="hidden sm:inline">Upload Excel</span>
+          </button>
+          <button onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-[0_2px_8px_0_rgba(22,163,74,0.25)]"
+            style={{ transition: "background-color 0.15s" }}>
+            <FaPlus className="w-3.5 h-3.5" /><span>Add HCP</span>
+          </button>
+        </div>
       </div>
 
       {/* Unlinked warning */}
@@ -680,18 +867,33 @@ const HcpDirectory = () => {
           <>
             {/* Column headers */}
             <div className="hidden sm:grid px-4 sm:px-5 py-2 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider"
-              style={{ gridTemplateColumns: "2rem 1fr 6rem 8rem" }}>
+              style={{ gridTemplateColumns: "1.5rem 2rem 1fr 6rem 8rem" }}>
+              <button onClick={toggleAll} className="flex items-center justify-center focus-visible:outline-none">
+                {checkedIds.size === doctors.length && doctors.length > 0
+                  ? <FiCheckSquare className="w-3.5 h-3.5 text-[#16a34a]" />
+                  : <FiSquare className="w-3.5 h-3.5 text-gray-300" />}
+              </button>
               <span /><span>Clinician</span><span>Cadre</span><span>Primary Facility</span>
             </div>
             <div className="divide-y divide-gray-50">
               {doctors.map(d => {
                 const primary = d.work_facilities?.find(f => f.is_primary) ?? d.work_facilities?.[0];
                 const facilityHasGps = primary?.facility.latitude != null;
+                const isChecked = checkedIds.has(d.id);
                 return (
                   <div key={d.id}
                     onClick={() => setSelectedId(d.id)}
-                    className="grid sm:grid-cols-[2rem_1fr_6rem_8rem] items-center gap-3 px-4 sm:px-5 py-3.5 hover:bg-[#f0fdf4]/40 cursor-pointer"
+                    className={`grid sm:grid-cols-[1.5rem_2rem_1fr_6rem_8rem] items-center gap-3 px-4 sm:px-5 py-3.5 cursor-pointer ${isChecked ? "bg-green-50" : "hover:bg-[#f0fdf4]/40"}`}
                     style={{ transition: "background-color 0.12s" }}>
+
+                    {/* Checkbox */}
+                    <button
+                      onClick={(e) => toggleCheck(d.id, e)}
+                      className="hidden sm:flex items-center justify-center focus-visible:outline-none shrink-0">
+                      {isChecked
+                        ? <FiCheckSquare className="w-4 h-4 text-[#16a34a]" />
+                        : <FiSquare className="w-4 h-4 text-gray-300 hover:text-gray-400" />}
+                    </button>
 
                     <div className="w-8 h-8 bg-sky-50 rounded-xl flex items-center justify-center shrink-0">
                       <FaStethoscope className="w-3.5 h-3.5 text-sky-600" />
@@ -760,6 +962,23 @@ const HcpDirectory = () => {
         <AddDoctorModal
           onClose={() => setShowAdd(false)}
           onAdded={() => load(1, q)}
+        />
+      )}
+
+      {/* Excel upload modal */}
+      {showUpload && (
+        <UploadModal
+          onClose={() => setShowUpload(false)}
+          onDone={() => { setShowUpload(false); load(1, q); }}
+        />
+      )}
+
+      {/* Floating bulk-edit panel */}
+      {checkedIds.size > 0 && (
+        <BulkEditPanel
+          count={checkedIds.size}
+          onApply={handleBulkEdit}
+          onClear={() => setCheckedIds(new Set())}
         />
       )}
     </div>

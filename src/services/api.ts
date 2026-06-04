@@ -79,6 +79,13 @@ export const getMeApi = () => api.get("/auth/me");
 // ─── Doctors ─────────────────────────────────────────────────────────────────
 export const getDoctorsApi = () => api.get("/doctor");
 export const createDoctorApi = (data: unknown) => api.post("/doctor", data);
+export const bulkEditDoctorsApi = (ids: string[], fields: Record<string, unknown>) => api.post("/doctor/bulk-edit", { ids, fields });
+export const bulkUploadDoctorsApi = (file: File) => {
+  const form = new FormData();
+  form.append("file", file);
+  return api.post("/doctor/bulk-upload", form, { headers: { "Content-Type": "multipart/form-data" } });
+};
+export const downloadDoctorTemplateApi = () => api.get("/doctor/bulk-upload/template", { responseType: "blob" });
 
 // ─── Pharmacies ──────────────────────────────────────────────────────────────
 export const getPharmaciesApi = () => api.get("/pharmacy");
