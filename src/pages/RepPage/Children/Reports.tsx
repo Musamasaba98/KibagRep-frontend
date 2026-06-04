@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { FiFileText, FiCheckCircle, FiXCircle, FiClock, FiSend, FiUsers, FiDownload } from "react-icons/fi";
-import { getTodayReportApi, submitDailyReportApi, getMyReportsApi, getCompanyObserversApi, downloadReportApi } from "../../../services/api";
+import { FiFileText, FiCheckCircle, FiXCircle, FiClock, FiSend, FiUsers, FiDownload, FiAlertTriangle } from "react-icons/fi";
+import { getTodayReportApi, submitDailyReportApi, getMyReportsApi, getCompanyObserversApi, downloadReportApi, createLateRequestApi, getMyLateRequestsApi } from "../../../services/api";
 
 interface DailyReport {
   id: string;
@@ -51,6 +51,10 @@ const Reports = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [midnightLocked, setMidnightLocked] = useState(false);
+  const [lateReqStatus, setLateReqStatus] = useState<"none"|"pending"|"approved">("none");
+  const [sendingLateReq, setSendingLateReq] = useState(false);
+  const [lateNote, setLateNote] = useState("");
   const [dlMonth, setDlMonth] = useState(() => new Date().getMonth() + 1);
   const [dlYear,  setDlYear]  = useState(() => new Date().getFullYear());
   const [downloading, setDownloading] = useState(false);
@@ -74,10 +78,14 @@ const Reports = () => {
 
   const fetchData = async () => {
     try {
-      const [todayRes, histRes, obsRes] = await Promise.all([
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const year  = now.getFullYear();
+      const [todayRes, histRes, obsRes, lateRes] = await Promise.all([
         getTodayReportApi(),
         getMyReportsApi(30),
         getCompanyObserversApi(),
+        getMyLateRequestsApi(),
       ]);
       const todayReport: DailyReport = todayRes.data.data;
       setToday(todayReport);
@@ -89,6 +97,11 @@ const Reports = () => {
       const hist: DailyReport[] = histRes.data.data;
       setHistory(hist.filter((r) => r.id !== todayReport.id));
       setObservers(obsRes.data.data ?? []);
+      // Check late request status for today's report
+      const reqs = lateRes.data.data ?? [];
+      const match = reqs.find((r: any) => r.type === "DAILY_REPORT" && r.month === month && r.year === year);
+      if (match?.status === "APPROVED") setLateReqStatus("approved");
+      else if (match?.status === "PENDING") setLateReqStatus("pending");
     } catch {
       setError("Failed to load reports.");
     } finally {
@@ -100,8 +113,7 @@ const Reports = () => {
 
   const handleSubmit = async () => {
     if (!summary.trim()) { setError("Please write a summary before submitting."); return; }
-    setError("");
-    setSuccess("");
+    setError(""); setSuccess("");
     setSubmitting(true);
     try {
       const res = await submitDailyReportApi({
@@ -111,11 +123,28 @@ const Reports = () => {
       });
       setToday(res.data.data);
       setSuccess("Report submitted successfully.");
+      setMidnightLocked(false);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to submit report.");
+      if (err.response?.data?.error === "LATE_SUBMISSION_REQUIRED") {
+        setMidnightLocked(true);
+      } else {
+        setError(err.response?.data?.message || "Failed to submit report.");
+      }
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleSendLateReq = async () => {
+    if (!lateNote.trim()) return;
+    const now = new Date();
+    setSendingLateReq(true);
+    try {
+      await createLateRequestApi({ type: "DAILY_REPORT", month: now.getMonth() + 1, year: now.getFullYear(), note: lateNote });
+      setLateReqStatus("pending");
+      setLateNote("");
+    } catch { /* ignore */ }
+    finally { setSendingLateReq(false); }
   };
 
   if (loading) {
@@ -212,6 +241,41 @@ const Reports = () => {
           {today?.status === "REJECTED" && today.review_note && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-md">
               <span className="font-poppins-semibold">Rejected: </span>{today.review_note}
+            </div>
+          )}
+
+          {/* Midnight lock banner */}
+          {midnightLocked && today?.status === "DRAFT" && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 space-y-3">
+              <div className="flex items-start gap-2">
+                <FiAlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-poppins-semibold text-red-700">Report window closed at midnight</p>
+                  <p className="text-xs font-poppins text-red-600 mt-0.5">
+                    {lateReqStatus === "pending"
+                      ? "Your request is pending supervisor approval. You'll be able to submit once approved."
+                      : "You need supervisor approval to submit a late report. Explain the reason below."}
+                  </p>
+                </div>
+              </div>
+              {lateReqStatus === "none" && (
+                <div className="space-y-2">
+                  <textarea
+                    value={lateNote}
+                    onChange={e => setLateNote(e.target.value)}
+                    rows={2}
+                    placeholder="Explain why you couldn't submit before midnight…"
+                    className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm font-poppins outline-none focus:border-red-400 resize-none bg-white"
+                  />
+                  <button
+                    onClick={handleSendLateReq}
+                    disabled={sendingLateReq || !lateNote.trim()}
+                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-poppins-semibold px-4 py-2 rounded-lg"
+                    style={{ transition: "background-color 0.15s" }}>
+                    {sendingLateReq ? "Sending…" : "Request Late Submission"}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

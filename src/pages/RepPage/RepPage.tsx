@@ -10,6 +10,7 @@ import Ncapopup from '../../componets/NcaPoppup/Ncapopup';
 import LogVisitModal from '../../componets/LogVisitModal/LogVisitModal';
 import PharmacyFabModal from '../../componets/LogPharmacyModal/PharmacyFabModal';
 import { Outlet } from 'react-router-dom';
+import usePushNotifications from '../../hooks/usePushNotifications';
 import InstallPrompt from '../../componets/InstallPrompt/InstallPrompt';
 import { FaPlus, FaXmark, FaStethoscope, FaBan, FaCalendarPlus } from 'react-icons/fa6';
 import { TbPill } from 'react-icons/tb';
@@ -22,6 +23,7 @@ const SPEED_DIAL = [
 ];
 
 const RepPage = () => {
+  usePushNotifications();
   const dispatch = useDispatch();
   const showMenu: boolean = useSelector((state: any) => state.uiState.showMenu);
   const showSidebarPanel: boolean = useSelector((state: any) => state.uiState.showSidebarPanel ?? true);

@@ -525,7 +525,7 @@ const Approvals = () => {
             <div className="space-y-3">
               {lateRequests.map(req => {
                 const repName = `${req.user.firstname} ${req.user.lastname}`;
-                const typeLabel = req.type === "CYCLE" ? "Call Cycle" : "Tour Plan";
+                const typeLabel = req.type === "CYCLE" ? "Call Cycle" : req.type === "TOUR_PLAN" ? "Tour Plan" : "Daily Report";
                 const monthName = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][req.month];
                 return (
                   <div key={req.id} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
