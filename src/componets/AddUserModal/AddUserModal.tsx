@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { FaXmark, FaMagnifyingGlass, FaUserPlus, FaKey, FaCopy } from "react-icons/fa6";
 import { FiUserPlus, FiSearch } from "react-icons/fi";
 import { searchUsersApi, getCompanyTeamsApi, addUserToCompanyApi, createCompanyUserApi } from "../../services/api";
+import api from "../../services/api";
 
 const ASSIGNABLE_ROLES: Record<string, { value: string; label: string }[]> = {
   SUPER_ADMIN:  [
@@ -75,8 +76,20 @@ const genTempPassword = () => {
 
 const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add User to Company", companyId: companyIdProp }: Props) => {
   const authUser: any = useSelector((s: any) => s.auth?.user);
-  // Use explicit prop first; fall back to the logged-in user's own company
-  const companyId = companyIdProp ?? authUser?.company_id ?? undefined;
+  // Resolved company ID: prop → Redux state → API fetch (handles stale persisted state)
+  const [resolvedCompanyId, setResolvedCompanyId] = useState<string | undefined>(
+    companyIdProp ?? authUser?.company_id ?? undefined
+  );
+
+  useEffect(() => {
+    if (!resolvedCompanyId) {
+      api.get("/auth/me")
+        .then((r) => { const cid = r.data?.data?.company_id; if (cid) setResolvedCompanyId(cid); })
+        .catch(() => {});
+    }
+  }, []);
+
+  const companyId = resolvedCompanyId;
   const [tab, setTab] = useState<"existing" | "new">("existing");
 
   // — Existing user tab —
