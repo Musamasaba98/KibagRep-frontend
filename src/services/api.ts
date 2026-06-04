@@ -201,7 +201,12 @@ export const getTodayTourPlanApi = () => api.get('/tour-plan/today');
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 export const updateMyProfileApi = (data: { firstname?: string; lastname?: string; contact?: string }) => api.put('/user/me', data);
-export const changePasswordApi = (data: { current_password: string; new_password: string }) => api.put('/user/change-password', data);
+export const changePasswordApi = (data: { current_password: string; new_password: string }) => api.put('/auth/change-password', data);
+export const createCompanyUserApi = (data: {
+  firstname: string; lastname: string; email: string; username: string;
+  password: string; role: string; gender: string; contact?: string;
+  company_id: string; must_reset_password: boolean;
+}) => api.post('/user/addUser', data);
 
 // ─── Pharmacy Search ──────────────────────────────────────────────────────────
 export const searchPharmaciesApi = (q: string) => api.get(`/pharmacy/search?q=${encodeURIComponent(q)}`);

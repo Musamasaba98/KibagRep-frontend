@@ -247,3 +247,69 @@ All routes are protected. Unauthenticated users redirect to `/login`. Doctor and
 - Do not commit API keys or `.env` values
 - Doctor and pharmacy portals are separate auth flows — never share session tokens with pharma company portals
 - Tenant ID must always be included in API requests from internal portals
+---
+
+## Future Product: Minurse (Planned — Separate Repo)
+
+### Positioning
+> **"Built by nurses, for all medical professionals."**
+
+Minurse is a nurses-first professional community and marketplace for medical professionals and students in Uganda and East Africa. It will live in its own repository but share the KibagRep backend API and PostgreSQL database.
+
+Nurses are Uganda's largest HCP cadre. Every competitor defaults to doctor-centric. Minurse centres nurses as the primary audience while welcoming all cadres — doctors, pharmacists, students, and interns. Doctors follow where the community is.
+
+### Why it exists
+Uganda government is phasing out payment for intern doctors. Medical students and new graduates face an income crisis. Minurse addresses this with:
+- **Marketplace** — verified medics get negotiated discounts on medical supplies, textbooks, equipment
+- **Locum Board** — facilities post short-term shifts; interns and graduates apply
+- **Pharma Engagement** — paid advisory panels, sponsored CME, product feedback for verified professionals
+- **Community** — professional profiles, content posting, peer-reviewed case discussions, CME tracking
+
+### Branding
+- **Name:** Minurse
+- **Colour:** Blue (distinct from KibagRep green)
+- **Domain:** `minurse.app` or `minurse.ug`
+- **Tagline:** "Built by nurses, for all medical professionals"
+
+### Architecture
+- Separate React/Vite repo — completely independent frontend
+- Shares the KibagRep Express API (same `BASE_URL`)
+- Separate auth tokens scoped to Minurse
+- No pharma company SFA data (visits, cycles, reports) visible to Minurse users
+
+### Key UX Concepts
+- **HCP Record Claiming** — on sign-up, user submits license/phone/email; system checks against existing KibagRep doctor records; OTP confirms identity; verified HCP data carries over automatically
+- **Seniority-based content review** — posts enter PENDING; a specialist can validate anyone below their cadre; one validation publishes
+- **Cart + Mobile Money checkout** — MTN and Airtel Money (Uganda primary)
+- **Verification tiers** — student body first (Makerere, Mbarara, Gulu), professional bodies (UMDPC, UNMC) when revenue allows
+
+### Folder Structure (future repo)
+```
+minurse-frontend/
+├── src/
+│   ├── pages/
+│   │   ├── Auth/              # Signup, login, OTP claiming flow
+│   │   ├── Feed/              # Content feed, post creation, peer review
+│   │   ├── Profile/           # Professional profile, verification status
+│   │   ├── Marketplace/       # Listings, cart, checkout
+│   │   ├── Locum/             # Job board, applications
+│   │   └── Engagement/        # Pharma engagement programmes
+│   ├── components/
+│   └── services/api.ts        # Shared BASE_URL, Minurse-scoped endpoints
+```
+
+### What to build first (when starting the Minurse repo)
+1. Auth — sign up, OTP claiming of existing HCP record
+2. Profile — verification status, cadre, speciality, bio
+3. Feed — post creation, PENDING badge, one-click validate for seniors
+4. Marketplace — listings page, cart, MTN MoMo checkout
+5. Locum board — listings, apply, facility posts
+
+### Decision Log
+| Date | Decision | Reasoning |
+|------|----------|-----------|
+| 2026-06-04 | Separate repo, shared API | Clean brand separation. Minurse needs its own identity. Shared DB gives the HCP data advantage without coupling codebases. |
+| 2026-06-04 | Nurses-first | Largest cadre in Uganda, most underserved by professional platforms. Doctors follow community, not the other way. |
+| 2026-06-04 | Blue brand colour | Distinct from KibagRep green. Two products, two brands. |
+| 2026-06-04 | Digital marketplace first | No logistics. CME access, PDFs, clinical guides deliverable immediately. Physical goods added after supply chain tested. |
+| 2026-06-04 | Student body verification first | Student bodies maintain active registers. Professional body API integrations take months to negotiate. Student verification addresses the intern crisis faster. |

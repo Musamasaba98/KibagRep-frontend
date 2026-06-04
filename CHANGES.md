@@ -197,3 +197,34 @@ KibagRep goal: Salesdoor's UX, SaneForce's structure, built for Uganda from the 
 | 2026-03-08 | KibagRep owns the doctor database | Doctors update their own data via the portal. Pharma companies access a verified, living dataset rather than maintaining stale Excel lists. This is the core business moat. |
 | 2026-03-08 | Doctor portal uses SMS OTP not password | Doctors won't remember a password to a system they use once a quarter. OTP to their registered number is frictionless. |
 | 2026-03-08 | Campaign management in Phase 2 not Phase 0 | Need real visit data first before campaign overlays are meaningful. Build the measurement layer before the campaign layer. |
+
+---
+
+## Minurse Frontend — Phase 1 (Planned — Separate Repo)
+**Goal:** Launch nurses-first community with profile claiming, content feed, and marketplace MVP.
+
+### New Pages / Features
+- [ ] Minurse landing page — nurses-first hero, sign up CTA, feature highlights
+- [ ] Auth flow — sign up form, OTP HCP record claiming, first-login password reset
+- [ ] Professional profile — bio, cadre badge, verification status chip, CME credits, linked HCP record
+- [ ] Content feed — scrollable post list, create post button, PENDING badge on unreviewed posts
+- [ ] Post creation — rich text, tags (cadre, speciality, drug), submit for review
+- [ ] Peer review UI — "Review" tab for eligible seniors, approve/reject with note
+- [ ] Marketplace listings — grid/list view, cadre filter, search
+- [ ] Product detail — supplier info, discount %, "Add to Cart"
+- [ ] Cart + checkout — order summary, MTN MoMo / Airtel Money payment flow
+- [ ] Locum board — job cards, apply flow, application status tracking
+- [ ] Pharma engagement programmes — restricted to Phase 2 verified users
+
+### Design System
+- [ ] Blue primary colour (distinct from KibagRep green) — define exact hex in Tailwind config
+- [ ] Nurse-inclusive imagery and copy — avoid doctor-only stock photography
+- [ ] Mobile-first (same constraint as KibagRep — Uganda users on phones)
+- [ ] Bottom nav pattern (same as KibagRep rep mobile nav)
+
+## Minurse — Decision Log
+| Date | Decision | Reasoning |
+|------|----------|-----------|
+| 2026-06-04 | Separate repo | Clean brand separation from KibagRep. Minurse needs its own identity, CI/CD, and deployment. |
+| 2026-06-04 | Nurses-first positioning | Centres the largest and most underserved HCP cadre in Uganda. Doctors follow community. |
+| 2026-06-04 | Same mobile-first pattern as KibagRep | Uganda health workers use phones. Desktop is secondary. Reuse mobile nav pattern already validated in KibagRep. |

@@ -36,7 +36,11 @@ const Login = () => {
     try {
       const res = await loginApi(email, password);
       dispatch(setCredentials({ user: res.data.data, token: res.data.token }));
-      navigate(ROLE_HOME[res.data.data.role] || "/rep-page", { replace: true });
+      if (res.data.must_reset_password) {
+        navigate("/change-password", { replace: true });
+      } else {
+        navigate(ROLE_HOME[res.data.data.role] || "/rep-page", { replace: true });
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed. Check your credentials.");
     } finally {

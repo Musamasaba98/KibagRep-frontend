@@ -87,6 +87,7 @@ import SalesAdminPlacement from "./pages/SalesAdminPage/children/StockPlacement"
 // Auth extras
 import ForgotPassword from "./pages/Authentication/ForgotPassword";
 import ResetPassword from "./pages/Authentication/ResetPassword";
+import ChangePassword from "./pages/Authentication/ChangePassword";
 
 // Super Admin
 import SuperAdminPage from "./pages/SuperAdminPage/SuperAdminPage";
@@ -107,6 +108,7 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/reset-password", element: <ResetPassword /> },
+  { path: "/change-password", element: <ChangePassword /> },
   { path: "/signup", element: <Signup /> },
 
   // Medical Rep
