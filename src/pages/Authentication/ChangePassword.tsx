@@ -8,8 +8,8 @@ const ROLE_HOME: Record<string, string> = {
   SUPER_ADMIN:  "/super-admin",
   COUNTRY_MGR:  "/country",
   SALES_ADMIN:  "/super-admin",
-  Manager:      "/manager-page",
-  Supervisor:   "/supervisor-page",
+  Manager:      "/manager",
+  Supervisor:   "/supervisor",
   MedicalRep:   "/rep-page",
 };
 
