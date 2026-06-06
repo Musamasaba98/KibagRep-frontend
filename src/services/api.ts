@@ -27,25 +27,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auto-logout on 401; auto-queue on network failure for rep write endpoints
+// Queue rep write endpoints on any network failure; only auto-logout on 401 when genuinely online
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      store.dispatch(logout());
-      window.location.href = "/login";
-      return Promise.reject(error);
-    }
-
-    // No response = network error while offline
-    if (!error.response && !navigator.onLine) {
+    // ── No network response = connectivity failure ─────────────────────────────
+    // Queue queueable endpoints regardless of navigator.onLine — that flag is
+    // unreliable on mobile (can be true even when there's no real connectivity).
+    if (!error.response) {
       const cfg = error.config;
-      const method: "POST" | "PUT" = cfg.method?.toUpperCase() === "PUT" ? "PUT" : "POST";
-      // cfg.url is the relative path from the axios instance (e.g. "/field-doctor/add-doctor-activity")
-      const urlPath = cfg.url ?? "";
+      const urlPath: string = cfg?.url ?? "";
+      const method: "POST" | "PUT" = cfg?.method?.toUpperCase() === "PUT" ? "PUT" : "POST";
       const shouldQueue = QUEUEABLE.some((p) => urlPath.includes(p));
 
-      if (shouldQueue && cfg.data) {
+      if (shouldQueue && cfg?.data) {
         await enqueue({
           type: urlPath.includes("nca") ? "nca"
               : urlPath.includes("pharmacy") ? "pharmacy_visit"
@@ -55,7 +50,6 @@ api.interceptors.response.use(
           endpoint: `${BASE_URL}${urlPath}`,
           method,
         });
-        // Return a synthetic queued response so the UI doesn't crash
         return Promise.resolve({
           data: { success: true, queued: true, message: "Saved offline — will sync when back online" },
           status: 202,
@@ -64,6 +58,21 @@ api.interceptors.response.use(
           config: cfg,
         });
       }
+      // Non-queueable network failure — just propagate, don't logout
+      return Promise.reject(error);
+    }
+
+    // ── 401 from server: only auto-logout when the device is actually online ───
+    // If we're offline, a 401 may come from a captive portal or be stale; don't
+    // force the user out — they'd be stuck unable to re-authenticate.
+    if (error.response.status === 401) {
+      const url: string = error.config?.url ?? "";
+      const isAuthCall = url.includes("/auth/login") || url.includes("/auth/register");
+      if (!isAuthCall && navigator.onLine) {
+        store.dispatch(logout());
+        window.location.href = "/login";
+      }
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

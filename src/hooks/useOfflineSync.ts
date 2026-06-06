@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
-import { registerOnlineSync, syncQueue, count } from "../lib/offlineQueue";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { syncQueue, count } from "../lib/offlineQueue";
 
 interface SyncResult { synced: number; failed: number }
 
@@ -9,41 +9,49 @@ export const useOfflineSync = () => {
   const [syncing,      setSyncing]      = useState(false);
   const [lastSync,     setLastSync]     = useState<SyncResult | null>(null);
 
+  // Ref prevents concurrent syncs without needing syncing in the dep array
+  const syncingRef = useRef(false);
+
   const refreshCount = useCallback(async () => {
-    setPendingCount(await count());
+    try { setPendingCount(await count()); } catch {}
   }, []);
 
-  useEffect(() => {
-    refreshCount();
-
-    const onOnline  = () => { setIsOnline(true);  refreshCount(); };
-    const onOffline = () =>   setIsOnline(false);
-
-    window.addEventListener("online",  onOnline);
-    window.addEventListener("offline", onOffline);
-
-    registerOnlineSync(async (result) => {
-      setLastSync(result);
-      await refreshCount();
-    });
-
-    return () => {
-      window.removeEventListener("online",  onOnline);
-      window.removeEventListener("offline", onOffline);
-    };
-  }, [refreshCount]);
-
   const sync = useCallback(async () => {
-    if (syncing || !isOnline) return;
+    if (syncingRef.current) return;
+    syncingRef.current = true;
     setSyncing(true);
     try {
       const result = await syncQueue();
       setLastSync(result);
       await refreshCount();
-    } finally {
+    } catch {}
+    finally {
+      syncingRef.current = false;
       setSyncing(false);
     }
-  }, [syncing, isOnline, refreshCount]);
+  }, [refreshCount]);
+
+  useEffect(() => {
+    refreshCount();
+
+    // Register listeners fresh on every mount so the callback is never stale.
+    // The previous registerOnlineSync pattern used a module-level flag that
+    // prevented re-registration after unmount/remount, leaving a dead callback.
+    const onOnline = () => {
+      setIsOnline(true);
+      refreshCount();
+      sync();           // auto-sync the moment connectivity is restored
+    };
+    const onOffline = () => setIsOnline(false);
+
+    window.addEventListener("online",  onOnline);
+    window.addEventListener("offline", onOffline);
+
+    return () => {
+      window.removeEventListener("online",  onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
+  }, [refreshCount, sync]);
 
   return { isOnline, pendingCount, syncing, lastSync, sync, refreshCount };
 };
