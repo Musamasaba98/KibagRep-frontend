@@ -3,12 +3,12 @@ import {
   FaStethoscope, FaMagnifyingGlass, FaPlus, FaXmark, FaLocationDot, FaHospital, FaBuildingColumns,
   FaFileExcel, FaDownload, FaUpload,
 } from "react-icons/fa6";
-import { LuPencil, LuCheck, LuX, LuStar, LuChevronDown } from "react-icons/lu";
+import { LuPencil, LuCheck, LuX, LuStar, LuChevronDown, LuTrash2 } from "react-icons/lu";
 import { MdOutlineGpsOff } from "react-icons/md";
 import { FiCheckSquare, FiSquare, FiEdit3, FiList, FiGrid } from "react-icons/fi";
 import api from "../../../services/api";
 import {
-  bulkEditDoctorsApi, bulkUploadDoctorsApi, downloadDoctorTemplateApi,
+  bulkEditDoctorsApi, bulkUploadDoctorsApi, downloadDoctorTemplateApi, deleteDoctorApi,
 } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -694,13 +694,102 @@ const UploadModal = ({ onClose, onDone }: { onClose: () => void; onDone: () => v
   );
 };
 
+// ─── Delete Confirm Modal ─────────────────────────────────────────────────────
+
+const DeleteConfirmModal = ({
+  targets, onConfirm, onCancel, deleting,
+}: {
+  targets: { id: string; name: string }[];
+  onConfirm: () => void;
+  onCancel: () => void;
+  deleting: boolean;
+}) => {
+  const [agreed, setAgreed] = useState(false);
+  const isBulk = targets.length > 1;
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)" }}>
+      <div className="bg-white rounded-2xl shadow-[0_8px_40px_0_rgba(0,0,0,0.22)] w-full max-w-md p-6 flex flex-col gap-4">
+
+        {/* Icon + title */}
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+            <LuTrash2 className="w-5 h-5 text-red-500" />
+          </div>
+          <div>
+            <h2 className="font-black text-[#1a2530] text-base">
+              {isBulk ? `Delete ${targets.length} doctors?` : "Delete this doctor?"}
+            </h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {isBulk
+                ? "These records will be permanently removed from the KibagRep master database."
+                : "This record will be permanently removed from the KibagRep master database."}
+            </p>
+          </div>
+        </div>
+
+        {/* Name list */}
+        <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 max-h-40 overflow-y-auto">
+          {isBulk ? (
+            <ul className="flex flex-col gap-1">
+              {targets.map(t => (
+                <li key={t.id} className="text-xs font-semibold text-red-700 flex items-center gap-1.5">
+                  <span className="w-1 h-1 rounded-full bg-red-400 shrink-0" />
+                  {t.name}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm font-bold text-red-700">{targets[0].name}</p>
+          )}
+        </div>
+
+        {/* Warning */}
+        <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+          <span className="text-amber-500 text-base shrink-0">⚠</span>
+          <p className="text-xs text-amber-800 leading-relaxed">
+            <span className="font-bold">This cannot be undone.</span> Deleted doctors are removed from the master database — any company call cycles or tour plans referencing {isBulk ? "them" : "this doctor"} may be affected.
+          </p>
+        </div>
+
+        {/* Checkbox gate */}
+        <label className="flex items-start gap-3 cursor-pointer select-none">
+          <div
+            onClick={() => setAgreed(a => !a)}
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 ${agreed ? "bg-red-500 border-red-500" : "border-gray-300 hover:border-red-400"}`}
+            style={{ transition: "background-color 0.12s, border-color 0.12s" }}>
+            {agreed && <LuCheck className="w-3 h-3 text-white" />}
+          </div>
+          <span className="text-sm text-gray-600">
+            I understand this is <span className="font-semibold text-[#1a2530]">permanent and irreversible</span>
+          </span>
+        </label>
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-1">
+          <button onClick={onCancel} disabled={deleting}
+            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+            style={{ transition: "background-color 0.15s" }}>
+            Cancel
+          </button>
+          <button onClick={onConfirm} disabled={!agreed || deleting}
+            className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-40 text-white text-sm font-bold"
+            style={{ transition: "background-color 0.15s" }}>
+            {deleting ? "Deleting…" : `Delete${isBulk ? ` ${targets.length}` : ""}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Bulk Edit Panel ──────────────────────────────────────────────────────────
 const CADRES_LIST = ["Doctor","Nurse","Midwife","Clinician","Pharmacist","Other"] as const;
 const TOWNS = ["Kampala","Entebbe","Jinja","Mbarara","Gulu","Mbale","Masaka","Lira","Fort Portal","Arua","Other"];
 
 const BulkEditPanel = ({
-  count, onApply, onClear,
-}: { count: number; onApply: (fields: Record<string, unknown>) => Promise<void>; onClear: () => void }) => {
+  count, onApply, onClear, onDelete,
+}: { count: number; onApply: (fields: Record<string, unknown>) => Promise<void>; onClear: () => void; onDelete: () => void }) => {
   const [cadre, setCadre]   = useState("");
   const [town, setTown]     = useState("");
   const [applying, setApplying] = useState(false);
@@ -740,6 +829,12 @@ const BulkEditPanel = ({
           <FiEdit3 className="w-3.5 h-3.5" />{applying ? "Applying…" : "Apply"}
         </button>
       </div>
+      <div className="w-px h-5 bg-white/20 shrink-0" />
+      <button onClick={onDelete}
+        className="flex items-center gap-1.5 bg-red-500/20 hover:bg-red-500 border border-red-400/40 text-red-300 hover:text-white text-xs font-bold px-3 py-1.5 rounded-lg shrink-0"
+        style={{ transition: "background-color 0.15s, color 0.15s" }}>
+        <LuTrash2 className="w-3.5 h-3.5" /> Delete
+      </button>
       <button onClick={onClear}
         className="text-gray-400 hover:text-white text-xs underline shrink-0"
         style={{ transition: "color 0.15s" }}>
@@ -762,6 +857,10 @@ const HcpDirectory = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // Delete
+  const [deleteTargets, setDeleteTargets] = useState<{ id: string; name: string }[] | null>(null);
+  const [deleting,      setDeleting]      = useState(false);
 
   // Spreadsheet edit mode
   const [viewMode,    setViewMode]    = useState<"list" | "table">("list");
@@ -819,6 +918,17 @@ const HcpDirectory = () => {
       checkedIds.has(d.id) ? { ...d, ...fields } as Doctor : d
     ));
     setCheckedIds(new Set());
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTargets) return;
+    setDeleting(true);
+    await Promise.allSettled(deleteTargets.map(t => deleteDoctorApi(t.id)));
+    const deletedIds = new Set(deleteTargets.map(t => t.id));
+    setDoctors(prev => prev.filter(d => !deletedIds.has(d.id)));
+    setCheckedIds(prev => { const n = new Set(prev); deletedIds.forEach(id => n.delete(id)); return n; });
+    setDeleteTargets(null);
+    setDeleting(false);
   };
 
   // Reset table edits whenever the doctors page changes (pagination / search)
@@ -979,13 +1089,13 @@ const HcpDirectory = () => {
       {!loading && doctors.length > 0 && viewMode === "list" && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
           <div className="hidden sm:grid px-4 sm:px-5 py-2 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider"
-            style={{ gridTemplateColumns: "1.5rem 2rem 1fr 6rem 8rem" }}>
+            style={{ gridTemplateColumns: "1.5rem 2rem 1fr 6rem 8rem 2rem" }}>
             <button onClick={toggleAll} className="flex items-center justify-center focus-visible:outline-none">
               {checkedIds.size === doctors.length && doctors.length > 0
                 ? <FiCheckSquare className="w-3.5 h-3.5 text-[#16a34a]" />
                 : <FiSquare className="w-3.5 h-3.5 text-gray-300" />}
             </button>
-            <span /><span>Clinician</span><span>Cadre</span><span>Primary Facility</span>
+            <span /><span>Clinician</span><span>Cadre</span><span>Primary Facility</span><span />
           </div>
           <div className="divide-y divide-gray-50">
             {doctors.map(d => {
@@ -995,7 +1105,7 @@ const HcpDirectory = () => {
               return (
                 <div key={d.id}
                   onClick={() => setSelectedId(d.id)}
-                  className={`grid sm:grid-cols-[1.5rem_2rem_1fr_6rem_8rem] items-center gap-3 px-4 sm:px-5 py-3.5 cursor-pointer ${isChecked ? "bg-green-50" : "hover:bg-[#f0fdf4]/40"}`}
+                  className={`grid sm:grid-cols-[1.5rem_2rem_1fr_6rem_8rem_2rem] items-center gap-3 px-4 sm:px-5 py-3.5 cursor-pointer ${isChecked ? "bg-green-50" : "hover:bg-[#f0fdf4]/40"}`}
                   style={{ transition: "background-color 0.12s" }}>
 
                   <button
@@ -1036,6 +1146,15 @@ const HcpDirectory = () => {
                       <span className="text-xs text-amber-600 font-semibold">Not linked</span>
                     )}
                   </div>
+
+                  {/* Per-row delete */}
+                  <button
+                    onClick={e => { e.stopPropagation(); setDeleteTargets([{ id: d.id, name: d.doctor_name }]); }}
+                    className="hidden sm:flex items-center justify-center w-7 h-7 rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 shrink-0 focus-visible:outline-none"
+                    style={{ transition: "color 0.12s, background-color 0.12s" }}
+                    title="Delete doctor">
+                    <LuTrash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               );
             })}
@@ -1182,6 +1301,17 @@ const HcpDirectory = () => {
           count={checkedIds.size}
           onApply={handleBulkEdit}
           onClear={() => setCheckedIds(new Set())}
+          onDelete={() => setDeleteTargets(doctors.filter(d => checkedIds.has(d.id)).map(d => ({ id: d.id, name: d.doctor_name })))}
+        />
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTargets && (
+        <DeleteConfirmModal
+          targets={deleteTargets}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setDeleteTargets(null)}
+          deleting={deleting}
         />
       )}
 

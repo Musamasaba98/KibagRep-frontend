@@ -86,6 +86,7 @@ export const bulkUploadDoctorsApi = (file: File) => {
   return api.post("/doctor/bulk-upload", form, { headers: { "Content-Type": "multipart/form-data" } });
 };
 export const downloadDoctorTemplateApi = () => api.get("/doctor/bulk-upload/template", { responseType: "blob" });
+export const deleteDoctorApi = (id: string) => api.delete(`/doctor/${id}`);
 
 // ─── Pharmacies ──────────────────────────────────────────────────────────────
 export const getPharmaciesApi = () => api.get("/pharmacy");
