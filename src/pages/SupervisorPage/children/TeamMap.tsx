@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MdOutlineGpsOff } from "react-icons/md";
 import { LuMapPin } from "react-icons/lu";
-import { getTeamMapApi } from "../../../services/api";
+import { getTeamMapApi, getRepTrailApi } from "../../../services/api";
 import { BiX } from "react-icons/bi";
 import { useDispatch } from "react-redux";
 import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
@@ -67,11 +67,21 @@ const FMT_DT = (iso: string) =>
 type Days = 1 | 3 | 7;
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
+interface TrailPing {
+  lat: number; lng: number;
+  recorded_at: string;
+  mock_flag?: boolean;
+  speed_anomaly?: boolean;
+}
+
 const TeamMap = () => {
   const [days, setDays] = useState<Days>(3);
   const [repData, setRepData] = useState<RepData[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeReps, setActiveReps] = useState<Set<string>>(new Set());
+  const [trailRepId, setTrailRepId] = useState<string | null>(null);
+  const [trail, setTrail] = useState<TrailPing[]>([]);
+  const [trailLoading, setTrailLoading] = useState(false);
 
   const load = useCallback((d: Days) => {
     setLoading(true);
@@ -93,6 +103,17 @@ const TeamMap = () => {
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  };
+
+  const toggleTrail = (id: string) => {
+    if (trailRepId === id) { setTrailRepId(null); setTrail([]); return; }
+    setTrailRepId(id);
+    setTrail([]);
+    setTrailLoading(true);
+    getRepTrailApi(id)
+      .then(r => setTrail(r.data?.data ?? []))
+      .catch(() => {})
+      .finally(() => setTrailLoading(false));
   };
 
   const visibleData = repData.filter(r => activeReps.has(r.user.id));
@@ -157,12 +178,12 @@ const TeamMap = () => {
               const active = activeReps.has(r.user.id);
               const count = r.activities.length;
               const anomalies = r.activities.filter(a => a.gps_anomaly).length;
+              const showingTrail = trailRepId === r.user.id;
               return (
-                <button key={r.user.id} onClick={() => toggleRep(r.user.id)}
-                  className={`w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-gray-50 ${
-                    !active ? "opacity-40" : ""
-                  }`}
-                  style={{ transition: "opacity 0.15s" }}>
+                <div key={r.user.id} className={`flex flex-col border-b border-gray-50 ${!active ? "opacity-40" : ""}`}>
+                  <button onClick={() => toggleRep(r.user.id)}
+                    className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
+                    style={{ transition: "opacity 0.15s" }}>
                   <span className="w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate">
@@ -173,7 +194,25 @@ const TeamMap = () => {
                       {anomalies > 0 && <span className="text-red-500 ml-1">· {anomalies} anomal{anomalies !== 1 ? "ies" : "y"}</span>}
                     </p>
                   </div>
-                </button>
+                  </button>
+                  {/* Trail toggle button */}
+                  <button
+                    onClick={() => toggleTrail(r.user.id)}
+                    className={`mx-4 mb-2 flex items-center gap-1.5 text-[10px] font-poppins-semibold px-2.5 py-1 rounded-full border ${
+                      showingTrail
+                        ? "bg-[#16a34a] text-white border-[#16a34a]"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a]"
+                    }`}
+                    style={{ transition: "all 0.15s" }}
+                  >
+                    {trailLoading && showingTrail ? (
+                      <span className="w-2.5 h-2.5 rounded-full border border-white border-t-transparent animate-spin" />
+                    ) : (
+                      <span className={`w-2 h-0.5 rounded-full ${showingTrail ? "bg-white" : "bg-gray-400"}`} />
+                    )}
+                    {showingTrail ? `Trail (${trail.length} pings)` : "Show trail"}
+                  </button>
+                </div>
               );
             })
           )}
@@ -205,6 +244,32 @@ const TeamMap = () => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             />
             <FitBounds points={allPoints} />
+
+            {/* GPS movement trail for selected rep */}
+            {trail.length > 1 && (
+              <>
+                <Polyline
+                  positions={trail.map(p => [p.lat, p.lng] as [number, number])}
+                  pathOptions={{ color: "#16a34a", weight: 3, opacity: 0.7, dashArray: "6 4" }}
+                />
+                {/* Flag speed anomaly pings in red */}
+                {trail.filter(p => p.speed_anomaly || p.mock_flag).map((p, i) => (
+                  <CircleMarker key={`anomaly-${i}`}
+                    center={[p.lat, p.lng]}
+                    radius={6}
+                    pathOptions={{ color: p.mock_flag ? "#7c3aed" : "#ef4444", fillColor: p.mock_flag ? "#7c3aed" : "#ef4444", fillOpacity: 0.8, weight: 1 }}
+                  >
+                    <Popup>
+                      <p className="text-xs font-poppins-semibold">
+                        {p.mock_flag ? "⚠ Possible mock GPS (perfect accuracy)" : "⚠ Impossible travel speed"}
+                      </p>
+                      <p className="text-[10px] text-gray-400">{new Date(p.recorded_at).toLocaleTimeString()}</p>
+                    </Popup>
+                  </CircleMarker>
+                ))}
+              </>
+            )}
+
             {visibleData.map((r) => {
               const color = colorOf(r.user.id);
               return r.activities.map(a => (

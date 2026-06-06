@@ -296,3 +296,10 @@ export const getPlacementTargetsApi = (month?: number, year?: number) =>
   api.get('/placement', { params: { month, year } });
 export const upsertPlacementTargetApi = (data: unknown) => api.post('/placement', data);
 export const bulkUpsertPlacementTargetsApi = (data: unknown) => api.post('/placement/bulk', data);
+
+// ─── Location / GPS trail ─────────────────────────────────────────────────────
+export const getMyTrailApi = (date?: string) =>
+  api.get('/location/my-trail', { params: date ? { date } : undefined });
+export const getRepTrailApi = (userId: string, date?: string) =>
+  api.get(`/location/trail/${userId}`, { params: date ? { date } : undefined });
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000/api").replace(/\/api$/, "");

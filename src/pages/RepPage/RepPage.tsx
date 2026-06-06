@@ -12,6 +12,9 @@ import PharmacyFabModal from '../../componets/LogPharmacyModal/PharmacyFabModal'
 import { Outlet } from 'react-router-dom';
 import usePushNotifications from '../../hooks/usePushNotifications';
 import useOfflineSync from '../../hooks/useOfflineSync';
+import { locationPinger } from '../../services/locationPinger';
+import { API_BASE_URL } from '../../services/api';
+import { store } from '../../store/store';
 import InstallPrompt from '../../componets/InstallPrompt/InstallPrompt';
 import { FaPlus, FaXmark, FaStethoscope, FaBan, FaCalendarPlus } from 'react-icons/fa6';
 import { TbPill } from 'react-icons/tb';
@@ -43,6 +46,12 @@ const RepPage = () => {
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  // Start GPS breadcrumb pinger while rep is using the app
+  useEffect(() => {
+    locationPinger.start(API_BASE_URL, () => store.getState().auth?.token ?? "");
+    return () => locationPinger.stop();
   }, []);
 
   const handleVisitSuccess = () => setRefreshKey((k) => k + 1);
