@@ -140,8 +140,6 @@ export const addUserToCompanyApi = (data: { userId: string; role: string; compan
 export const updateCompanyUserApi = (userId: string, data: {
   role?: string;
   team_id?: string | null;
-  territory_id?: string | null;
-  secondary_territory_id?: string | null;
 }) => api.put(`/user/company/${userId}`, data);
 export const removeUserFromCompanyApi = (userId: string) => api.delete(`/user/company/${userId}`);
 export const getUnassignedUsersApi = () => api.get("/user/unassigned");
@@ -248,11 +246,14 @@ export const rejectExpenseClaimApi = (claimId: string, data: { note: string }) =
 
 // ─── Territories ──────────────────────────────────────────────────────────────
 export const getTerritoriesApi = () => api.get('/territory');
-export const createTerritoryApi = (data: { name: string; region?: string }) => api.post('/territory', data);
+export const createTerritoryApi = (data: { name: string; region?: string; territory_type?: string }) => api.post('/territory', data);
 export const updateTerritoryApi = (id: string, data: unknown) => api.put(`/territory/${id}`, data);
 export const deleteTerritoryApi = (id: string) => api.delete(`/territory/${id}`);
 export const addTerritoryFacilityApi = (id: string, data: { facility_id: string }) => api.post(`/territory/${id}/facilities`, data);
 export const removeTerritoryFacilityApi = (id: string, facilityId: string) => api.delete(`/territory/${id}/facilities/${facilityId}`);
+export const addTerritoryPharmacyApi = (id: string, data: { pharmacy_id: string }) => api.post(`/territory/${id}/pharmacies`, data);
+export const removeTerritoryPharmacyApi = (id: string, pharmacyId: string) => api.delete(`/territory/${id}/pharmacies/${pharmacyId}`);
+export const assignTerritoryRepApi = (id: string, data: { user_id: string }) => api.post(`/territory/${id}/reps`, data);
 export const unassignTerritoryRepApi = (id: string, userId: string) => api.delete(`/territory/${id}/reps/${userId}`);
 
 // ─── Tour Plan (extended) ─────────────────────────────────────────────────────

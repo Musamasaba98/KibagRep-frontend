@@ -2,25 +2,23 @@ import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { FaUserGroup, FaUsers, FaPlus, FaXmark, FaBoxOpen } from "react-icons/fa6";
 import {
-  LuChevronDown, LuChevronUp, LuPencil, LuTrash2, LuCheck, LuX, LuPackage,
+  LuChevronDown, LuChevronUp, LuPencil, LuTrash2, LuCheck, LuX,
 } from "react-icons/lu";
 import {
   getCompanyTeamsApi, getCompanyUsersApi, getCompanyProductsApi,
   createCompanyTeamApi, renameCompanyTeamApi, deleteCompanyTeamApi,
   addTeamProductApi, removeTeamProductApi,
-  updateCompanyUserApi, updateCompanyTeamApi, getTerritoriesApi,
+  updateCompanyUserApi, updateCompanyTeamApi,
 } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface TerritoryRef { id: string; name: string; territory_type: string; region?: string; }
-interface Territory { id: string; name: string; territory_type: string; region?: string; }
 interface Product { id: string; product_name: string; classification: string; unit_price?: number; }
 interface TeamProduct { team_id: string; product_id: string; product: Product; }
 interface TeamMember {
   id: string; firstname: string; lastname: string; role: string;
-  territory?: TerritoryRef | null;
-  secondary_territory?: TerritoryRef | null;
+  territories?: { territory: TerritoryRef }[];
 }
 interface TeamSupervisor { id: string; firstname: string; lastname: string; }
 interface Team { id: string; team_name: string; date_of_creation: string; users: TeamMember[]; team_products: TeamProduct[]; supervisor?: TeamSupervisor | null; supervisor_id?: string | null; }
@@ -150,16 +148,13 @@ const TerritoryBadge = ({ t }: { t: TerritoryRef | null | undefined }) => {
 
 // ─── Member assignment ────────────────────────────────────────────────────────
 
-const MemberPanel = ({ team, allUsers, territories, onAssign, onUnassign, onTerritoryChange }: {
+const MemberPanel = ({ team, allUsers, onAssign, onUnassign }: {
   team: Team;
   allUsers: CompanyUser[];
-  territories: Territory[];
   onAssign: (userId: string) => Promise<void>;
   onUnassign: (userId: string) => Promise<void>;
-  onTerritoryChange: (userId: string, field: "territory_id" | "secondary_territory_id", value: string | null) => Promise<void>;
 }) => {
   const [actioning, setActioning] = useState<string | null>(null);
-  const [editing, setEditing]     = useState<string | null>(null); // userId whose territory selects are open
 
   const memberIds = new Set(team.users.map(u => u.id));
   const available = allUsers.filter(u => !memberIds.has(u.id) && ["MedicalRep", "Supervisor"].includes(u.role));
@@ -168,14 +163,6 @@ const MemberPanel = ({ team, allUsers, territories, onAssign, onUnassign, onTerr
     setActioning(id); await fn().catch(() => {}); setActioning(null);
   };
 
-  // Group members by primary territory type
-  const groups: { key: string; label: string; emoji: string; members: TeamMember[] }[] = [
-    { key: "TOWN",      label: "Town Reps",      emoji: "🏙️", members: team.users.filter(m => m.territory?.territory_type === "TOWN") },
-    { key: "UPCOUNTRY", label: "Upcountry Reps", emoji: "🌿", members: team.users.filter(m => m.territory?.territory_type === "UPCOUNTRY") },
-    { key: "REGIONAL",  label: "Regional Reps",  emoji: "🗺️", members: team.users.filter(m => m.territory?.territory_type === "REGIONAL") },
-    { key: "NONE",      label: "No Territory",   emoji: "⚠️", members: team.users.filter(m => !m.territory) },
-  ].filter(g => g.members.length > 0);
-
   return (
     <div className="border-t border-gray-50 px-5 pb-4 pt-3 flex flex-col gap-4">
 
@@ -183,116 +170,43 @@ const MemberPanel = ({ team, allUsers, territories, onAssign, onUnassign, onTerr
         <p className="text-xs text-gray-400 italic">No members yet — add someone below</p>
       )}
 
-      {/* Grouped member rows */}
-      {groups.map(g => {
-        const cfg = TERR_TYPE_CFG[g.key] ?? NONE_CFG;
-        return (
-          <div key={g.key}>
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <span className="text-sm">{g.emoji}</span>
-              <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
-                {g.label}
-              </span>
-              <span className="text-[10px] text-gray-300">{g.members.length}</span>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              {g.members.map(m => {
-                const isEditing = editing === m.id;
-                return (
-                  <div key={m.id} className={`rounded-xl border px-3 py-2.5 ${isEditing ? "border-[#16a34a]/30 bg-[#f0fdf4]" : "border-gray-100 bg-white"}`}>
-                    {/* Top row: avatar + name + role + remove */}
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-[#16a34a]/10 flex items-center justify-center shrink-0">
-                        <span className="text-[#16a34a] font-black text-[10px]">{m.firstname[0]}{m.lastname[0]}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-[#1a1a1a] truncate">{m.firstname} {m.lastname}</p>
-                      </div>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${ROLE_COLOR[m.role] ?? "bg-gray-100 text-gray-500"}`}>
-                        {ROLE_LABEL[m.role] ?? m.role}
-                      </span>
-                      {/* Edit territory toggle */}
-                      <button
-                        onClick={() => setEditing(isEditing ? null : m.id)}
-                        title="Edit territories"
-                        className={`w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-[#16a34a] shrink-0 ${isEditing ? "text-[#16a34a]" : ""}`}
-                        style={{ transition: "color 0.12s" }}>
-                        <LuPencil className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={() => handle(() => onUnassign(m.id), m.id)}
-                        disabled={actioning === m.id}
-                        className="w-5 h-5 flex items-center justify-center text-gray-300 hover:text-red-400 disabled:opacity-40 shrink-0"
-                        style={{ transition: "color 0.12s" }}>
-                        <LuX className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Territory badges (collapsed view) */}
-                    {!isEditing && (
-                      <div className="mt-1.5 flex flex-wrap gap-1.5 pl-9">
-                        <TerritoryBadge t={m.territory} />
-                        {m.secondary_territory && (
-                          <>
-                            <span className="text-[10px] text-gray-300">+</span>
-                            <span className="text-[10px] text-gray-400 italic">
-                              {m.secondary_territory.name}
-                              {" "}
-                              <span className="text-gray-300">
-                                ({TERR_TYPE_CFG[m.secondary_territory.territory_type]?.label ?? m.secondary_territory.territory_type})
-                              </span>
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Inline territory editor */}
-                    {isEditing && (
-                      <div className="mt-2 pl-9 flex flex-col gap-1.5">
-                        <div>
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">Primary Territory</p>
-                          <select
-                            defaultValue={m.territory?.id ?? ""}
-                            onChange={e => handle(() => onTerritoryChange(m.id, "territory_id", e.target.value || null), `t-${m.id}`)}
-                            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
-                          >
-                            <option value="">No territory</option>
-                            {territories.map(t => (
-                              <option key={t.id} value={t.id}>
-                                {t.name} ({TERR_TYPE_CFG[t.territory_type]?.label ?? t.territory_type})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-0.5">
-                            Secondary / Floating Territory
-                            <span className="ml-1 font-normal normal-case text-gray-300">e.g. monthly upcountry block</span>
-                          </p>
-                          <select
-                            defaultValue={m.secondary_territory?.id ?? ""}
-                            onChange={e => handle(() => onTerritoryChange(m.id, "secondary_territory_id", e.target.value || null), `st-${m.id}`)}
-                            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
-                          >
-                            <option value="">None</option>
-                            {territories.filter(t => t.id !== m.territory?.id).map(t => (
-                              <option key={t.id} value={t.id}>
-                                {t.name} ({TERR_TYPE_CFG[t.territory_type]?.label ?? t.territory_type})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    )}
+      {/* Member rows */}
+      {team.users.length > 0 && (
+        <div className="flex flex-col gap-1">
+          {team.users.map(m => {
+            const routes = m.territories?.map(tr => tr.territory) ?? [];
+            return (
+              <div key={m.id} className="rounded-xl border border-gray-100 bg-white px-3 py-2.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-[#16a34a]/10 flex items-center justify-center shrink-0">
+                    <span className="text-[#16a34a] font-black text-[10px]">{m.firstname[0]}{m.lastname[0]}</span>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-[#1a1a1a] truncate">{m.firstname} {m.lastname}</p>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${ROLE_COLOR[m.role] ?? "bg-gray-100 text-gray-500"}`}>
+                    {ROLE_LABEL[m.role] ?? m.role}
+                  </span>
+                  <button
+                    onClick={() => handle(() => onUnassign(m.id), m.id)}
+                    disabled={actioning === m.id}
+                    className="w-5 h-5 flex items-center justify-center text-gray-300 hover:text-red-400 disabled:opacity-40 shrink-0"
+                    style={{ transition: "color 0.12s" }}>
+                    <LuX className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {/* Territory route badges */}
+                <div className="mt-1.5 pl-9 flex flex-wrap gap-1">
+                  {routes.length === 0
+                    ? <span className="text-[10px] text-gray-300 italic">No routes assigned — use Territory Management</span>
+                    : routes.map(t => <TerritoryBadge key={t.id} t={t} />)
+                  }
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Add unassigned reps */}
       {available.length > 0 && (
@@ -324,7 +238,6 @@ const Teams = () => {
   const [teams, setTeams]           = useState<Team[]>([]);
   const [users, setUsers]           = useState<CompanyUser[]>([]);
   const [products, setProducts]     = useState<Product[]>([]);
-  const [territories, setTerritories] = useState<Territory[]>([]);
   const [loading, setLoading]       = useState(true);
 
   const [expanded, setExpanded]   = useState<Set<string>>(new Set());
@@ -344,15 +257,13 @@ const Teams = () => {
 
   // Delete confirm
   const [deleteTarget, setDeleteTarget] = useState<Team | null>(null);
-  const [deleting, setDeleting]         = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.allSettled([getCompanyTeamsApi(), getCompanyUsersApi(), getCompanyProductsApi(), getTerritoriesApi()]).then(([t, u, p, terr]) => {
+    Promise.allSettled([getCompanyTeamsApi(), getCompanyUsersApi(), getCompanyProductsApi()]).then(([t, u, p]) => {
       if (t.status === "fulfilled") setTeams(t.value.data?.data ?? []);
       if (u.status === "fulfilled") setUsers(u.value.data?.data ?? u.value.data ?? []);
       if (p.status === "fulfilled") setProducts(p.value.data?.data ?? p.value.data ?? []);
-      if (terr.status === "fulfilled") setTerritories(terr.value.data?.data ?? []);
     }).finally(() => setLoading(false));
   }, []);
 
@@ -400,14 +311,12 @@ const Teams = () => {
   // ── Delete ──────────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    setDeleting(true);
     try {
       await deleteCompanyTeamApi(deleteTarget.id);
       setTeams(prev => prev.filter(t => t.id !== deleteTarget.id));
-      // Update users list — unassign members
       setUsers(prev => prev.map(u => u.team?.id === deleteTarget.id ? { ...u, team: null } : u));
       setDeleteTarget(null);
-    } catch {} finally { setDeleting(false); }
+    } catch {}
   };
 
   // ── Products ────────────────────────────────────────────────────────────────
@@ -433,7 +342,7 @@ const Teams = () => {
     if (user) {
       const team = teams.find(t => t.id === teamId);
       setTeams(prev => prev.map(t => t.id === teamId
-        ? { ...t, users: [...t.users, { id: user.id, firstname: user.firstname, lastname: user.lastname, role: user.role, territory: null, secondary_territory: null }] }
+        ? { ...t, users: [...t.users, { id: user.id, firstname: user.firstname, lastname: user.lastname, role: user.role, territories: [] }] }
         : t
       ));
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, team: team ? { id: team.id, team_name: team.team_name } : null } : u));
@@ -445,31 +354,8 @@ const Teams = () => {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, team: null } : u));
   };
 
-  const handleTerritoryChange = async (
-    teamId: string,
-    userId: string,
-    field: "territory_id" | "secondary_territory_id",
-    value: string | null,
-  ) => {
-    await updateCompanyUserApi(userId, { [field]: value });
-    // Refresh the member's territory in local state from the territories list
-    const found = territories.find(t => t.id === value) ?? null;
-    setTeams(prev => prev.map(team => {
-      if (team.id !== teamId) return team;
-      return {
-        ...team,
-        users: team.users.map(u => {
-          if (u.id !== userId) return u;
-          if (field === "territory_id") return { ...u, territory: found };
-          return { ...u, secondary_territory: found };
-        }),
-      };
-    }));
-  };
-
   // ── Stats ───────────────────────────────────────────────────────────────────
   const totalReps  = users.filter(u => u.role === "MedicalRep").length;
-  const totalSups  = users.filter(u => u.role === "Supervisor").length;
   const unassigned = users.filter(u => !u.team && ["MedicalRep","Supervisor"].includes(u.role));
 
   return (
@@ -644,10 +530,8 @@ const Teams = () => {
                       <MemberPanel
                         team={team}
                         allUsers={users}
-                        territories={territories}
                         onAssign={userId => handleAssign(team.id, userId)}
                         onUnassign={userId => handleUnassign(team.id, userId)}
-                        onTerritoryChange={(userId, field, value) => handleTerritoryChange(team.id, userId, field, value)}
                       />
                     )}
                     {tab === "products" && (
