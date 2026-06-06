@@ -12,13 +12,14 @@ import { getActivityHistoryApi, getCurrentCycleApi } from '../../../services/api
 // Shows MONTH-LEVEL metrics that today's cards don't show:
 //   Days Worked | Total Visits MTD | Cycle Coverage % | MTD Samples
 
-const MonthlyProgress = () => {
+const MonthlyProgress = ({ refreshKey }: { refreshKey: number }) => {
   const [activities, setActivities] = useState<any[]>([]);
   const [cycle, setCycle]           = useState<any>(null);
   const [loading, setLoading]       = useState(true);
   const now = new Date();
 
   useEffect(() => {
+    setLoading(true);
     Promise.all([
       getActivityHistoryApi({ days: 31, limit: 1000 }),
       getCurrentCycleApi(),
@@ -30,7 +31,8 @@ const MonthlyProgress = () => {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey]);
 
   // Working days = distinct calendar dates with at least one logged activity
   const daysWorked = useMemo(() => {
@@ -172,13 +174,13 @@ const Home = () => {
       <KpiCards activities={activities} loading={loading} onRefresh={() => setManualKey((k) => k + 1)} />
 
       {/* 2 — Monthly progress (pace, cycle adherence, cumulative totals) */}
-      <MonthlyProgress />
+      <MonthlyProgress refreshKey={refreshKey} />
 
       {/* 3 — Smart overview: Today's Visits + Tasks + Cycle (tabbed) */}
       <SmartOverview activities={activities} activitiesLoading={loading} />
 
       {/* 4 — Detailing performance charts */}
-      <DetailingPerformance/>
+      <DetailingPerformance refreshKey={refreshKey} />
     </div>
   );
 };

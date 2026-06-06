@@ -96,12 +96,13 @@ const Sparkline = ({ days }: { days: DayBar[] }) => {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const DetailingPerformance = () => {
+const DetailingPerformance = ({ refreshKey }: { refreshKey: number }) => {
   const [drActivities,  setDrActivities]  = useState<any[]>([]);
   const [phActivities,  setPhActivities]  = useState<any[]>([]);
   const [loading,       setLoading]       = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     Promise.allSettled([
       getActivityHistoryApi({ days: 14, limit: 500 }),
       getPharmacyActivityHistoryApi({ days: 14, limit: 200 }),
@@ -109,7 +110,8 @@ const DetailingPerformance = () => {
       if (drRes.status === "fulfilled") setDrActivities(drRes.value.data?.data ?? []);
       if (phRes.status === "fulfilled") setPhActivities(phRes.value.data?.data ?? []);
     }).finally(() => setLoading(false));
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey]);
 
   // ── Build 14-day trend data ──────────────────────────────────────────────────
   const trendDays = useMemo<DayBar[]>(() => {
