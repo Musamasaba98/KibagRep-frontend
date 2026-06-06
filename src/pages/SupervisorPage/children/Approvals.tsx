@@ -10,6 +10,7 @@ import {
   getRecommendationsApi, approveRecommendationApi, rejectRecommendationApi, forwardRecommendationApi,
   getPendingTourPlansApi, approveTourPlanApi, rejectTourPlanApi,
   getPendingLateRequestsApi, approveLateRequestApi, rejectLateRequestApi,
+  getPendingStaffSupervisorApi, supervisorApproveStaffApi, rejectStaffApi,
 } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -51,8 +52,14 @@ interface LateRequest {
   note: string; status: string; review_note: string | null;
   user: { id: string; firstname: string; lastname: string };
 }
+interface PharmacyStaffSuggestion {
+  id: string; name: string; role: string; phone: string | null; notes: string | null;
+  status: string; created_at: string;
+  suggested_by: { id: string; firstname: string; lastname: string };
+  pharmacy_links: Array<{ pharmacy: { id: string; pharmacy_name: string; town: string | null } }>;
+}
 
-type Tab = "reports" | "cycles" | "expenses" | "recs" | "tourplans" | "late";
+type Tab = "reports" | "cycles" | "expenses" | "recs" | "tourplans" | "late" | "staff";
 const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const FMT = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
@@ -98,6 +105,7 @@ const Approvals = () => {
   const [recs, setRecs]             = useState<Recommendation[]>([]);
   const [tourplans, setTourplans]   = useState<PendingTourPlan[]>([]);
   const [lateRequests, setLateRequests] = useState<LateRequest[]>([]);
+  const [staffSuggestions, setStaffSuggestions] = useState<PharmacyStaffSuggestion[]>([]);
   const [loading, setLoading]       = useState(true);
   const [actioning, setActioning]   = useState<string | null>(null);
   const [expandedCycle, setExpandedCycle]     = useState<string | null>(null);
@@ -112,6 +120,7 @@ const Approvals = () => {
       getRecommendationsApi().then(r => setRecs((r.data?.data ?? []).filter((x: Recommendation) => x.status === "PENDING"))).catch(() => {}),
       getPendingTourPlansApi().then(r => setTourplans(r.data?.data ?? [])).catch(() => {}),
       getPendingLateRequestsApi().then(r => setLateRequests(r.data?.data ?? [])).catch(() => {}),
+      getPendingStaffSupervisorApi().then(r => setStaffSuggestions(r.data?.data ?? [])).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -196,6 +205,18 @@ const Approvals = () => {
     setLateRequests(p => p.filter(r => r.id !== id));
     setActioning(null);
   };
+  const approveStaff = async (id: string) => {
+    setActioning(id);
+    await supervisorApproveStaffApi(id).catch(() => {});
+    setStaffSuggestions(p => p.filter(s => s.id !== id));
+    setActioning(null);
+  };
+  const rejectStaff = async (id: string, note: string) => {
+    setActioning(id);
+    await rejectStaffApi(id, note).catch(() => {});
+    setStaffSuggestions(p => p.filter(s => s.id !== id));
+    setActioning(null);
+  };
 
   const tabs: { key: Tab; label: string; count: number }[] = [
     { key: "reports",   label: "Daily Reports", count: reports.length },
@@ -204,9 +225,10 @@ const Approvals = () => {
     { key: "expenses",  label: "Expenses",      count: expenses.length },
     { key: "recs",      label: "HCP Recs",      count: recs.length },
     { key: "late",      label: "Late Requests", count: lateRequests.length },
+    { key: "staff",     label: "Pharm. Staff",  count: staffSuggestions.length },
   ];
 
-  const totalPending = reports.length + cycles.length + expenses.length + recs.length + tourplans.length + lateRequests.length;
+  const totalPending = reports.length + cycles.length + expenses.length + recs.length + tourplans.length + lateRequests.length + staffSuggestions.length;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -517,6 +539,61 @@ const Approvals = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {tab === "staff" && (
+            staffSuggestions.length === 0 ? <Empty label="No pending pharmacy staff suggestions" /> :
+            <div className="space-y-3">
+              {staffSuggestions.map(s => {
+                const repName = `${s.suggested_by.firstname} ${s.suggested_by.lastname}`;
+                const pharmacy = s.pharmacy_links[0]?.pharmacy;
+                const roleColour: Record<string, string> = {
+                  Dispenser: "bg-violet-50 text-violet-700 border-violet-200",
+                  Pharmacist: "bg-blue-50 text-blue-700 border-blue-200",
+                  Procurement: "bg-amber-50 text-amber-700 border-amber-200",
+                  Owner: "bg-green-50 text-green-700 border-green-200",
+                  Manager: "bg-gray-50 text-gray-600 border-gray-200",
+                };
+                return (
+                  <div key={s.id} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-violet-100 flex items-center justify-center shrink-0">
+                          <span className="text-sm font-poppins-bold text-violet-700">{s.name[0]}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-poppins-semibold text-gray-800">{s.name}</p>
+                          {s.phone && <p className="text-xs font-poppins text-gray-400">{s.phone}</p>}
+                          {pharmacy && (
+                            <p className="text-xs font-poppins text-gray-400">
+                              {pharmacy.pharmacy_name}{pharmacy.town ? ` · ${pharmacy.town}` : ""}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <span className={`shrink-0 text-[10px] font-poppins-bold px-2 py-0.5 rounded-full border ${roleColour[s.role] ?? roleColour.Manager}`}>
+                        {s.role}
+                      </span>
+                    </div>
+                    {s.notes && (
+                      <div className="bg-gray-50 rounded-lg px-3 py-2 text-sm font-poppins text-gray-700 border border-gray-100">
+                        <span className="text-xs font-poppins-semibold text-gray-400 block mb-0.5">Notes</span>
+                        {s.notes}
+                      </div>
+                    )}
+                    <p className="text-xs font-poppins text-gray-400">Suggested by {repName} · {FMT(s.created_at)}</p>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => approveStaff(s.id)} disabled={actioning === s.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] disabled:opacity-50"
+                        style={{ transition: "background-color 0.15s" }}>
+                        <FiCheckCircle className="w-3.5 h-3.5" /> Approve → Admin
+                      </button>
+                      <RejectInput onConfirm={note => rejectStaff(s.id, note)} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 

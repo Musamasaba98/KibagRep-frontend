@@ -3,6 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../store/authSlice';
 import { FaBuilding, FaHouse, FaBars, FaXmark, FaUsers, FaBuildingColumns, FaStethoscope } from 'react-icons/fa6';
+import { FiUserCheck } from 'react-icons/fi';
 import { SlLogout } from 'react-icons/sl';
 
 const navBase = 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium';
@@ -10,11 +11,12 @@ const active  = 'bg-[#16a34a]/10 text-[#16a34a] font-semibold';
 const inactive = 'text-gray-600 hover:bg-gray-100 [transition:background-color_0.15s,color_0.15s]';
 
 const NAV = [
-  { to: '/super-admin',             end: true,  icon: FaHouse,           label: 'Dashboard'     },
-  { to: '/super-admin/companies',   end: false, icon: FaBuilding,        label: 'Companies'     },
-  { to: '/super-admin/users',       end: false, icon: FaUsers,           label: 'All Users'     },
-  { to: '/super-admin/facilities',  end: false, icon: FaBuildingColumns, label: 'Facilities'    },
-  { to: '/super-admin/hcp',         end: false, icon: FaStethoscope,     label: 'HCP Directory' },
+  { to: '/super-admin',                    end: true,  icon: FaHouse,           label: 'Dashboard'        },
+  { to: '/super-admin/companies',          end: false, icon: FaBuilding,        label: 'Companies'        },
+  { to: '/super-admin/users',              end: false, icon: FaUsers,           label: 'All Users'        },
+  { to: '/super-admin/facilities',         end: false, icon: FaBuildingColumns, label: 'Facilities'       },
+  { to: '/super-admin/hcp',                end: false, icon: FaStethoscope,     label: 'HCP Directory'    },
+  { to: '/super-admin/pharmacy-staff',     end: false, icon: FiUserCheck,       label: 'Pharm. Staff'     },
 ];
 
 const SidebarContent = ({ onNav }: { onNav?: () => void }) => {

@@ -297,6 +297,19 @@ export const getPlacementTargetsApi = (month?: number, year?: number) =>
 export const upsertPlacementTargetApi = (data: unknown) => api.post('/placement', data);
 export const bulkUpsertPlacementTargetsApi = (data: unknown) => api.post('/placement/bulk', data);
 
+// ─── Pharmacy Staff ───────────────────────────────────────────────────────────
+export const getPharmacyStaffApi = (pharmacyId: string) =>
+  api.get(`/pharmacy-staff/pharmacy/${pharmacyId}`);
+export const suggestPharmacyStaffApi = (data: { name: string; role: string; phone?: string; notes?: string; pharmacy_id: string }) =>
+  api.post('/pharmacy-staff', data);
+export const linkStaffToPharmacyApi = (staffId: string, pharmacyId: string) =>
+  api.post(`/pharmacy-staff/${staffId}/link`, { pharmacy_id: pharmacyId });
+export const getPendingStaffSupervisorApi = () => api.get('/pharmacy-staff/pending-supervisor');
+export const getPendingStaffAdminApi    = () => api.get('/pharmacy-staff/pending-admin');
+export const supervisorApproveStaffApi  = (id: string) => api.put(`/pharmacy-staff/${id}/supervisor-approve`);
+export const adminApproveStaffApi       = (id: string) => api.put(`/pharmacy-staff/${id}/admin-approve`);
+export const rejectStaffApi             = (id: string, note?: string) => api.put(`/pharmacy-staff/${id}/reject`, { note });
+
 // ─── Location / GPS trail ─────────────────────────────────────────────────────
 export const getMyTrailApi = (date?: string) =>
   api.get('/location/my-trail', { params: date ? { date } : undefined });
