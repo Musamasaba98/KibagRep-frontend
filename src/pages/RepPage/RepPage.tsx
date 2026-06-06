@@ -11,6 +11,7 @@ import LogVisitModal from '../../componets/LogVisitModal/LogVisitModal';
 import PharmacyFabModal from '../../componets/LogPharmacyModal/PharmacyFabModal';
 import { Outlet } from 'react-router-dom';
 import usePushNotifications from '../../hooks/usePushNotifications';
+import useOfflineSync from '../../hooks/useOfflineSync';
 import InstallPrompt from '../../componets/InstallPrompt/InstallPrompt';
 import { FaPlus, FaXmark, FaStethoscope, FaBan, FaCalendarPlus } from 'react-icons/fa6';
 import { TbPill } from 'react-icons/tb';
@@ -24,6 +25,7 @@ const SPEED_DIAL = [
 
 const RepPage = () => {
   usePushNotifications();
+  const { isOnline, pendingCount, syncing, sync } = useOfflineSync();
   const dispatch = useDispatch();
   const showMenu: boolean = useSelector((state: any) => state.uiState.showMenu);
   const showSidebarPanel: boolean = useSelector((state: any) => state.uiState.showSidebarPanel ?? true);
@@ -76,6 +78,30 @@ const RepPage = () => {
               transition: isMobile ? undefined : 'margin-left 250ms ease',
             }}
           >
+            {/* Offline / pending-sync banner */}
+            {(!isOnline || pendingCount > 0) && (
+              <div className={`flex items-center justify-between gap-3 mb-4 px-4 py-2.5 rounded-xl text-sm font-poppins-semibold ${
+                !isOnline
+                  ? "bg-gray-800 text-white"
+                  : "bg-amber-50 border border-amber-200 text-amber-700"
+              }`}>
+                <span>
+                  {!isOnline
+                    ? "You're offline — visits are being saved locally"
+                    : `${pendingCount} visit${pendingCount !== 1 ? "s" : ""} queued — tap to sync`}
+                </span>
+                {isOnline && pendingCount > 0 && (
+                  <button
+                    onClick={sync}
+                    disabled={syncing}
+                    className="shrink-0 text-xs bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white px-3 py-1 rounded-lg"
+                    style={{ transition: "background-color 0.15s" }}
+                  >
+                    {syncing ? "Syncing…" : "Sync now"}
+                  </button>
+                )}
+              </div>
+            )}
             <Outlet context={{ refreshKey }} />
           </div>
         </div>

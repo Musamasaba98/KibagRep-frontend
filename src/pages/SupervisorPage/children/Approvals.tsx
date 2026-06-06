@@ -47,7 +47,7 @@ interface PendingTourPlan {
 }
 
 interface LateRequest {
-  id: string; type: "CYCLE" | "TOUR_PLAN"; month: number; year: number;
+  id: string; type: "CYCLE" | "TOUR_PLAN" | "DAILY_REPORT"; month: number; year: number;
   note: string; status: string; review_note: string | null;
   user: { id: string; firstname: string; lastname: string };
 }

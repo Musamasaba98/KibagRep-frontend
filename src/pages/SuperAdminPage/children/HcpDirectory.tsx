@@ -5,7 +5,7 @@ import {
 } from "react-icons/fa6";
 import { LuPencil, LuCheck, LuX, LuStar, LuChevronDown } from "react-icons/lu";
 import { MdOutlineGpsOff } from "react-icons/md";
-import { FiCheckSquare, FiSquare, FiEdit3 } from "react-icons/fi";
+import { FiCheckSquare, FiSquare, FiEdit3, FiList, FiGrid } from "react-icons/fi";
 import api from "../../../services/api";
 import {
   bulkEditDoctorsApi, bulkUploadDoctorsApi, downloadDoctorTemplateApi,
@@ -46,6 +46,28 @@ interface FacilitySearchResult {
   id: string; name: string; location?: string; town?: string;
   latitude?: number | null; longitude?: number | null;
 }
+
+interface RowEdit {
+  doctor_name: string;
+  cadre: string;
+  speciality: string;
+  location: string;
+  town: string;
+  contact: string;
+  license_number: string;
+  prescribing_level: string;
+}
+
+const initRowEdit = (d: Doctor): RowEdit => ({
+  doctor_name:       d.doctor_name ?? "",
+  cadre:             d.cadre ?? "",
+  speciality:        (d.speciality ?? []).join(", "),
+  location:          d.location ?? "",
+  town:              d.town ?? "",
+  contact:           d.contact ?? "",
+  license_number:    d.license_number ?? "",
+  prescribing_level: d.prescribing_level ?? "",
+});
 
 // ─── Small helpers ────────────────────────────────────────────────────────────
 
@@ -741,6 +763,13 @@ const HcpDirectory = () => {
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  // Spreadsheet edit mode
+  const [viewMode,    setViewMode]    = useState<"list" | "table">("list");
+  const [tableEdits,  setTableEdits]  = useState<Record<string, RowEdit>>({});
+  const [dirtyIds,    setDirtyIds]    = useState<Set<string>>(new Set());
+  const [savingAll,   setSavingAll]   = useState(false);
+  const [saveMsg,     setSaveMsg]     = useState<{ text: string; ok: boolean } | null>(null);
+
   const load = useCallback((p = 1, query = q) => {
     setLoading(true);
     const params = new URLSearchParams({ scope: "all", page: String(p), limit: "30" });
@@ -792,6 +821,70 @@ const HcpDirectory = () => {
     setCheckedIds(new Set());
   };
 
+  // Reset table edits whenever the doctors page changes (pagination / search)
+  useEffect(() => {
+    const init: Record<string, RowEdit> = {};
+    for (const d of doctors) init[d.id] = initRowEdit(d);
+    setTableEdits(init);
+    setDirtyIds(new Set());
+    setSaveMsg(null);
+  }, [doctors]);
+
+  const enterTableMode = () => {
+    setViewMode("table");
+    const init: Record<string, RowEdit> = {};
+    for (const d of doctors) init[d.id] = initRowEdit(d);
+    setTableEdits(init);
+    setDirtyIds(new Set());
+    setSaveMsg(null);
+  };
+
+  const changeCell = (id: string, field: keyof RowEdit, value: string) => {
+    setTableEdits(prev => ({ ...prev, [id]: { ...(prev[id] ?? initRowEdit(doctors.find(d => d.id === id)!)), [field]: value } }));
+    setDirtyIds(prev => new Set([...prev, id]));
+    setSaveMsg(null);
+  };
+
+  const discardEdits = () => {
+    const init: Record<string, RowEdit> = {};
+    for (const d of doctors) init[d.id] = initRowEdit(d);
+    setTableEdits(init);
+    setDirtyIds(new Set());
+    setSaveMsg(null);
+  };
+
+  const saveAll = async () => {
+    if (dirtyIds.size === 0 || savingAll) return;
+    setSavingAll(true);
+    setSaveMsg(null);
+    let saved = 0, failed = 0;
+    for (const id of Array.from(dirtyIds)) {
+      const edit = tableEdits[id];
+      if (!edit) continue;
+      try {
+        await api.put(`/doctor/${id}`, {
+          doctor_name:       edit.doctor_name,
+          cadre:             edit.cadre,
+          speciality:        edit.speciality.split(",").map((s: string) => s.trim()).filter(Boolean),
+          location:          edit.location,
+          town:              edit.town,
+          contact:           edit.contact || null,
+          license_number:    edit.license_number || null,
+          prescribing_level: edit.prescribing_level || null,
+        });
+        saved++;
+      } catch { failed++; }
+    }
+    setSavingAll(false);
+    if (failed === 0) {
+      setSaveMsg({ text: `${saved} doctor${saved !== 1 ? "s" : ""} updated`, ok: true });
+      setDirtyIds(new Set());
+      load(page, q);
+    } else {
+      setSaveMsg({ text: `${saved} saved · ${failed} failed — check connection`, ok: false });
+    }
+  };
+
   const withFacility    = doctors.filter(d => d.work_facilities?.length > 0).length;
   const withoutFacility = doctors.length - withFacility;
 
@@ -819,6 +912,21 @@ const HcpDirectory = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* View mode toggle */}
+          <div className="flex rounded-xl border border-gray-200 overflow-hidden">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold ${viewMode === "list" ? "bg-[#16a34a] text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+              style={{ transition: "background-color 0.12s, color 0.12s" }}>
+              <FiList className="w-3 h-3" /> List
+            </button>
+            <button
+              onClick={enterTableMode}
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-l border-gray-200 ${viewMode === "table" ? "bg-[#16a34a] text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+              style={{ transition: "background-color 0.12s, color 0.12s" }}>
+              <FiGrid className="w-3 h-3" /> Spreadsheet
+            </button>
+          </div>
           <button onClick={() => setShowUpload(true)}
             className="flex items-center gap-2 border border-[#16a34a] text-[#16a34a] text-sm font-semibold px-3.5 py-2.5 rounded-xl hover:bg-green-50"
             style={{ transition: "background-color 0.15s" }}>
@@ -852,101 +960,196 @@ const HcpDirectory = () => {
           className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20" />
       </div>
 
-      {/* Doctor list */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-7 h-7 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />
+      {/* Loading */}
+      {loading && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex justify-center py-16">
+          <div className="w-7 h-7 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && doctors.length === 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] flex flex-col items-center py-20 text-gray-400">
+          <FaStethoscope className="w-10 h-10 mb-3 opacity-20" />
+          <p className="font-semibold">{q ? "No matching HCPs" : "No HCPs in database"}</p>
+        </div>
+      )}
+
+      {/* List view */}
+      {!loading && doctors.length > 0 && viewMode === "list" && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+          <div className="hidden sm:grid px-4 sm:px-5 py-2 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider"
+            style={{ gridTemplateColumns: "1.5rem 2rem 1fr 6rem 8rem" }}>
+            <button onClick={toggleAll} className="flex items-center justify-center focus-visible:outline-none">
+              {checkedIds.size === doctors.length && doctors.length > 0
+                ? <FiCheckSquare className="w-3.5 h-3.5 text-[#16a34a]" />
+                : <FiSquare className="w-3.5 h-3.5 text-gray-300" />}
+            </button>
+            <span /><span>Clinician</span><span>Cadre</span><span>Primary Facility</span>
           </div>
-        ) : doctors.length === 0 ? (
-          <div className="flex flex-col items-center py-20 text-gray-400">
-            <FaStethoscope className="w-10 h-10 mb-3 opacity-20" />
-            <p className="font-semibold">{q ? "No matching HCPs" : "No HCPs in database"}</p>
-          </div>
-        ) : (
-          <>
-            {/* Column headers */}
-            <div className="hidden sm:grid px-4 sm:px-5 py-2 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider"
-              style={{ gridTemplateColumns: "1.5rem 2rem 1fr 6rem 8rem" }}>
-              <button onClick={toggleAll} className="flex items-center justify-center focus-visible:outline-none">
-                {checkedIds.size === doctors.length && doctors.length > 0
-                  ? <FiCheckSquare className="w-3.5 h-3.5 text-[#16a34a]" />
-                  : <FiSquare className="w-3.5 h-3.5 text-gray-300" />}
-              </button>
-              <span /><span>Clinician</span><span>Cadre</span><span>Primary Facility</span>
-            </div>
-            <div className="divide-y divide-gray-50">
-              {doctors.map(d => {
-                const primary = d.work_facilities?.find(f => f.is_primary) ?? d.work_facilities?.[0];
-                const facilityHasGps = primary?.facility.latitude != null;
-                const isChecked = checkedIds.has(d.id);
-                return (
-                  <div key={d.id}
-                    onClick={() => setSelectedId(d.id)}
-                    className={`grid sm:grid-cols-[1.5rem_2rem_1fr_6rem_8rem] items-center gap-3 px-4 sm:px-5 py-3.5 cursor-pointer ${isChecked ? "bg-green-50" : "hover:bg-[#f0fdf4]/40"}`}
-                    style={{ transition: "background-color 0.12s" }}>
+          <div className="divide-y divide-gray-50">
+            {doctors.map(d => {
+              const primary = d.work_facilities?.find(f => f.is_primary) ?? d.work_facilities?.[0];
+              const facilityHasGps = primary?.facility.latitude != null;
+              const isChecked = checkedIds.has(d.id);
+              return (
+                <div key={d.id}
+                  onClick={() => setSelectedId(d.id)}
+                  className={`grid sm:grid-cols-[1.5rem_2rem_1fr_6rem_8rem] items-center gap-3 px-4 sm:px-5 py-3.5 cursor-pointer ${isChecked ? "bg-green-50" : "hover:bg-[#f0fdf4]/40"}`}
+                  style={{ transition: "background-color 0.12s" }}>
 
-                    {/* Checkbox */}
-                    <button
-                      onClick={(e) => toggleCheck(d.id, e)}
-                      className="hidden sm:flex items-center justify-center focus-visible:outline-none shrink-0">
-                      {isChecked
-                        ? <FiCheckSquare className="w-4 h-4 text-[#16a34a]" />
-                        : <FiSquare className="w-4 h-4 text-gray-300 hover:text-gray-400" />}
-                    </button>
+                  <button
+                    onClick={(e) => toggleCheck(d.id, e)}
+                    className="hidden sm:flex items-center justify-center focus-visible:outline-none shrink-0">
+                    {isChecked
+                      ? <FiCheckSquare className="w-4 h-4 text-[#16a34a]" />
+                      : <FiSquare className="w-4 h-4 text-gray-300 hover:text-gray-400" />}
+                  </button>
 
-                    <div className="w-8 h-8 bg-sky-50 rounded-xl flex items-center justify-center shrink-0">
-                      <FaStethoscope className="w-3.5 h-3.5 text-sky-600" />
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold text-[#1a2530] truncate">{d.doctor_name}</p>
-                        <LuPencil className="w-3 h-3 text-gray-300 shrink-0" />
-                      </div>
-                      <p className="text-xs text-gray-400 truncate">
-                        {[...d.speciality ?? [], d.town].filter(Boolean).join(" · ")}
-                      </p>
-                    </div>
-
-                    <div className="hidden sm:block">
-                      <Badge label={d.cadre} color={cadreColor[d.cadre] ?? cadreColor.Other} />
-                    </div>
-
-                    <div className="hidden sm:block min-w-0">
-                      {primary ? (
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          {facilityHasGps
-                            ? <FaLocationDot className="w-3 h-3 text-[#16a34a] shrink-0" />
-                            : <MdOutlineGpsOff className="w-3 h-3 text-amber-500 shrink-0" />}
-                          <span className="text-xs text-gray-600 truncate">{primary.facility.name}</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-amber-600 font-semibold">Not linked</span>
-                      )}
-                    </div>
+                  <div className="w-8 h-8 bg-sky-50 rounded-xl flex items-center justify-center shrink-0">
+                    <FaStethoscope className="w-3.5 h-3.5 text-sky-600" />
                   </div>
+
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-[#1a2530] truncate">{d.doctor_name}</p>
+                      <LuPencil className="w-3 h-3 text-gray-300 shrink-0" />
+                    </div>
+                    <p className="text-xs text-gray-400 truncate">
+                      {[...d.speciality ?? [], d.town].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+
+                  <div className="hidden sm:block">
+                    <Badge label={d.cadre} color={cadreColor[d.cadre] ?? cadreColor.Other} />
+                  </div>
+
+                  <div className="hidden sm:block min-w-0">
+                    {primary ? (
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        {facilityHasGps
+                          ? <FaLocationDot className="w-3 h-3 text-[#16a34a] shrink-0" />
+                          : <MdOutlineGpsOff className="w-3 h-3 text-amber-500 shrink-0" />}
+                        <span className="text-xs text-gray-600 truncate">{primary.facility.name}</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-amber-600 font-semibold">Not linked</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {total > 30 && (
+            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 text-xs text-gray-500">
+              <span>Page {page} of {Math.ceil(total / 30)}</span>
+              <div className="flex gap-2">
+                <button onClick={() => load(page - 1)} disabled={page <= 1}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                  style={{ transition: "background-color 0.12s" }}>Prev</button>
+                <button onClick={() => load(page + 1)} disabled={page >= Math.ceil(total / 30)}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                  style={{ transition: "background-color 0.12s" }}>Next</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Spreadsheet view */}
+      {!loading && doctors.length > 0 && viewMode === "table" && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-x-auto">
+          {dirtyIds.size > 0 && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-b border-amber-100 text-xs text-amber-700 font-semibold">
+              <span>{dirtyIds.size} unsaved row{dirtyIds.size !== 1 ? "s" : ""}</span>
+              <span className="text-amber-300">·</span>
+              <span className="font-normal">Highlighted rows have pending changes</span>
+            </div>
+          )}
+          <table className="w-full text-xs" style={{ minWidth: 1020 }}>
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50/80">
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400 w-8">#</th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 160 }}>Name</th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 110 }}>Cadre</th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 140 }}>Speciality</th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 120 }}>Location</th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 100 }}>Town</th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 110 }}>Contact</th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 100 }}>License #</th>
+                <th className="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 150 }}>Prescribing Level</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {doctors.map((d, idx) => {
+                const edit = tableEdits[d.id] ?? initRowEdit(d);
+                const dirty = dirtyIds.has(d.id);
+                const cellCls = "w-full border border-transparent hover:border-gray-200 focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]/20 rounded px-1.5 py-1 text-xs text-[#1a2530] outline-none bg-transparent focus:bg-white";
+                return (
+                  <tr key={d.id}
+                    className={dirty ? "bg-amber-50" : "hover:bg-gray-50/60"}
+                    style={{ borderLeft: `3px solid ${dirty ? "#f59e0b" : "transparent"}`, transition: "background-color 0.1s" }}>
+                    <td className="px-3 py-1.5 text-gray-400 text-[11px] select-none">{(page - 1) * 30 + idx + 1}</td>
+                    <td className="px-1.5 py-1">
+                      <input value={edit.doctor_name} onChange={e => changeCell(d.id, "doctor_name", e.target.value)}
+                        className={cellCls + " font-medium"} style={{ transition: "border-color 0.1s, box-shadow 0.1s" }} />
+                    </td>
+                    <td className="px-1.5 py-1">
+                      <select value={edit.cadre} onChange={e => changeCell(d.id, "cadre", e.target.value)}
+                        className={cellCls} style={{ transition: "border-color 0.1s, box-shadow 0.1s" }}>
+                        {CADRES.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-1.5 py-1">
+                      <input value={edit.speciality} onChange={e => changeCell(d.id, "speciality", e.target.value)}
+                        placeholder="comma-separated"
+                        className={cellCls + " placeholder:text-gray-300"} style={{ transition: "border-color 0.1s, box-shadow 0.1s" }} />
+                    </td>
+                    <td className="px-1.5 py-1">
+                      <input value={edit.location} onChange={e => changeCell(d.id, "location", e.target.value)}
+                        className={cellCls} style={{ transition: "border-color 0.1s, box-shadow 0.1s" }} />
+                    </td>
+                    <td className="px-1.5 py-1">
+                      <input value={edit.town} onChange={e => changeCell(d.id, "town", e.target.value)}
+                        className={cellCls} style={{ transition: "border-color 0.1s, box-shadow 0.1s" }} />
+                    </td>
+                    <td className="px-1.5 py-1">
+                      <input value={edit.contact} onChange={e => changeCell(d.id, "contact", e.target.value)}
+                        className={cellCls} style={{ transition: "border-color 0.1s, box-shadow 0.1s" }} />
+                    </td>
+                    <td className="px-1.5 py-1">
+                      <input value={edit.license_number} onChange={e => changeCell(d.id, "license_number", e.target.value)}
+                        className={cellCls} style={{ transition: "border-color 0.1s, box-shadow 0.1s" }} />
+                    </td>
+                    <td className="px-1.5 py-1">
+                      <select value={edit.prescribing_level} onChange={e => changeCell(d.id, "prescribing_level", e.target.value)}
+                        className={cellCls} style={{ transition: "border-color 0.1s, box-shadow 0.1s" }}>
+                        <option value="">—</option>
+                        {PRESC_LVL.map(p => <option key={p} value={p}>{p.replace(/_/g, " ")}</option>)}
+                      </select>
+                    </td>
+                  </tr>
                 );
               })}
-            </div>
+            </tbody>
+          </table>
 
-            {/* Pagination */}
-            {total > 30 && (
-              <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 text-xs text-gray-500">
-                <span>Page {page} of {Math.ceil(total / 30)}</span>
-                <div className="flex gap-2">
-                  <button onClick={() => load(page - 1)} disabled={page <= 1}
-                    className="px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
-                    style={{ transition: "background-color 0.12s" }}>Prev</button>
-                  <button onClick={() => load(page + 1)} disabled={page >= Math.ceil(total / 30)}
-                    className="px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
-                    style={{ transition: "background-color 0.12s" }}>Next</button>
-                </div>
+          {total > 30 && (
+            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 text-xs text-gray-500">
+              <span>Page {page} of {Math.ceil(total / 30)}</span>
+              <div className="flex gap-2">
+                <button onClick={() => { discardEdits(); load(page - 1); }} disabled={page <= 1}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                  style={{ transition: "background-color 0.12s" }}>Prev</button>
+                <button onClick={() => { discardEdits(); load(page + 1); }} disabled={page >= Math.ceil(total / 30)}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                  style={{ transition: "background-color 0.12s" }}>Next</button>
               </div>
-            )}
-          </>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Edit panel */}
       {selectedId && (
@@ -973,13 +1176,44 @@ const HcpDirectory = () => {
         />
       )}
 
-      {/* Floating bulk-edit panel */}
-      {checkedIds.size > 0 && (
+      {/* Floating bulk-edit panel (list mode) */}
+      {checkedIds.size > 0 && viewMode === "list" && (
         <BulkEditPanel
           count={checkedIds.size}
           onApply={handleBulkEdit}
           onClear={() => setCheckedIds(new Set())}
         />
+      )}
+
+      {/* Floating save bar (spreadsheet mode) */}
+      {viewMode === "table" && dirtyIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#1a2530] text-white px-5 py-3 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.35)]"
+          style={{ whiteSpace: "nowrap" }}>
+          <span className="text-sm font-semibold">{dirtyIds.size} unsaved change{dirtyIds.size !== 1 ? "s" : ""}</span>
+          <div className="w-px h-4 bg-white/20" />
+          <button onClick={discardEdits}
+            className="text-xs text-gray-400 hover:text-white focus-visible:outline-none"
+            style={{ transition: "color 0.12s" }}>
+            Discard
+          </button>
+          <button onClick={saveAll} disabled={savingAll}
+            className="bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white text-sm font-semibold px-4 py-1.5 rounded-xl"
+            style={{ transition: "background-color 0.15s" }}>
+            {savingAll ? "Saving…" : `Save ${dirtyIds.size} change${dirtyIds.size !== 1 ? "s" : ""}`}
+          </button>
+        </div>
+      )}
+
+      {/* Save result toast */}
+      {saveMsg && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.25)] text-sm font-semibold text-white ${saveMsg.ok ? "bg-[#16a34a]" : "bg-red-600"}`}
+          style={{ whiteSpace: "nowrap" }}>
+          <span>{saveMsg.ok ? "✓" : "✕"} {saveMsg.text}</span>
+          <button onClick={() => setSaveMsg(null)} className="opacity-60 hover:opacity-100 focus-visible:outline-none ml-1"
+            style={{ transition: "opacity 0.12s" }}>
+            <FaXmark className="w-3.5 h-3.5" />
+          </button>
+        </div>
       )}
     </div>
   );

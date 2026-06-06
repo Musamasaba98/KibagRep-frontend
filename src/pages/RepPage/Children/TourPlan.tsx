@@ -33,6 +33,7 @@ import {
   removeTourPlanEntryApi,
   submitTourPlanApi,
   searchPharmaciesApi,
+  getFacilitiesApi,
   createLateRequestApi,
   getMyLateRequestsApi,
 } from "../../../services/api";
@@ -274,6 +275,90 @@ const AddPharmacyDropdown = ({
   );
 };
 
+// ─── Add-facility dropdown ────────────────────────────────────────────────────
+
+interface FacilityResult {
+  id: string;
+  name: string;
+  location: string;
+  town?: string;
+  facility_type?: string;
+}
+
+const AddFacilityDropdown = ({
+  onSelect,
+  onClose,
+}: {
+  onSelect: (f: FacilityResult) => void;
+  onClose: () => void;
+}) => {
+  const [q, setQ] = useState("");
+  const [all, setAll] = useState<FacilityResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  useEffect(() => {
+    getFacilitiesApi()
+      .then((res) => setAll(res.data.data ?? res.data ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = useMemo(() => {
+    const s = q.toLowerCase();
+    return s.length < 1
+      ? all.slice(0, 40)
+      : all.filter(
+          (f) =>
+            f.name?.toLowerCase().includes(s) ||
+            f.town?.toLowerCase().includes(s) ||
+            f.location?.toLowerCase().includes(s)
+        ).slice(0, 40);
+  }, [all, q]);
+
+  return (
+    <div className="absolute z-50 mt-1 w-72 bg-white rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100">
+        <MdSearch className="w-4 h-4 text-gray-400 shrink-0" />
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Search facilities…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          className="flex-1 text-sm font-poppins outline-none text-gray-700"
+        />
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <MdClose className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="max-h-56 overflow-y-auto">
+        {loading && <p className="text-xs text-gray-400 font-poppins text-center py-6">Loading…</p>}
+        {!loading && filtered.length === 0 && (
+          <p className="text-xs text-gray-400 font-poppins text-center py-6">No facilities found</p>
+        )}
+        {filtered.map((f) => (
+          <button
+            key={f.id}
+            onClick={() => { onSelect(f); onClose(); }}
+            className="w-full flex items-start gap-2.5 px-3 py-2 hover:bg-gray-50 text-left"
+          >
+            <FaHospital className="w-3.5 h-3.5 text-sky-500 shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-poppins-semibold text-[#222f36] truncate">{f.name}</p>
+              <p className="text-[10px] text-gray-400 font-poppins truncate">
+                {[f.facility_type, f.location, f.town].filter(Boolean).join(" · ")}
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ─── Slot section (reusable morning/evening block) ───────────────────────────
 
 const SlotSection = ({
@@ -293,20 +378,30 @@ const SlotSection = ({
   onEntryRemoved: (id: string) => void;
 }) => {
   const isMorning = slot === "MORNING";
-  const [areaVal, setAreaVal]     = useState(area);
-  const [showDocDrop, setDocDrop] = useState(false);
-  const [showPharmDrop, setShowPharmDrop] = useState(false);
+  const [areaVal, setAreaVal]           = useState(area);
+  const [showDocDrop, setDocDrop]       = useState(false);
+  const [showPharmDrop, setShowPharmDrop]     = useState(false);
+  const [showFacilityDrop, setShowFacilityDrop] = useState(false);
 
   useEffect(() => { setAreaVal(area); }, [area]);
 
-  const clinicians = slotEntries.filter((e) => e.entry_type === "CLINICIAN");
-  const pharmacies = slotEntries.filter((e) => e.entry_type === "PHARMACY");
-  const totalHCPs  = clinicians.length;
-  const totalRx    = pharmacies.length;
+  // Facility entries are CLINICIAN entries with facility_id set and no doctor_id
+  const clinicians     = slotEntries.filter((e) => e.entry_type === "CLINICIAN" && e.doctor_id);
+  const facilityVisits = slotEntries.filter((e) => e.entry_type === "CLINICIAN" && !e.doctor_id && e.facility_id);
+  const pharmacies     = slotEntries.filter((e) => e.entry_type === "PHARMACY");
+  const totalHCPs      = clinicians.length + facilityVisits.length;
+  const totalRx        = pharmacies.length;
 
   const addClinician = async (ci: CycleItem) => {
     try {
       const res = await addTourPlanEntryApi(planId, { day_number: dayNum, entry_type: "CLINICIAN", slot, doctor_id: ci.doctor_id, cycle_item_id: ci.id });
+      onEntryAdded(res.data.data);
+    } catch { /* ignore */ }
+  };
+
+  const addFacility = async (facility: FacilityResult) => {
+    try {
+      const res = await addTourPlanEntryApi(planId, { day_number: dayNum, entry_type: "CLINICIAN", slot, facility_id: facility.id });
       onEntryAdded(res.data.data);
     } catch { /* ignore */ }
   };
@@ -392,6 +487,29 @@ const SlotSection = ({
         </div>
       )}
 
+      {/* Facility visits */}
+      {facilityVisits.length > 0 && (
+        <div className="space-y-1 mb-1.5">
+          {facilityVisits.map((e) => (
+            <div key={e.id} className="flex items-center gap-1.5 group">
+              <FaHospital className="w-3 h-3 text-sky-500 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-poppins text-gray-700 truncate">{e.facility?.name ?? "Facility"}</p>
+                {(e.facility?.location || e.facility?.town) && (
+                  <p className="text-[9px] font-poppins text-gray-400 truncate">{[e.facility?.location, e.facility?.town].filter(Boolean).join(" · ")}</p>
+                )}
+              </div>
+              <span className="text-[9px] font-poppins-bold text-sky-500 shrink-0">Facility</span>
+              {!locked && (
+                <button onClick={() => removeEntry(e.id)} className="opacity-0 group-hover:opacity-100 font-poppins text-red-400 hover:text-red-600">
+                  <FiTrash2 className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Pharmacy list */}
       {pharmacies.length > 0 && (
         <div className="space-y-1 mb-1.5">
@@ -425,6 +543,18 @@ const SlotSection = ({
             {showDocDrop && (
               <AddClinicianDropdown cycleItems={cycleItems} usedCounts={usedCounts}
                 onSelect={addClinician} onClose={() => setDocDrop(false)} />
+            )}
+          </div>
+          <div className="relative">
+            <button onClick={() => setShowFacilityDrop(true)}
+              className="flex items-center gap-1 text-[11px] font-poppins-semibold text-sky-600 hover:text-sky-700">
+              <FiPlus className="w-3 h-3" /> Add Facility
+            </button>
+            {showFacilityDrop && (
+              <AddFacilityDropdown
+                onSelect={addFacility}
+                onClose={() => setShowFacilityDrop(false)}
+              />
             )}
           </div>
           <div className="relative">

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getCurrentCycleApi, submitCycleApi, carryForwardCycleApi,
-  createLateRequestApi, getMyLateRequestsApi,
+  createLateRequestApi, getMyLateRequestsApi, getActivityHistoryApi,
 } from "../../../services/api";
 import { format, differenceInDays } from "date-fns";
 import {
@@ -143,6 +143,7 @@ const CallCycle = () => {
 
   const [cycle, setCycle] = useState<Cycle | null>(null);
   const [lateReq, setLateReq] = useState<LateRequest | null>(null);
+  const [ncaMap, setNcaMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [carrying, setCarrying] = useState(false);
@@ -155,16 +156,31 @@ const CallCycle = () => {
     Promise.all([
       getCurrentCycleApi(activeMY.month, activeMY.year),
       getMyLateRequestsApi(),
+      // Only fetch NCA data for the current month tab
+      tab === "current" ? getActivityHistoryApi({ days: 31, limit: 500 }) : Promise.resolve(null),
     ])
-      .then(([cycleRes, lateRes]) => {
+      .then(([cycleRes, lateRes, actRes]) => {
         setCycle(cycleRes.data.data);
         const reqs: LateRequest[] = lateRes.data.data ?? [];
         const match = reqs.find((r) => r.type === "CYCLE" && r.month === activeMY.month && r.year === activeMY.year);
         setLateReq(match ?? null);
+
+        if (actRes) {
+          const activities: any[] = actRes.data?.data ?? [];
+          const map: Record<string, number> = {};
+          activities.forEach((a) => {
+            if (!a.nca_reason) return;
+            // Only count NCAs that fall within this cycle's month/year
+            const d = new Date(a.date);
+            if (d.getMonth() + 1 !== activeMY.month || d.getFullYear() !== activeMY.year) return;
+            map[a.doctor.id] = (map[a.doctor.id] ?? 0) + 1;
+          });
+          setNcaMap(map);
+        }
       })
       .catch(() => setError("Failed to load call cycle"))
       .finally(() => setLoading(false));
-  }, [activeMY.month, activeMY.year]);
+  }, [activeMY.month, activeMY.year, tab]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -455,6 +471,11 @@ const CallCycle = () => {
                             backgroundColor: done ? "#16a34a" : pct >= 50 ? "#f59e0b" : "#e5e7eb",
                           }} />
                         </div>
+                        {tab === "current" && !done && (ncaMap[item.doctor.id] ?? 0) > 0 && (
+                          <span className="text-[9px] font-poppins-bold bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full border border-amber-200 whitespace-nowrap">
+                            {ncaMap[item.doctor.id]}× NCA
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
