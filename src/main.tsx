@@ -96,7 +96,8 @@ import SuperAdminCompanies from "./pages/SuperAdminPage/children/Companies";
 import SuperAdminAllUsers from "./pages/SuperAdminPage/children/AllUsers";
 import SuperAdminFacilities from "./pages/SuperAdminPage/children/Facilities";
 import SuperAdminHcp from "./pages/SuperAdminPage/children/HcpDirectory";
-import SuperAdminPharmacyStaff from "./pages/SuperAdminPage/children/PharmacyStaffApprovals";
+import SuperAdminPharmacyStaff from "./pages/SuperAdminPage/children/PharmacyStaffApprovals"
+import SuperAdminPharmacies from "./pages/SuperAdminPage/children/Pharmacies";
 
 // Auth guard
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -247,6 +248,7 @@ const router = createBrowserRouter([
           { path: "users",      element: <SuperAdminAllUsers /> },
           { path: "facilities", element: <SuperAdminFacilities /> },
           { path: "hcp",            element: <SuperAdminHcp /> },
+          { path: "pharmacies",     element: <SuperAdminPharmacies /> },
           { path: "pharmacy-staff", element: <SuperAdminPharmacyStaff /> },
         ],
       },

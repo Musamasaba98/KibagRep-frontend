@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../store/authSlice';
-import { FaBuilding, FaHouse, FaBars, FaXmark, FaUsers, FaBuildingColumns, FaStethoscope } from 'react-icons/fa6';
+import { FaBuilding, FaHouse, FaBars, FaXmark, FaUsers, FaBuildingColumns, FaStethoscope, FaHospital } from 'react-icons/fa6';
 import { FiUserCheck } from 'react-icons/fi';
 import { SlLogout } from 'react-icons/sl';
 
@@ -16,6 +16,7 @@ const NAV = [
   { to: '/super-admin/users',              end: false, icon: FaUsers,           label: 'All Users'        },
   { to: '/super-admin/facilities',         end: false, icon: FaBuildingColumns, label: 'Facilities'       },
   { to: '/super-admin/hcp',                end: false, icon: FaStethoscope,     label: 'HCP Directory'    },
+  { to: '/super-admin/pharmacies',         end: false, icon: FaHospital,        label: 'Pharmacies'       },
   { to: '/super-admin/pharmacy-staff',     end: false, icon: FiUserCheck,       label: 'Pharm. Staff'     },
 ];
 

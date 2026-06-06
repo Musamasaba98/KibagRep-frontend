@@ -4,7 +4,7 @@ import api from "../../../services/api";
 
 interface Pharmacy {
   id: string;
-  name: string;
+  pharmacy_name: string;
   town?: string;
   location?: string;
   contact?: string;
@@ -31,7 +31,7 @@ const Pharmacies = () => {
 
   const filtered = q.length >= 2
     ? pharmacies.filter(p =>
-        p.name.toLowerCase().includes(q.toLowerCase()) ||
+        p.pharmacy_name.toLowerCase().includes(q.toLowerCase()) ||
         p.town?.toLowerCase().includes(q.toLowerCase()) ||
         p.location?.toLowerCase().includes(q.toLowerCase())
       )
@@ -124,7 +124,7 @@ const Pharmacies = () => {
                   <FaHospital className="w-3.5 h-3.5 text-sky-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#1a2530] truncate">{p.name}</p>
+                  <p className="text-sm font-semibold text-[#1a2530] truncate">{p.pharmacy_name}</p>
                   <p className="text-xs text-gray-400 truncate">
                     {[p.town, p.location, p.contact].filter(Boolean).join(" · ")}
                   </p>
