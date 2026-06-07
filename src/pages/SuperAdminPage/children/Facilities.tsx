@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { FaBuildingColumns, FaPlus, FaXmark, FaMagnifyingGlass, FaLocationDot, FaChevronLeft, FaChevronRight, FaSpinner } from "react-icons/fa6";
+import { FaBuildingColumns, FaXmark, FaMagnifyingGlass, FaChevronLeft, FaChevronRight, FaSpinner } from "react-icons/fa6";
 import { LuMapPin, LuPencil, LuCheck } from "react-icons/lu";
-import { MdOutlineGpsOff } from "react-icons/md";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -133,7 +132,7 @@ const CoordinatePickerModal = ({
         </div>
 
         {/* Geocoding search bar */}
-        <div className="px-5 py-3 border-b border-gray-100 shrink-0 relative">
+        <div className="px-5 py-3 border-b border-gray-100 shrink-0">
           <div className="relative">
             {geoLoading
               ? <FaSpinner className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 animate-spin" />
@@ -146,9 +145,9 @@ const CoordinatePickerModal = ({
               className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20"
             />
           </div>
-          {/* Suggestions dropdown */}
+          {/* Suggestions — inline block, avoids z-index / overflow-hidden clipping */}
           {geoResults.length > 0 && (
-            <div className="absolute left-5 right-5 top-full mt-1 bg-white rounded-xl border border-gray-200 shadow-[0_4px_20px_0_rgba(0,0,0,0.10)] z-10 overflow-hidden">
+            <div className="mt-2 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               {geoResults.map(r => (
                 <button
                   key={r.place_id}
