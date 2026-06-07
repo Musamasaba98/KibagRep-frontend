@@ -321,6 +321,12 @@ export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localh
 // ─── Facility Search ──────────────────────────────────────────────────────────
 export const searchFacilitiesApi = (q: string) => api.get(`/facility/search?q=${encodeURIComponent(q)}`);
 
+// ─── Company Doctor List (admin direct add/remove) ────────────────────────────
+export const addDoctorToCompanyApi = (doctorId: string) =>
+  api.post(`/doctor/${doctorId}/company-list`);
+export const removeDoctorFromCompanyApi = (doctorId: string) =>
+  api.delete(`/doctor/${doctorId}/company-list`);
+
 // ─── Company Pharmacy List ─────────────────────────────────────────────────────
 export const getCompanyPharmaciesApi = (params?: { q?: string; tier?: string; page?: number; limit?: number }) =>
   api.get('/company-pharmacy', { params });
