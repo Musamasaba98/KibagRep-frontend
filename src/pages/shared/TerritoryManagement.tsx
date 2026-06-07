@@ -145,14 +145,14 @@ const TerritoryCard = ({
   const [facResults, setFacResults]       = useState<FacilityItem[]>([]);
   const [facSearching, setFacSearching]   = useState(false);
   const [showFacSearch, setShowFacSearch] = useState(false);
-  const facDebounce = useRef<ReturnType<typeof setTimeout>>();
+  const facDebounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // pharmacy search
   const [phrSearch, setPhrSearch]         = useState("");
   const [phrResults, setPhrResults]       = useState<PharmacyItem[]>([]);
   const [phrSearching, setPhrSearching]   = useState(false);
   const [showPhrSearch, setShowPhrSearch] = useState(false);
-  const phrDebounce = useRef<ReturnType<typeof setTimeout>>();
+  const phrDebounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // rep search
   const [repSearch, setRepSearch]         = useState("");

@@ -83,6 +83,8 @@ import SalesAdminBulkUpload from "./pages/SalesAdminPage/children/BulkUpload";
 import SalesAdminCycles from "./pages/SalesAdminPage/children/Cycles";
 import SalesAdminReports from "./pages/SalesAdminPage/children/Reports";
 import SalesAdminPlacement from "./pages/SalesAdminPage/children/StockPlacement";
+import CompanyPharmacies from "./pages/SalesAdminPage/children/CompanyPharmacies";
+import CompanyFacilities from "./pages/SalesAdminPage/children/CompanyFacilities";
 
 // Auth extras
 import ForgotPassword from "./pages/Authentication/ForgotPassword";
@@ -220,7 +222,9 @@ const router = createBrowserRouter([
           { path: "samples", element: <SalesAdminSamples /> },
           { path: "doctors", element: <SalesAdminDoctors /> },
           { path: "pharmacies", element: <SalesAdminPharmacies /> },
+          { path: "my-pharmacies", element: <CompanyPharmacies /> },
           { path: "facilities", element: <SalesAdminFacilities /> },
+          { path: "my-facilities", element: <CompanyFacilities /> },
           { path: "upload", element: <SalesAdminBulkUpload /> },
           { path: "cycles", element: <SalesAdminCycles /> },
           { path: "reports", element: <SalesAdminReports /> },

@@ -317,3 +317,26 @@ export const getMyTrailApi = (date?: string) =>
 export const getRepTrailApi = (userId: string, date?: string) =>
   api.get(`/location/trail/${userId}`, { params: date ? { date } : undefined });
 export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000/api").replace(/\/api$/, "");
+
+// ─── Facility Search ──────────────────────────────────────────────────────────
+export const searchFacilitiesApi = (q: string) => api.get(`/facility/search?q=${encodeURIComponent(q)}`);
+
+// ─── Company Pharmacy List ─────────────────────────────────────────────────────
+export const getCompanyPharmaciesApi = (params?: { q?: string; tier?: string; page?: number; limit?: number }) =>
+  api.get('/company-pharmacy', { params });
+export const addCompanyPharmacyApi = (data: { pharmacy_id: string; tier?: string; notes?: string }) =>
+  api.post('/company-pharmacy', data);
+export const updateCompanyPharmacyApi = (pharmacyId: string, data: { tier?: string; notes?: string }) =>
+  api.put(`/company-pharmacy/${pharmacyId}`, data);
+export const removeCompanyPharmacyApi = (pharmacyId: string) =>
+  api.delete(`/company-pharmacy/${pharmacyId}`);
+
+// ─── Company Facility List ─────────────────────────────────────────────────────
+export const getCompanyFacilitiesApi = (params?: { q?: string; facility_type?: string; page?: number; limit?: number }) =>
+  api.get('/company-facility', { params });
+export const addCompanyFacilityApi = (data: { facility_id: string; notes?: string }) =>
+  api.post('/company-facility', data);
+export const updateCompanyFacilityApi = (facilityId: string, data: { notes?: string }) =>
+  api.put(`/company-facility/${facilityId}`, data);
+export const removeCompanyFacilityApi = (facilityId: string) =>
+  api.delete(`/company-facility/${facilityId}`);
