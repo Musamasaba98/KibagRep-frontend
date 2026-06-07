@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { FaBuildingColumns, FaPlus, FaXmark, FaMagnifyingGlass, FaLocationDot, FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { FaBuildingColumns, FaPlus, FaXmark, FaMagnifyingGlass, FaLocationDot, FaChevronLeft, FaChevronRight, FaSpinner } from "react-icons/fa6";
 import { LuMapPin, LuPencil, LuCheck } from "react-icons/lu";
 import { MdOutlineGpsOff } from "react-icons/md";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
@@ -40,13 +40,22 @@ interface Facility {
   latitude?: number | null; longitude?: number | null;
 }
 
+interface NominatimResult {
+  place_id: number;
+  lat: string;
+  lon: string;
+  display_name: string;
+}
+
 function MapClickHandler({ onPick }: { onPick: (lat: number, lng: number) => void }) {
   useMapEvents({ click(e) { onPick(e.latlng.lat, e.latlng.lng); } });
   return null;
 }
-function RecenterMap({ center }: { center: [number, number] | null }) {
+function FlyTo({ target }: { target: { lat: number; lng: number } | null }) {
   const map = useMap();
-  useEffect(() => { if (center) map.setView(center, map.getZoom()); }, [center?.[0], center?.[1]]);
+  useEffect(() => {
+    if (target) map.flyTo([target.lat, target.lng], 16, { duration: 0.9 });
+  }, [target?.lat, target?.lng]);
   return null;
 }
 
@@ -58,46 +67,148 @@ const CoordinatePickerModal = ({
   );
   const [latInput, setLatInput] = useState(initial.lat != null ? String(initial.lat) : "");
   const [lngInput, setLngInput] = useState(initial.lng != null ? String(initial.lng) : "");
-  const [err, setErr] = useState("");
+  const [err, setErr]           = useState("");
+  const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Geocoding search
+  const [geoQ, setGeoQ]           = useState(facilityName);
+  const [geoResults, setGeoResults] = useState<NominatimResult[]>([]);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const geoDebounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const searchGeo = (q: string) => {
+    clearTimeout(geoDebounce.current);
+    if (q.trim().length < 3) { setGeoResults([]); setGeoLoading(false); return; }
+    setGeoLoading(true);
+    geoDebounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + " Uganda")}&format=json&limit=6&addressdetails=0`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        setGeoResults(await res.json());
+      } catch { setGeoResults([]); }
+      finally { setGeoLoading(false); }
+    }, 500);
+  };
+
+  // Auto-search on open with facility name
+  useEffect(() => { searchGeo(facilityName); }, []);
+
   const handleMapPick = (lat: number, lng: number) => {
     const r = (v: number, d: number) => Math.round(v * 10 ** d) / 10 ** d;
-    setPos({ lat: r(lat, 6), lng: r(lng, 6) });
-    setLatInput(String(r(lat, 6))); setLngInput(String(r(lng, 6))); setErr("");
+    const rLat = r(lat, 6), rLng = r(lng, 6);
+    setPos({ lat: rLat, lng: rLng });
+    setLatInput(String(rLat)); setLngInput(String(rLng)); setErr("");
   };
+
+  const handleSuggestion = (result: NominatimResult) => {
+    const lat = parseFloat(result.lat), lng = parseFloat(result.lon);
+    handleMapPick(lat, lng);
+    setFlyTarget({ lat, lng });
+    setGeoResults([]);
+    setGeoQ(result.display_name.split(",")[0]);
+  };
+
   const applyManual = () => {
     const lat = parseFloat(latInput), lng = parseFloat(lngInput);
     if (isNaN(lat) || lat < -90 || lat > 90)   { setErr("Latitude must be -90 to 90"); return; }
     if (isNaN(lng) || lng < -180 || lng > 180) { setErr("Longitude must be -180 to 180"); return; }
-    setErr(""); setPos({ lat, lng });
+    setErr(""); handleMapPick(lat, lng); setFlyTarget({ lat, lng });
   };
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.55)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden" style={{ maxHeight: "90vh" }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col overflow-hidden" style={{ maxHeight: "92vh" }}>
+
+        {/* Header */}
         <div className="flex items-center justify-between px-5 pt-4 pb-3.5 border-b border-gray-100 shrink-0">
-          <div><h2 className="font-black text-[#1a2530] text-base">Set Map Coordinates</h2>
-            <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{facilityName}</p></div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 focus-visible:outline-none"><FaXmark className="w-4 h-4" /></button>
+          <div>
+            <h2 className="font-black text-[#1a2530] text-base">Set Map Coordinates</h2>
+            <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{facilityName}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 focus-visible:outline-none">
+            <FaXmark className="w-4 h-4" />
+          </button>
         </div>
-        <div className="px-5 py-2.5 bg-sky-50 border-b border-sky-100 shrink-0">
-          <p className="text-xs text-sky-700"><span className="font-semibold">Click the map</span> to pin the facility location, or type coordinates manually.</p>
+
+        {/* Geocoding search bar */}
+        <div className="px-5 py-3 border-b border-gray-100 shrink-0 relative">
+          <div className="relative">
+            {geoLoading
+              ? <FaSpinner className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 animate-spin" />
+              : <FaMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            }
+            <input
+              value={geoQ}
+              onChange={e => { setGeoQ(e.target.value); searchGeo(e.target.value); }}
+              placeholder="Search for location…"
+              className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20"
+            />
+          </div>
+          {/* Suggestions dropdown */}
+          {geoResults.length > 0 && (
+            <div className="absolute left-5 right-5 top-full mt-1 bg-white rounded-xl border border-gray-200 shadow-[0_4px_20px_0_rgba(0,0,0,0.10)] z-10 overflow-hidden">
+              {geoResults.map(r => (
+                <button
+                  key={r.place_id}
+                  onClick={() => handleSuggestion(r)}
+                  className="w-full text-left px-3.5 py-2.5 hover:bg-[#f0fdf4] border-b border-gray-50 last:border-0 focus-visible:outline-none"
+                  style={{ transition: "background-color 0.1s" }}>
+                  <p className="text-sm font-semibold text-[#1a2530] truncate">{r.display_name.split(",")[0]}</p>
+                  <p className="text-xs text-gray-400 truncate mt-0.5">{r.display_name.split(",").slice(1, 4).join(",").trim()}</p>
+                </button>
+              ))}
+            </div>
+          )}
+          {!geoLoading && geoQ.trim().length >= 3 && geoResults.length === 0 && (
+            <p className="mt-1.5 text-xs text-gray-400">No map results — try a shorter name or nearby landmark</p>
+          )}
         </div>
-        <div className="flex-1 min-h-[280px]" style={{ cursor: "crosshair" }}>
-          <MapContainer center={pos ? [pos.lat, pos.lng] : UGANDA_CENTER} zoom={pos ? 15 : 7} style={{ width: "100%", height: "100%", minHeight: 280 }}>
+
+        {/* Instruction hint */}
+        <div className="px-5 py-2 bg-sky-50 border-b border-sky-100 shrink-0">
+          <p className="text-xs text-sky-700">
+            <span className="font-semibold">Pick a suggestion</span> above to fly to it, then <span className="font-semibold">click the map</span> to place the pin exactly, or drag the marker to adjust.
+          </p>
+        </div>
+
+        {/* Map */}
+        <div className="flex-1 min-h-[240px]" style={{ cursor: "crosshair" }}>
+          <MapContainer
+            center={pos ? [pos.lat, pos.lng] : UGANDA_CENTER}
+            zoom={pos ? 15 : 7}
+            style={{ width: "100%", height: "100%", minHeight: 240 }}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <MapClickHandler onPick={handleMapPick} />
-            {pos && (<><RecenterMap center={[pos.lat, pos.lng]} /><Marker position={[pos.lat, pos.lng]} icon={GREEN_ICON} draggable eventHandlers={{ dragend(e) { const { lat, lng } = (e.target as L.Marker).getLatLng(); handleMapPick(lat, lng); } }} /></>)}
+            <FlyTo target={flyTarget} />
+            {pos && (
+              <Marker
+                position={[pos.lat, pos.lng]}
+                icon={GREEN_ICON}
+                draggable
+                eventHandlers={{ dragend(e) {
+                  const { lat, lng } = (e.target as L.Marker).getLatLng();
+                  handleMapPick(lat, lng);
+                }}}
+              />
+            )}
           </MapContainer>
         </div>
+
+        {/* Footer */}
         <div className="px-5 py-4 border-t border-gray-100 shrink-0 flex flex-col gap-3">
           <div className="flex items-end gap-3">
-            {[{ l: "Latitude", v: latInput, s: setLatInput }, { l: "Longitude", v: lngInput, s: setLngInput }].map(({ l, v, s }) => (
+            {([{ l: "Latitude", v: latInput, s: setLatInput }, { l: "Longitude", v: lngInput, s: setLngInput }] as const).map(({ l, v, s }) => (
               <div key={l} className="flex-1">
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{l}</label>
                 <input type="number" step="any" value={v} onChange={e => s(e.target.value)} onBlur={applyManual}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#16a34a] font-mono" />
               </div>
             ))}
-            <button onClick={applyManual} className="px-3 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 shrink-0">Apply</button>
+            <button onClick={applyManual} className="px-3 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 shrink-0">
+              Apply
+            </button>
           </div>
           {err && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{err}</p>}
           {pos && <p className="text-xs text-[#16a34a] font-mono bg-[#f0fdf4] border border-[#dcfce7] rounded-lg px-3 py-2">📍 {pos.lat}, {pos.lng}</p>}
@@ -105,10 +216,14 @@ const CoordinatePickerModal = ({
             <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancel</button>
             <button onClick={() => pos && onSave(pos.lat, pos.lng)} disabled={!pos || saving}
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold disabled:opacity-50">
-              {saving ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving…</> : <><LuCheck className="w-4 h-4" /> Save</>}
+              {saving
+                ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving…</>
+                : <><LuCheck className="w-4 h-4" /> Save</>
+              }
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
