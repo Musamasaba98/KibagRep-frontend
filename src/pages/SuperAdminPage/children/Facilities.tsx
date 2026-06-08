@@ -68,6 +68,8 @@ const CoordinatePickerModal = ({
   const [lngInput, setLngInput] = useState(initial.lng != null ? String(initial.lng) : "");
   const [err, setErr]           = useState("");
   const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number } | null>(null);
+  const [pasteCoord, setPasteCoord] = useState("");
+  const [pasteOk, setPasteOk]       = useState(false);
 
   // Geocoding search
   const [geoQ, setGeoQ]           = useState(facilityName);
@@ -114,6 +116,22 @@ const CoordinatePickerModal = ({
     if (isNaN(lat) || lat < -90 || lat > 90)   { setErr("Latitude must be -90 to 90"); return; }
     if (isNaN(lng) || lng < -180 || lng > 180) { setErr("Longitude must be -180 to 180"); return; }
     setErr(""); handleMapPick(lat, lng); setFlyTarget({ lat, lng });
+  };
+
+  const handlePasteCoord = (raw: string) => {
+    setPasteCoord(raw);
+    setPasteOk(false);
+    // Accept "lat, lng" or "lat lng" — Google Maps copies as "3.374, 31.792"
+    const parts = raw.trim().split(/[\s,]+/).filter(Boolean);
+    if (parts.length < 2) return;
+    const lat = parseFloat(parts[0]), lng = parseFloat(parts[1]);
+    if (isNaN(lat) || isNaN(lng)) return;
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return;
+    setErr("");
+    handleMapPick(lat, lng);
+    setFlyTarget({ lat, lng });
+    setPasteOk(true);
+    setTimeout(() => { setPasteCoord(""); setPasteOk(false); }, 2000);
   };
 
   return (
@@ -197,6 +215,24 @@ const CoordinatePickerModal = ({
 
         {/* Footer */}
         <div className="px-5 py-4 border-t border-gray-100 shrink-0 flex flex-col gap-3">
+          {/* Paste from Google Maps */}
+          <div className="relative">
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Paste coordinates</label>
+            <input
+              type="text"
+              value={pasteCoord}
+              onChange={e => handlePasteCoord(e.target.value)}
+              placeholder="e.g. 3.3743915, 31.7926280"
+              className={`w-full px-3 py-2 border rounded-lg text-sm outline-none font-mono transition-colors ${
+                pasteOk
+                  ? "border-[#16a34a] bg-[#f0fdf4] text-[#16a34a]"
+                  : "border-gray-200 focus:border-[#16a34a]"
+              }`}
+            />
+            {pasteOk && (
+              <span className="absolute right-3 top-1/2 translate-y-1 text-xs font-semibold text-[#16a34a]">✓ Applied</span>
+            )}
+          </div>
           <div className="flex items-end gap-3">
             {([{ l: "Latitude", v: latInput, s: setLatInput }, { l: "Longitude", v: lngInput, s: setLngInput }] as const).map(({ l, v, s }) => (
               <div key={l} className="flex-1">

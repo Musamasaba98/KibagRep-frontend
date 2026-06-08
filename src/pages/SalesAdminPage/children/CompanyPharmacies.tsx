@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FaHospital, FaMagnifyingGlass, FaXmark, FaPlus, FaCheck } from "react-icons/fa6";
+import { FaHospital, FaMagnifyingGlass, FaXmark, FaPlus, FaCheck, FaLocationDot } from "react-icons/fa6";
 import {
   getCompanyPharmaciesApi,
   addCompanyPharmacyApi,
@@ -13,9 +13,10 @@ type Tier = "A" | "B" | "C";
 interface MasterPharmacy {
   id: string;
   pharmacy_name: string;
-  town?: string;
   location?: string;
+  town?: string;
   district?: string;
+  region?: string;
 }
 
 interface CompanyPharmacyRow {
@@ -85,11 +86,17 @@ const CompanyPharmacies = () => {
   const onListQ = (v: string) => setListQ(v);
 
   const filtered = listQ.length >= 2
-    ? rows.filter(r =>
-        r.pharmacy.pharmacy_name.toLowerCase().includes(listQ.toLowerCase()) ||
-        r.pharmacy.town?.toLowerCase().includes(listQ.toLowerCase()) ||
-        r.pharmacy.district?.toLowerCase().includes(listQ.toLowerCase())
-      )
+    ? rows.filter(r => {
+        const q = listQ.toLowerCase();
+        const p = r.pharmacy;
+        return (
+          p.pharmacy_name.toLowerCase().includes(q) ||
+          p.location?.toLowerCase().includes(q) ||
+          p.town?.toLowerCase().includes(q) ||
+          p.district?.toLowerCase().includes(q) ||
+          p.region?.toLowerCase().includes(q)
+        );
+      })
     : rows;
 
   const alreadyAdded = new Set(rows.map(r => r.pharmacy_id));
@@ -188,7 +195,10 @@ const CompanyPharmacies = () => {
                   <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-[#1a2530] truncate">{p.pharmacy_name}</p>
-                      <p className="text-xs text-gray-400">{[p.location, p.town, p.district].filter(Boolean).join(" · ")}</p>
+                      <p className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+                        <FaLocationDot className="w-3 h-3 shrink-0 text-gray-300" />
+                        <span className="truncate">{[p.location || null, p.town || null, p.district || null, p.region || null].filter(Boolean).join(" · ") || "—"}</span>
+                      </p>
                     </div>
                     {!added && (
                       <div className="flex items-center gap-2 shrink-0">
@@ -252,8 +262,9 @@ const CompanyPharmacies = () => {
               <div key={r.pharmacy_id} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#1a2530] truncate">{r.pharmacy.pharmacy_name}</p>
-                  <p className="text-xs text-gray-400">
-                    {[r.pharmacy.location, r.pharmacy.town, r.pharmacy.district].filter(Boolean).join(" · ")}
+                  <p className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+                    <FaLocationDot className="w-3 h-3 shrink-0 text-gray-300" />
+                    <span className="truncate">{[r.pharmacy.location || null, r.pharmacy.town || null, r.pharmacy.district || null, r.pharmacy.region || null].filter(Boolean).join(" · ") || "—"}</span>
                   </p>
                 </div>
 
