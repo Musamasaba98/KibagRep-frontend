@@ -844,9 +844,208 @@ const BulkEditPanel = ({
   );
 };
 
+// ─── Government Registry types ────────────────────────────────────────────────
+
+interface HcpRecord {
+  id:                  string;
+  portal_id:           string;
+  name:                string;
+  council:             string;
+  registration_no:     string;
+  registration_status: string | null;
+  registration_date:   string | null;
+  license_number:      string | null;
+  license_expiry:      string | null;
+  licence_status:      string | null;
+  doctor_id:           string | null;
+}
+
+const COUNCIL_SHORT: Record<string, string> = {
+  "Uganda Medical & Dental Practitioners Council": "UMDPC",
+  "Uganda Nurses & Midwives Council":              "UNMC",
+  "Allied Health Professionals Council":           "AHPC",
+};
+
+const COUNCIL_COLOR: Record<string, string> = {
+  UMDPC: "bg-sky-50 text-sky-700 border-sky-200",
+  UNMC:  "bg-violet-50 text-violet-700 border-violet-200",
+  AHPC:  "bg-teal-50 text-teal-700 border-teal-200",
+};
+
+// ─── Government Registry panel ────────────────────────────────────────────────
+
+const GovernmentRegistry = () => {
+  const [records, setRecords]     = useState<HcpRecord[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [q, setQ]                 = useState("");
+  const [council, setCouncil]     = useState("");
+  const [licStatus, setLicStatus] = useState("");
+  const [total, setTotal]         = useState(0);
+  const [page, setPage]           = useState(1);
+  const searchTimer               = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const load = useCallback((p = 1, query = q, c = council, lic = licStatus) => {
+    setLoading(true);
+    const params = new URLSearchParams({ page: String(p), limit: "30" });
+    if (query.trim())  params.set("q", query.trim());
+    if (c)             params.set("council", c);
+    if (lic)           params.set("licence_status", lic);
+    api.get(`/hcp-records?${params}`)
+      .then(r => { setRecords(r.data.data ?? []); setTotal(r.data.meta?.total ?? 0); setPage(p); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [q, council, licStatus]);
+
+  useEffect(() => { load(1, "", "", ""); }, []);
+
+  const handleSearch = (val: string) => {
+    setQ(val);
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => load(1, val, council, licStatus), 300);
+  };
+
+  const handleCouncil = (val: string) => { setCouncil(val); load(1, q, val, licStatus); };
+  const handleLic     = (val: string) => { setLicStatus(val); load(1, q, council, val); };
+
+  const totalPages = Math.ceil(total / 30);
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Stats strip */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: "UMDPC — Doctors", color: "text-sky-700", filter: "Uganda Medical" },
+          { label: "UNMC — Nurses",   color: "text-violet-700", filter: "Uganda Nurses" },
+          { label: "AHPC — Allied",   color: "text-teal-700", filter: "Allied" },
+        ].map(({ label, color, filter }) => (
+          <button key={label}
+            onClick={() => handleCouncil(council.includes(filter) ? "" : filter)}
+            className={`bg-white rounded-xl border p-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.05)] text-left hover:ring-2 hover:ring-[#16a34a]/30 ${council.includes(filter) ? "ring-2 ring-[#16a34a]" : "border-gray-100"}`}
+            style={{ transition: "box-shadow 0.15s" }}>
+            <p className={`text-xs font-bold ${color}`}>{label}</p>
+            <p className="text-lg font-black text-[#1a2530] mt-0.5">
+              {label.includes("UMDPC") ? "11,184" : label.includes("UNMC") ? "50,595" : "57,464"}
+            </p>
+          </button>
+        ))}
+      </div>
+
+      {/* Search + filters */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-48">
+          <FaMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+          <input type="text" value={q} onChange={e => handleSearch(e.target.value)}
+            placeholder="Search by name or registration number…"
+            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20" />
+        </div>
+        <select value={licStatus} onChange={e => handleLic(e.target.value)}
+          className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20">
+          <option value="">All licence statuses</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+        {(q || council || licStatus) && (
+          <button onClick={() => { setQ(""); setCouncil(""); setLicStatus(""); load(1, "", "", ""); }}
+            className="px-3 py-2.5 text-xs font-semibold text-gray-500 hover:text-gray-700 border border-gray-200 rounded-xl bg-white"
+            style={{ transition: "color 0.12s" }}>
+            Clear filters
+          </button>
+        )}
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] overflow-hidden">
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-7 h-7 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />
+          </div>
+        ) : records.length === 0 ? (
+          <div className="flex flex-col items-center py-16 text-gray-400">
+            <FaStethoscope className="w-8 h-8 mb-3 opacity-20" />
+            <p className="text-sm font-semibold">No records found</p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" style={{ minWidth: 720 }}>
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50/80">
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 200 }}>Name</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 80  }}>Council</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 110 }}>Reg No.</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 90  }}>Registered</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 90  }}>Expiry</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 80  }}>Licence</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 70  }}>Claimed</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {records.map(r => {
+                    const short = COUNCIL_SHORT[r.council] ?? r.council.slice(0, 5);
+                    const color = COUNCIL_COLOR[short] ?? "bg-gray-100 text-gray-600 border-gray-200";
+                    const isActive = r.licence_status?.toLowerCase() === "active";
+                    return (
+                      <tr key={r.id} className="hover:bg-gray-50/60" style={{ transition: "background-color 0.1s" }}>
+                        <td className="px-4 py-3">
+                          <p className="font-semibold text-[#1a2530] text-sm">{r.name}</p>
+                          {r.license_number && (
+                            <p className="text-[10px] text-gray-400 font-mono mt-0.5">{r.license_number}</p>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${color}`}>{short}</span>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-gray-600">{r.registration_no || "—"}</td>
+                        <td className="px-4 py-3 text-xs text-gray-500">
+                          {r.registration_date ? new Date(r.registration_date).getFullYear() : "—"}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-500">
+                          {r.license_expiry ? new Date(r.license_expiry).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            isActive
+                              ? "bg-green-50 text-green-700 border-green-200"
+                              : "bg-red-50 text-red-600 border-red-200"
+                          }`}>
+                            {r.licence_status || "—"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {r.doctor_id
+                            ? <span className="text-[10px] font-bold text-[#16a34a]">✓ Linked</span>
+                            : <span className="text-[10px] text-gray-300">—</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 text-xs text-gray-500">
+              <span>{total.toLocaleString()} total · Page {page} of {totalPages}</span>
+              <div className="flex gap-2">
+                <button onClick={() => load(page - 1)} disabled={page <= 1}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                  style={{ transition: "background-color 0.12s" }}>Prev</button>
+                <button onClick={() => load(page + 1)} disabled={page >= totalPages}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                  style={{ transition: "background-color 0.12s" }}>Next</button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // ─── Main HCP Directory Page ──────────────────────────────────────────────────
 
 const HcpDirectory = () => {
+  const [tab, setTab]             = useState<"master" | "registry">("master");
   const [doctors, setDoctors]     = useState<Doctor[]>([]);
   const [loading, setLoading]     = useState(true);
   const [q, setQ]                 = useState("");
@@ -1050,8 +1249,32 @@ const HcpDirectory = () => {
         </div>
       </div>
 
+      {/* Tab switcher */}
+      <div className="flex gap-1 border-b border-gray-100 -mb-1">
+        {([
+          { key: "master",   label: "Master Directory", count: total },
+          { key: "registry", label: "Government Registry", count: 119243 },
+        ] as const).map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px ${
+              tab === t.key
+                ? "border-[#16a34a] text-[#16a34a]"
+                : "border-transparent text-gray-400 hover:text-gray-600"
+            }`}
+            style={{ transition: "color 0.12s" }}>
+            {t.label}
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+              tab === t.key ? "bg-green-100 text-[#16a34a]" : "bg-gray-100 text-gray-400"
+            }`}>{t.count.toLocaleString()}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Government Registry panel */}
+      {tab === "registry" && <GovernmentRegistry />}
+
       {/* Unlinked warning */}
-      {withoutFacility > 0 && (
+      {tab === "master" && withoutFacility > 0 && (
         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
           <FaHospital className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <p className="text-xs text-amber-800 leading-relaxed">
@@ -1062,6 +1285,7 @@ const HcpDirectory = () => {
         </div>
       )}
 
+      {tab === "master" && <>
       {/* Search */}
       <div className="relative">
         <FaMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
@@ -1269,6 +1493,7 @@ const HcpDirectory = () => {
           )}
         </div>
       )}
+      </>}
 
       {/* Edit panel */}
       {selectedId && (
