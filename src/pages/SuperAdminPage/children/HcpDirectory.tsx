@@ -874,7 +874,7 @@ const COUNCIL_COLOR: Record<string, string> = {
 
 // ─── Government Registry panel ────────────────────────────────────────────────
 
-const GovernmentRegistry = () => {
+const GovernmentRegistry = ({ onTotalLoaded }: { onTotalLoaded?: (n: number) => void }) => {
   const [records, setRecords]     = useState<HcpRecord[]>([]);
   const [loading, setLoading]     = useState(true);
   const [q, setQ]                 = useState("");
@@ -882,6 +882,7 @@ const GovernmentRegistry = () => {
   const [licStatus, setLicStatus] = useState("");
   const [total, setTotal]         = useState(0);
   const [page, setPage]           = useState(1);
+  const [councilCounts, setCouncilCounts] = useState<Record<string, number>>({});
   const searchTimer               = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const load = useCallback((p = 1, query = q, c = council, lic = licStatus) => {
@@ -896,7 +897,22 @@ const GovernmentRegistry = () => {
       .finally(() => setLoading(false));
   }, [q, council, licStatus]);
 
-  useEffect(() => { load(1, "", "", ""); }, []);
+  useEffect(() => {
+    load(1, "", "", "");
+    api.get("/hcp-records/stats")
+      .then(r => {
+        const byCouncil: { council: string; _count: { id: number } }[] = r.data.data?.byCouncil ?? [];
+        const counts: Record<string, number> = {};
+        let grandTotal = 0;
+        for (const row of byCouncil) {
+          counts[row.council] = row._count.id;
+          grandTotal += row._count.id;
+        }
+        setCouncilCounts(counts);
+        onTotalLoaded?.(grandTotal);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSearch = (val: string) => {
     setQ(val);
@@ -909,22 +925,32 @@ const GovernmentRegistry = () => {
 
   const totalPages = Math.ceil(total / 30);
 
+  const STAT_CARDS = [
+    { label: "UMDPC — Doctors", color: "text-sky-700",    filter: "Uganda Medical" },
+    { label: "UNMC — Nurses",   color: "text-violet-700", filter: "Uganda Nurses"  },
+    { label: "AHPC — Allied",   color: "text-teal-700",   filter: "Allied"         },
+  ];
+
+  const getCount = (filter: string) => {
+    const entry = Object.entries(councilCounts).find(([k]) => k.includes(filter));
+    return entry ? entry[1] : null;
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "UMDPC — Doctors", color: "text-sky-700", filter: "Uganda Medical" },
-          { label: "UNMC — Nurses",   color: "text-violet-700", filter: "Uganda Nurses" },
-          { label: "AHPC — Allied",   color: "text-teal-700", filter: "Allied" },
-        ].map(({ label, color, filter }) => (
+        {STAT_CARDS.map(({ label, color, filter }) => (
           <button key={label}
             onClick={() => handleCouncil(council.includes(filter) ? "" : filter)}
             className={`bg-white rounded-xl border p-3 shadow-[0_1px_4px_0_rgba(0,0,0,0.05)] text-left hover:ring-2 hover:ring-[#16a34a]/30 ${council.includes(filter) ? "ring-2 ring-[#16a34a]" : "border-gray-100"}`}
             style={{ transition: "box-shadow 0.15s" }}>
             <p className={`text-xs font-bold ${color}`}>{label}</p>
             <p className="text-lg font-black text-[#1a2530] mt-0.5">
-              {label.includes("UMDPC") ? "11,184" : label.includes("UNMC") ? "50,595" : "57,464"}
+              {getCount(filter) != null
+                ? getCount(filter)!.toLocaleString()
+                : <span className="inline-block w-12 h-5 bg-gray-100 rounded animate-pulse" />
+              }
             </p>
           </button>
         ))}
@@ -1060,6 +1086,8 @@ const HcpDirectory = () => {
   // Delete
   const [deleteTargets, setDeleteTargets] = useState<{ id: string; name: string }[] | null>(null);
   const [deleting,      setDeleting]      = useState(false);
+
+  const [registryTotal, setRegistryTotal] = useState(0);
 
   // Spreadsheet edit mode
   const [viewMode,    setViewMode]    = useState<"list" | "table">("list");
@@ -1253,7 +1281,7 @@ const HcpDirectory = () => {
       <div className="flex gap-1 border-b border-gray-100 -mb-1">
         {([
           { key: "master",   label: "Master Directory", count: total },
-          { key: "registry", label: "Government Registry", count: 119243 },
+          { key: "registry", label: "Government Registry", count: registryTotal },
         ] as const).map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px ${
@@ -1271,7 +1299,7 @@ const HcpDirectory = () => {
       </div>
 
       {/* Government Registry panel */}
-      {tab === "registry" && <GovernmentRegistry />}
+      {tab === "registry" && <GovernmentRegistry onTotalLoaded={setRegistryTotal} />}
 
       {/* Unlinked warning */}
       {tab === "master" && withoutFacility > 0 && (
