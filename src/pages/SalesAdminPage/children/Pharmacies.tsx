@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { FaHospital, FaPlus, FaXmark, FaMagnifyingGlass } from "react-icons/fa6";
+import { FaHospital, FaPlus, FaXmark, FaMagnifyingGlass, FaLocationDot } from "react-icons/fa6";
+import { MdOutlineGpsOff } from "react-icons/md";
 import api from "../../../services/api";
 
 interface Pharmacy {
@@ -7,8 +8,11 @@ interface Pharmacy {
   pharmacy_name: string;
   town?: string;
   location?: string;
+  district?: string;
   contact?: string;
   is_active?: boolean;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 const Pharmacies = () => {
@@ -37,7 +41,8 @@ const Pharmacies = () => {
       )
     : pharmacies;
 
-  const activeCount   = pharmacies.filter(p => p.is_active !== false).length;
+  const withCoords    = pharmacies.filter(p => p.latitude != null && p.longitude != null).length;
+  const withoutCoords = pharmacies.length - withCoords;
   const townSet       = new Set(pharmacies.map(p => p.town).filter(Boolean));
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -81,8 +86,8 @@ const Pharmacies = () => {
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: "Total",    value: pharmacies.length, color: "text-gray-700" },
-          { label: "Active",   value: activeCount,       color: "text-[#16a34a]" },
-          { label: "Towns",    value: townSet.size,       color: "text-violet-600" },
+          { label: "With GPS", value: withCoords,        color: "text-[#16a34a]" },
+          { label: "No GPS",   value: withoutCoords,     color: withoutCoords > 0 ? "text-amber-600" : "text-gray-400" },
         ].map(s => (
           <div key={s.label} className="bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-[0_2px_8px_0_rgba(0,0,0,0.04)]">
             <p className="text-xs text-gray-400 font-semibold">{s.label}</p>
@@ -93,6 +98,17 @@ const Pharmacies = () => {
           </div>
         ))}
       </div>
+
+      {/* GPS coverage warning */}
+      {withoutCoords > 0 && !loading && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <MdOutlineGpsOff className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800 leading-relaxed">
+            <span className="font-semibold">{withoutCoords} pharmac{withoutCoords !== 1 ? "ies" : "y"} without GPS coordinates.</span>
+            {" "}Rep visit validation will not fire for these pharmacies until a Super Admin pins their location.
+          </p>
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative">
@@ -118,24 +134,39 @@ const Pharmacies = () => {
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {filtered.map((p, i) => (
-              <div key={p.id || String(i)} className="flex items-center gap-3 px-4 sm:px-5 py-3.5 hover:bg-gray-50/50">
-                <div className="w-8 h-8 bg-sky-50 rounded-xl flex items-center justify-center shrink-0">
-                  <FaHospital className="w-3.5 h-3.5 text-sky-600" />
+            {filtered.map((p, i) => {
+              const hasCoords = p.latitude != null && p.longitude != null;
+              return (
+                <div key={p.id || String(i)} className="flex items-center gap-3 px-4 sm:px-5 py-3.5 hover:bg-gray-50/50">
+                  <div className="w-8 h-8 bg-sky-50 rounded-xl flex items-center justify-center shrink-0">
+                    <FaHospital className="w-3.5 h-3.5 text-sky-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#1a2530] truncate">{p.pharmacy_name}</p>
+                    <p className="text-xs text-gray-400 truncate">
+                      {[p.district, p.town, p.location].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+                  <div className="shrink-0 flex items-center gap-2">
+                    {p.is_active === false && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                        Inactive
+                      </span>
+                    )}
+                    {hasCoords ? (
+                      <span className="flex items-center gap-1 text-[10px] font-semibold text-[#16a34a] bg-[#f0fdf4] border border-[#dcfce7] px-2 py-1 rounded-full font-mono whitespace-nowrap">
+                        <FaLocationDot className="w-2.5 h-2.5 shrink-0" />
+                        {p.latitude!.toFixed(4)}, {p.longitude!.toFixed(4)}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full whitespace-nowrap">
+                        <MdOutlineGpsOff className="w-3 h-3" /> No GPS
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#1a2530] truncate">{p.pharmacy_name}</p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {[p.town, p.location, p.contact].filter(Boolean).join(" · ")}
-                  </p>
-                </div>
-                {p.is_active === false && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">
-                    Inactive
-                  </span>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
