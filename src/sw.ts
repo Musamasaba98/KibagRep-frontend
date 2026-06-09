@@ -1,11 +1,21 @@
 /// <reference lib="webworker" />
-import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
+import { cleanupOutdatedCaches, precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
+import { NavigationRoute, registerRoute } from 'workbox-routing';
 
 declare const self: ServiceWorkerGlobalScope;
 
 // Workbox precache manifest injected by vite-plugin-pwa
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
+
+// SPA offline fallback — all navigation requests (pull-to-refresh, direct URL, back/forward)
+// serve the cached index.html so React Router handles routing, not the browser's offline page.
+const handler = createHandlerBoundToURL('/index.html');
+registerRoute(
+  new NavigationRoute(handler, {
+    denylist: [/^\/api\//],
+  })
+);
 
 // ─── Push notification handler ───────────────────────────────────────────────
 self.addEventListener('push', (event) => {
