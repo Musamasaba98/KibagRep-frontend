@@ -5,6 +5,7 @@ import { logout } from '../../store/authSlice';
 import { FaBuilding, FaHouse, FaBars, FaXmark, FaUsers, FaBuildingColumns, FaStethoscope, FaHospital } from 'react-icons/fa6';
 import { FiUserCheck } from 'react-icons/fi';
 import { SlLogout } from 'react-icons/sl';
+import { LuCreditCard } from 'react-icons/lu';
 
 const navBase = 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium';
 const active  = 'bg-[#16a34a]/10 text-[#16a34a] font-semibold';
@@ -18,6 +19,7 @@ const NAV = [
   { to: '/super-admin/hcp',                end: false, icon: FaStethoscope,     label: 'HCP Directory'    },
   { to: '/super-admin/pharmacies',         end: false, icon: FaHospital,        label: 'Pharmacies'       },
   { to: '/super-admin/pharmacy-staff',     end: false, icon: FiUserCheck,       label: 'Pharm. Staff'     },
+  { to: '/super-admin/subscriptions',     end: false, icon: LuCreditCard,      label: 'Subscriptions'    },
 ];
 
 const SidebarContent = ({ onNav }: { onNav?: () => void }) => {

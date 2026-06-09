@@ -349,3 +349,13 @@ export const updateCompanyFacilityApi = (facilityId: string, data: { notes?: str
   api.put(`/company-facility/${facilityId}`, data);
 export const removeCompanyFacilityApi = (facilityId: string) =>
   api.delete(`/company-facility/${facilityId}`);
+
+
+// ─── Plan / Subscription ───────────────────────────────────────────────────────
+export const getPublicPlanConfigsApi = () => api.get('/plan/public');
+export const getMyPlanStatusApi = () => api.get('/plan/status');
+export const getAllPlanConfigsApi = () => api.get('/plan/config');
+export const updatePlanConfigApi = (plan: string, data: object) => api.put(`/plan/config/${plan}`, data);
+export const getAllCompaniesWithPlanApi = () => api.get('/plan/companies');
+export const getCompanyPlanApi = (id: string) => api.get(`/plan/company/${id}`);
+export const updateCompanyPlanApi = (id: string, data: object) => api.put(`/plan/company/${id}`, data);

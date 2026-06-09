@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
+import PlanGate from "../componets/PlanGate";
 
 interface Props {
   allowedRoles: string[];
@@ -17,7 +18,11 @@ const ProtectedRoute = ({ allowedRoles }: Props) => {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <PlanGate>
+      <Outlet />
+    </PlanGate>
+  );
 };
 
 export default ProtectedRoute;

@@ -102,6 +102,7 @@ import SuperAdminFacilities from "./pages/SuperAdminPage/children/Facilities";
 import SuperAdminHcp from "./pages/SuperAdminPage/children/HcpDirectory";
 import SuperAdminPharmacyStaff from "./pages/SuperAdminPage/children/PharmacyStaffApprovals"
 import SuperAdminPharmacies from "./pages/SuperAdminPage/children/Pharmacies";
+import SuperAdminSubscriptions from "./pages/SuperAdminPage/children/Subscriptions";
 
 // Auth guard
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -257,7 +258,8 @@ const router = createBrowserRouter([
           { path: "facilities", element: <SuperAdminFacilities /> },
           { path: "hcp",            element: <SuperAdminHcp /> },
           { path: "pharmacies",     element: <SuperAdminPharmacies /> },
-          { path: "pharmacy-staff", element: <SuperAdminPharmacyStaff /> },
+          { path: "pharmacy-staff",  element: <SuperAdminPharmacyStaff /> },
+          { path: "subscriptions",  element: <SuperAdminSubscriptions /> },
         ],
       },
     ],

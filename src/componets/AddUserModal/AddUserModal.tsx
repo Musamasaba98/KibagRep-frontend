@@ -114,7 +114,8 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState("");
   const [done, setDone]               = useState<{ name: string; password: string } | null>(null);
-  const [requiresTeams, setRequiresTeams] = useState(false);
+  const [requiresTeams, setRequiresTeams]       = useState(false);
+  const [repLimitWarning, setRepLimitWarning]   = useState<string | null>(null);
 
   const roles = ASSIGNABLE_ROLES[actorRole] ?? [];
 
@@ -142,6 +143,8 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
       onSuccess();
       if (res.data?.requires_teams) {
         setRequiresTeams(true);
+      } else if (res.data?.rep_limit_warning) {
+        setRepLimitWarning(res.data.rep_limit_warning);
       } else {
         onClose();
       }
@@ -179,6 +182,25 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Warning: rep added but plan limit exceeded — accept this month, upgrade next
+  if (repLimitWarning) return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+        <div className="w-14 h-14 bg-orange-50 rounded-full flex items-center justify-center mx-auto">
+          <span className="text-2xl">⚠️</span>
+        </div>
+        <div className="text-center space-y-2">
+          <h3 className="font-poppins-bold text-gray-900">Rep Added — Plan Limit Reached</h3>
+          <p className="text-sm font-poppins text-gray-500 leading-relaxed">{repLimitWarning}</p>
+        </div>
+        <button onClick={onClose}
+          className="w-full py-2.5 rounded-xl bg-[#16a34a] text-white text-sm font-poppins-bold hover:bg-[#15803d] transition-colors">
+          OK — I'll upgrade the plan
+        </button>
+      </div>
+    </div>
+  );
 
   // Warning: company now has 2+ supervisors but no teams
   if (requiresTeams) return (
