@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   MdOutlinePerson, MdOutlineNotifications, MdOutlineLock,
@@ -6,6 +6,7 @@ import {
 } from "react-icons/md";
 import { updateMyProfileApi, changePasswordApi } from "../../../services/api";
 import { updateUser } from "../../../store/authSlice";
+import api from "../../../services/api";
 
 // ─── Profile panel ────────────────────────────────────────────────────────────
 
@@ -130,6 +131,158 @@ const SecurityPanel = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
+// ─── Notifications panel ──────────────────────────────────────────────────────
+
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
+
+const urlBase64ToUint8Array = (base64String: string) => {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = window.atob(base64);
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+};
+
+const NotificationsPanel = () => {
+  const [permission, setPermission] = useState<NotificationPermission | "unsupported">(
+    "Notification" in window ? Notification.permission : "unsupported"
+  );
+  const [subscribed, setSubscribed] = useState(false);
+  const [enabling,   setEnabling]   = useState(false);
+  const [testing,    setTesting]    = useState(false);
+  const [testMsg,    setTestMsg]    = useState<{ text: string; ok: boolean } | null>(null);
+  const [error,      setError]      = useState("");
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.ready.then((reg) => {
+      reg.pushManager.getSubscription().then((sub) => setSubscribed(!!sub));
+    }).catch(() => {});
+  }, []);
+
+  const handleEnable = async () => {
+    setError(""); setEnabling(true);
+    try {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setError("Push notifications are not supported in this browser."); return;
+      }
+      const perm = await Notification.requestPermission();
+      setPermission(perm);
+      if (perm !== "granted") { setError("Permission denied. Please allow notifications in your browser settings."); return; }
+
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+      }
+      const json = sub.toJSON();
+      if (!json.endpoint || !json.keys) { setError("Failed to create subscription."); return; }
+      await api.post("/push/subscribe", { endpoint: json.endpoint, keys: { p256dh: json.keys.p256dh, auth: json.keys.auth } });
+      setSubscribed(true);
+    } catch (e: any) {
+      setError(e.message || "Failed to enable notifications.");
+    } finally { setEnabling(false); }
+  };
+
+  const handleDisable = async () => {
+    setError("");
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        await api.delete("/push/subscribe", { data: { endpoint: sub.endpoint } }).catch(() => {});
+        await sub.unsubscribe();
+      }
+      setSubscribed(false);
+      setPermission(Notification.permission);
+    } catch (e: any) {
+      setError("Failed to disable notifications.");
+    }
+  };
+
+  const handleTest = async () => {
+    setTesting(true); setTestMsg(null); setError("");
+    try {
+      await api.post("/push/test");
+      setTestMsg({ text: "Test notification sent! You should receive it shortly.", ok: true });
+    } catch (e: any) {
+      const msg = e.response?.data?.message || e.response?.data?.error || "Test failed.";
+      setTestMsg({ text: msg, ok: false });
+    } finally { setTesting(false); }
+  };
+
+  const statusColor = permission === "granted" && subscribed
+    ? "text-[#16a34a]" : permission === "denied"
+    ? "text-red-500" : "text-amber-500";
+
+  const statusLabel = permission === "unsupported" ? "Not supported"
+    : permission === "denied" ? "Blocked by browser"
+    : subscribed ? "Enabled" : "Not enabled";
+
+  return (
+    <div className="flex flex-col gap-4 p-1">
+      {/* Status */}
+      <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
+        <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+          permission === "granted" && subscribed ? "bg-[#16a34a]"
+          : permission === "denied" ? "bg-red-400" : "bg-amber-400"
+        }`} />
+        <div>
+          <p className={`text-sm font-semibold ${statusColor}`}>{statusLabel}</p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {permission === "granted" && subscribed
+              ? "You will receive reminders for reports and approvals."
+              : permission === "denied"
+              ? "Open browser site settings and allow notifications, then re-enable."
+              : "Enable to receive report reminders and approval alerts."}
+          </p>
+        </div>
+      </div>
+
+      {error && <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+      {testMsg && (
+        <p className={`text-xs px-3 py-2 rounded-lg flex items-center gap-1 ${testMsg.ok ? "text-[#16a34a] bg-green-50" : "text-red-500 bg-red-50"}`}>
+          {testMsg.ok ? <MdCheck className="w-4 h-4" /> : null}{testMsg.text}
+        </p>
+      )}
+
+      {/* Actions */}
+      {permission !== "unsupported" && (
+        <>
+          {(!subscribed || permission !== "granted") ? (
+            <button onClick={handleEnable} disabled={enabling || permission === "denied"}
+              className="bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm"
+              style={{ transition: "background-color 0.15s" }}>
+              {enabling ? "Enabling…" : "Enable Notifications"}
+            </button>
+          ) : (
+            <div className="flex gap-3">
+              <button onClick={handleTest} disabled={testing}
+                className="flex-1 py-2.5 rounded-xl border border-[#16a34a] text-[#16a34a] text-sm font-semibold hover:bg-green-50 disabled:opacity-50"
+                style={{ transition: "background-color 0.15s" }}>
+                {testing ? "Sending…" : "Send Test Notification"}
+              </button>
+              <button onClick={handleDisable}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500 hover:bg-gray-50"
+                style={{ transition: "background-color 0.15s" }}>
+                Disable
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      <div className="border-t border-gray-100 pt-3">
+        <p className="text-[11px] text-gray-400 leading-relaxed">
+          <strong className="text-gray-500">When you'll be notified:</strong> 6pm, 10pm, and 11:30pm if your daily report hasn't been submitted. Morning call plan reminders at 8am.
+        </p>
+      </div>
+    </div>
+  );
+};
+
 // ─── Settings modal wrapper ───────────────────────────────────────────────────
 
 const SettingsModal = ({
@@ -150,14 +303,14 @@ const SettingsModal = ({
 
 // ─── Main Settings page ────────────────────────────────────────────────────────
 
-type Panel = "profile" | "security" | null;
+type Panel = "profile" | "notifications" | "security" | null;
 
 const groups = [
-  { key: "profile",  icon: MdOutlinePerson,        label: "Profile & Account",  description: "Name, contact details, and role",                   iconBg: "bg-[#dcfce7]", iconColor: "text-[#16a34a]" },
-  { key: null,       icon: MdOutlineNotifications,  label: "Notifications",      description: "Visit reminders, report alerts, and approvals",      iconBg: "bg-amber-50",  iconColor: "text-amber-500",  badge: "Soon" },
-  { key: "security", icon: MdOutlineLock,           label: "Security",           description: "Change password and manage sessions",                iconBg: "bg-red-50",    iconColor: "text-red-500"  },
-  { key: null,       icon: MdOutlineMap,            label: "Field Preferences",  description: "GPS accuracy, territory defaults, and cycle settings", iconBg: "bg-sky-50",    iconColor: "text-sky-500",    badge: "Soon" },
-  { key: null,       icon: MdOutlineDevices,        label: "App Preferences",    description: "Theme, language, offline sync, and display",          iconBg: "bg-violet-50", iconColor: "text-violet-500",  badge: "Soon" },
+  { key: "profile",       icon: MdOutlinePerson,        label: "Profile & Account",  description: "Name, contact details, and role",                    iconBg: "bg-[#dcfce7]", iconColor: "text-[#16a34a]" },
+  { key: "notifications", icon: MdOutlineNotifications,  label: "Notifications",      description: "Visit reminders, report alerts, and approvals",       iconBg: "bg-amber-50",  iconColor: "text-amber-500" },
+  { key: "security",      icon: MdOutlineLock,           label: "Security",           description: "Change password and manage sessions",                 iconBg: "bg-red-50",    iconColor: "text-red-500"  },
+  { key: null,            icon: MdOutlineMap,            label: "Field Preferences",  description: "GPS accuracy, territory defaults, and cycle settings", iconBg: "bg-sky-50",    iconColor: "text-sky-500",   badge: "Soon" },
+  { key: null,            icon: MdOutlineDevices,        label: "App Preferences",    description: "Theme, language, offline sync, and display",          iconBg: "bg-violet-50", iconColor: "text-violet-500", badge: "Soon" },
 ] as const;
 
 const Settings = () => {
@@ -202,14 +355,18 @@ const Settings = () => {
         })}
       </div>
 
-      {/* Profile modal */}
       {activePanel === "profile" && (
         <SettingsModal title="Profile & Account" onClose={() => setActivePanel(null)}>
           <ProfilePanel onClose={() => setActivePanel(null)} />
         </SettingsModal>
       )}
 
-      {/* Security modal */}
+      {activePanel === "notifications" && (
+        <SettingsModal title="Notifications" onClose={() => setActivePanel(null)}>
+          <NotificationsPanel />
+        </SettingsModal>
+      )}
+
       {activePanel === "security" && (
         <SettingsModal title="Change Password" onClose={() => setActivePanel(null)}>
           <SecurityPanel onClose={() => setActivePanel(null)} />
