@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { FaBuildingColumns, FaXmark, FaMagnifyingGlass, FaChevronLeft, FaChevronRight, FaSpinner } from "react-icons/fa6";
+import { FaBuildingColumns, FaXmark, FaMagnifyingGlass, FaChevronLeft, FaChevronRight, FaSpinner, FaLocationDot } from "react-icons/fa6";
 import { LuMapPin, LuPencil, LuCheck } from "react-icons/lu";
+import { MdOutlineGpsOff } from "react-icons/md";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -32,11 +33,22 @@ const OWN_COLOURS: Record<string, string> = {
   "PNFP": "bg-purple-50 text-purple-700 border-purple-200",
   "PFP":  "bg-blue-50 text-blue-700 border-blue-200",
 };
+const OWN_LABELS: Record<string, string> = {
+  GOV: "Government", PFP: "Private For-Profit", PNFP: "Private Non-Profit",
+};
+const GPS_SOURCE_META: Record<string, { label: string; cls: string }> = {
+  ROOFTOP:            { label: "Rooftop",        cls: "text-[#16a34a] bg-[#f0fdf4] border-[#dcfce7]" },
+  RANGE_INTERPOLATED: { label: "Street-level",   cls: "text-blue-700 bg-blue-50 border-blue-200" },
+  GEOMETRIC_CENTER:   { label: "Approx. centre", cls: "text-amber-700 bg-amber-50 border-amber-200" },
+  APPROXIMATE:        { label: "Approximate",    cls: "text-orange-700 bg-orange-50 border-orange-200" },
+  MANUAL:             { label: "Manual",         cls: "text-purple-700 bg-purple-50 border-purple-200" },
+};
 
 interface Facility {
   id: string; name: string; facility_type?: string; town?: string;
   district?: string; region?: string; ownership?: string;
   latitude?: number | null; longitude?: number | null;
+  gps_source?: string | null;
 }
 
 interface NominatimResult {
@@ -57,6 +69,121 @@ function FlyTo({ target }: { target: { lat: number; lng: number } | null }) {
   }, [target?.lat, target?.lng]);
   return null;
 }
+
+/* ─── Facility Details Modal ─── */
+const FacilityDetailsModal = ({
+  facility, onClose, onEditCoords,
+}: { facility: Facility; onClose: () => void; onEditCoords: () => void }) => {
+  const hasCoords = facility.latitude != null && facility.longitude != null;
+  const gpsMeta   = facility.gps_source ? GPS_SOURCE_META[facility.gps_source] : null;
+
+  const infoItems = [
+    { label: "Town",     value: facility.town },
+    { label: "District", value: facility.district },
+    { label: "Region",   value: facility.region },
+  ].filter(i => i.value);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)" }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+
+        {/* Header */}
+        <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-gray-100">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+              <FaBuildingColumns className="w-5 h-5 text-amber-600" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="font-black text-[#1a2530] text-base leading-snug">{facility.name}</h2>
+              <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                {facility.facility_type && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${TYPE_COLOURS[facility.facility_type] ?? TYPE_COLOURS["HC II"]}`}>
+                    {facility.facility_type}
+                  </span>
+                )}
+                {facility.ownership && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${OWN_COLOURS[facility.ownership] ?? ""}`}>
+                    {OWN_LABELS[facility.ownership] ?? facility.ownership}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 ml-2 shrink-0 focus-visible:outline-none">
+            <FaXmark className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-4 flex flex-col gap-4">
+
+          {/* Location grid */}
+          {infoItems.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Location</p>
+              <div className="grid grid-cols-3 gap-2">
+                {infoItems.map(item => (
+                  <div key={item.label} className="bg-gray-50 rounded-xl px-3 py-2.5">
+                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">{item.label}</p>
+                    <p className="text-sm font-semibold text-[#1a2530] mt-0.5 truncate" title={item.value}>{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* GPS section */}
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">GPS Coordinates</p>
+            {hasCoords ? (
+              <div className="bg-[#f0fdf4] border border-[#dcfce7] rounded-xl px-4 py-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-sm font-semibold text-[#16a34a]">
+                      {facility.latitude!.toFixed(6)}, {facility.longitude!.toFixed(6)}
+                    </p>
+                    {gpsMeta && (
+                      <span className={`inline-flex items-center mt-1.5 text-[9px] font-bold px-2 py-0.5 rounded-full border ${gpsMeta.cls}`}>
+                        {gpsMeta.label}
+                      </span>
+                    )}
+                  </div>
+                  <FaLocationDot className="w-4 h-4 text-[#16a34a] shrink-0 mt-0.5" />
+                </div>
+              </div>
+            ) : (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center gap-3">
+                <MdOutlineGpsOff className="w-4 h-4 text-amber-600 shrink-0" />
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  <span className="font-semibold">No coordinates set.</span>
+                  {" "}Rep check-ins cannot be validated for this facility.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 pb-5 flex gap-3">
+          <button onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 focus-visible:outline-none">
+            Close
+          </button>
+          <button onClick={onEditCoords}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold focus-visible:outline-none ${
+              hasCoords
+                ? "bg-[#16a34a] hover:bg-[#15803d] text-white"
+                : "bg-amber-500 hover:bg-amber-600 text-white"
+            }`}>
+            {hasCoords ? <LuPencil className="w-3.5 h-3.5" /> : <LuMapPin className="w-3.5 h-3.5" />}
+            {hasCoords ? "Edit Coordinates" : "Set Coordinates"}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+};
 
 const CoordinatePickerModal = ({
   facilityName, initial, onSave, onClose, saving,
@@ -277,6 +404,7 @@ const Facilities = () => {
   const [search, setSearch]         = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [ownFilter, setOwnFilter]   = useState("");
+  const [detailTarget, setDetailTarget]   = useState<Facility | null>(null);
   const [pickerTarget, setPickerTarget]   = useState<Facility | null>(null);
   const [savingCoords, setSavingCoords]   = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -314,7 +442,12 @@ const Facilities = () => {
     setSavingCoords(true);
     try {
       await api.put(`/facility/${pickerTarget.id}`, { latitude: lat, longitude: lng });
-      setFacilities(prev => prev.map(f => f.id === pickerTarget.id ? { ...f, latitude: lat, longitude: lng } : f));
+      setFacilities(prev => prev.map(f =>
+        f.id === pickerTarget.id ? { ...f, latitude: lat, longitude: lng, gps_source: "MANUAL" } : f
+      ));
+      if (detailTarget?.id === pickerTarget.id) {
+        setDetailTarget(prev => prev ? { ...prev, latitude: lat, longitude: lng, gps_source: "MANUAL" } : null);
+      }
       setPickerTarget(null);
     } catch { /* user can retry */ }
     finally { setSavingCoords(false); }
@@ -414,8 +547,8 @@ const Facilities = () => {
                         </span>
                       ) : <span />}
                     </div>
-                    {/* GPS pin button */}
-                    <button onClick={() => setPickerTarget(f)} title={hasCoords ? "Edit coordinates" : "Set coordinates"}
+                    {/* GPS pin button — opens details modal */}
+                    <button onClick={() => setDetailTarget(f)} title={hasCoords ? "View details / Edit coordinates" : "View details / Set coordinates"}
                       className={`w-7 h-7 flex items-center justify-center rounded-lg border focus-visible:outline-none ${
                         hasCoords ? "border-[#dcfce7] text-[#16a34a] hover:bg-[#f0fdf4]" : "border-gray-200 text-gray-400 hover:bg-gray-50"
                       }`} style={{ transition: "background-color 0.15s" }}>
@@ -459,6 +592,16 @@ const Facilities = () => {
         </div>
       )}
 
+      {/* Details modal — hides when coord picker is open */}
+      {detailTarget && !pickerTarget && (
+        <FacilityDetailsModal
+          facility={detailTarget}
+          onClose={() => setDetailTarget(null)}
+          onEditCoords={() => setPickerTarget(detailTarget)}
+        />
+      )}
+
+      {/* Coordinate picker (z-[9999] sits on top of details modal) */}
       {pickerTarget && (
         <CoordinatePickerModal
           facilityName={pickerTarget.name}
