@@ -858,6 +858,16 @@ interface HcpRecord {
   license_expiry:      string | null;
   licence_status:      string | null;
   doctor_id:           string | null;
+  doctor?:             { id: string; doctor_name: string; cadre: string } | null;
+}
+
+interface DoctorSearchResult {
+  id:          string;
+  doctor_name: string;
+  town?:       string;
+  location?:   string;
+  speciality?: string[];
+  contact?:    string | null;
 }
 
 const COUNCIL_SHORT: Record<string, string> = {
@@ -872,6 +882,151 @@ const COUNCIL_COLOR: Record<string, string> = {
   AHPC:  "bg-teal-50 text-teal-700 border-teal-200",
 };
 
+// ─── Link HCP to master directory modal ──────────────────────────────────────
+
+const LinkModal = ({
+  record, onClose, onLinked,
+}: {
+  record: HcpRecord;
+  onClose: () => void;
+  onLinked: (doctorId: string, doctor: { id: string; doctor_name: string; cadre: string }) => void;
+}) => {
+  const [q, setQ]               = useState("");
+  const [results, setResults]   = useState<DoctorSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [selected, setSelected] = useState<DoctorSearchResult | null>(null);
+  const [saving, setSaving]     = useState(false);
+  const [error, setError]       = useState("");
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    clearTimeout(timer.current);
+    if (q.trim().length < 2) { setResults([]); return; }
+    setSearching(true);
+    timer.current = setTimeout(() => {
+      api.get(`/doctor/search?q=${encodeURIComponent(q.trim())}`)
+        .then(r => setResults(r.data.data ?? []))
+        .catch(() => {})
+        .finally(() => setSearching(false));
+    }, 280);
+    return () => clearTimeout(timer.current);
+  }, [q]);
+
+  const handleLink = async () => {
+    if (!selected) return;
+    setSaving(true); setError("");
+    try {
+      const res = await api.put(`/hcp-records/${record.id}`, { doctor_id: selected.id });
+      const linked = res.data.data;
+      onLinked(linked.doctor_id, linked.doctor);
+      onClose();
+    } catch (e: any) {
+      setError(e.response?.data?.message || e.response?.data?.error || "Link failed — doctor may already be claimed.");
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.5)" }}
+      onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="font-black text-[#1a2530] text-base">Link to Master Directory</h2>
+              <p className="text-xs text-gray-400 mt-0.5 truncate">{record.name}</p>
+            </div>
+            <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 focus-visible:outline-none shrink-0">
+              <FaXmark className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-4 flex flex-col gap-3">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-xs px-3 py-2.5 rounded-xl">{error}</div>
+          )}
+
+          <div className="relative">
+            <FaMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <input
+              type="text"
+              value={q}
+              onChange={e => { setQ(e.target.value); setSelected(null); }}
+              placeholder="Search master directory by name…"
+              autoFocus
+              className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20"
+            />
+          </div>
+
+          {searching && (
+            <div className="flex justify-center py-4">
+              <div className="w-5 h-5 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />
+            </div>
+          )}
+
+          {!searching && results.length > 0 && (
+            <div className="flex flex-col gap-1.5 max-h-56 overflow-y-auto">
+              {results.map(d => (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => setSelected(prev => prev?.id === d.id ? null : d)}
+                  className={`flex items-start gap-3 p-3 rounded-xl border text-left ${
+                    selected?.id === d.id
+                      ? "border-[#16a34a] bg-[#f0fdf4]"
+                      : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
+                  }`}
+                  style={{ transition: "border-color 0.12s, background-color 0.12s" }}>
+                  <div className="w-8 h-8 bg-sky-50 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                    <FaStethoscope className="w-3.5 h-3.5 text-sky-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#1a2530] truncate">{d.doctor_name}</p>
+                    <p className="text-xs text-gray-400 truncate">
+                      {[d.town, d.location].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+                  {selected?.id === d.id && (
+                    <LuCheck className="w-4 h-4 text-[#16a34a] shrink-0 mt-1" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!searching && q.trim().length >= 2 && results.length === 0 && (
+            <p className="text-center text-sm text-gray-400 py-4">No matching doctors found</p>
+          )}
+
+          {q.trim().length < 2 && (
+            <p className="text-center text-xs text-gray-400 py-4">Type at least 2 characters to search</p>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-4 border-t border-gray-100 flex gap-3">
+          <button onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+            style={{ transition: "background-color 0.15s" }}>
+            Cancel
+          </button>
+          <button onClick={handleLink} disabled={!selected || saving}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-50 text-white text-sm font-bold"
+            style={{ transition: "background-color 0.15s" }}>
+            {saving
+              ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Linking…</>
+              : <><LuCheck className="w-4 h-4" />Link Record</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Government Registry panel ────────────────────────────────────────────────
 
 const GovernmentRegistry = ({ onTotalLoaded }: { onTotalLoaded?: (n: number) => void }) => {
@@ -883,6 +1038,8 @@ const GovernmentRegistry = ({ onTotalLoaded }: { onTotalLoaded?: (n: number) => 
   const [total, setTotal]         = useState(0);
   const [page, setPage]           = useState(1);
   const [councilCounts, setCouncilCounts] = useState<Record<string, number>>({});
+  const [linkTarget, setLinkTarget]   = useState<HcpRecord | null>(null);
+  const [unlinkingId, setUnlinkingId] = useState<string | null>(null);
   const searchTimer               = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const load = useCallback((p = 1, query = q, c = council, lic = licStatus) => {
@@ -922,6 +1079,17 @@ const GovernmentRegistry = ({ onTotalLoaded }: { onTotalLoaded?: (n: number) => 
 
   const handleCouncil = (val: string) => { setCouncil(val); load(1, q, val, licStatus); };
   const handleLic     = (val: string) => { setLicStatus(val); load(1, q, council, val); };
+
+  const handleUnlink = async (id: string) => {
+    setUnlinkingId(id);
+    try {
+      await api.put(`/hcp-records/${id}`, { doctor_id: null });
+      setRecords(prev => prev.map(r =>
+        r.id === id ? { ...r, doctor_id: null, doctor: null } : r
+      ));
+    } catch { /* silent — row stays linked if it fails */ }
+    finally { setUnlinkingId(null); }
+  };
 
   const totalPages = Math.ceil(total / 30);
 
@@ -1002,7 +1170,7 @@ const GovernmentRegistry = ({ onTotalLoaded }: { onTotalLoaded?: (n: number) => 
                     <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 90  }}>Registered</th>
                     <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 90  }}>Expiry</th>
                     <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 80  }}>Licence</th>
-                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 70  }}>Claimed</th>
+                    <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400" style={{ minWidth: 140 }}>Claimed</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -1038,9 +1206,33 @@ const GovernmentRegistry = ({ onTotalLoaded }: { onTotalLoaded?: (n: number) => 
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          {r.doctor_id
-                            ? <span className="text-[10px] font-bold text-[#16a34a]">✓ Linked</span>
-                            : <span className="text-[10px] text-gray-300">—</span>}
+                          {r.doctor_id && r.doctor ? (
+                            <div className="flex items-center gap-1.5">
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[10px] font-semibold text-[#16a34a] truncate" style={{ maxWidth: 90 }}>{r.doctor.doctor_name}</p>
+                                <p className="text-[9px] text-gray-400">{r.doctor.cadre}</p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleUnlink(r.id)}
+                                disabled={unlinkingId === r.id}
+                                title="Unlink from master directory"
+                                className="w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-red-400 hover:bg-red-50 disabled:opacity-40 shrink-0"
+                                style={{ transition: "color 0.12s, background-color 0.12s" }}>
+                                {unlinkingId === r.id
+                                  ? <div className="w-3 h-3 border border-gray-300 border-t-gray-500 rounded-full animate-spin" />
+                                  : <LuX className="w-3 h-3" />}
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setLinkTarget(r)}
+                              className="text-[10px] font-semibold text-[#16a34a] border border-[#dcfce7] bg-[#f0fdf4] px-2 py-0.5 rounded-full hover:bg-[#dcfce7]"
+                              style={{ transition: "background-color 0.12s" }}>
+                              Link
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );
@@ -1064,6 +1256,19 @@ const GovernmentRegistry = ({ onTotalLoaded }: { onTotalLoaded?: (n: number) => 
           </>
         )}
       </div>
+
+      {linkTarget && (
+        <LinkModal
+          record={linkTarget}
+          onClose={() => setLinkTarget(null)}
+          onLinked={(doctorId, doctor) => {
+            setRecords(prev => prev.map(r =>
+              r.id === linkTarget.id ? { ...r, doctor_id: doctorId, doctor } : r
+            ));
+            setLinkTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 };
