@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { BiHome, BiCalendar, BiFileBlank, BiReceipt, BiCoffee } from "react-icons/bi";
+import { BiHome, BiCalendar, BiFileBlank, BiReceipt, BiCoffee, BiMap } from "react-icons/bi";
 import { BsCardChecklist } from "react-icons/bs";
 import { FaUserMd, FaHistory } from "react-icons/fa";
 import { MdOutlineEventRepeat, MdMoreHoriz } from "react-icons/md";
@@ -16,12 +16,13 @@ const PRIMARY = [
 ];
 
 const MORE = [
-  { to: "/rep-page/visits",     label: "Visits",   icon: FaHistory },
-  { to: "/rep-page/call-cycle", label: "Cycle",    icon: MdOutlineEventRepeat },
-  { to: "/rep-page/events",     label: "Events",   icon: BiCoffee },
-  { to: "/rep-page/reports",    label: "Reports",  icon: BiFileBlank },
-  { to: "/rep-page/expenses",   label: "Expenses", icon: BiReceipt },
-  { to: "/rep-page/settings",   label: "Settings", icon: IoSettingsOutline },
+  { to: "/rep-page/visits",     label: "Visits",    icon: FaHistory },
+  { to: "/rep-page/call-cycle", label: "Cycle",     icon: MdOutlineEventRepeat },
+  { to: "/rep-page/tour-plan",  label: "Tour Plan", icon: BiMap },
+  { to: "/rep-page/events",     label: "Events",    icon: BiCoffee },
+  { to: "/rep-page/reports",    label: "Reports",   icon: BiFileBlank },
+  { to: "/rep-page/expenses",   label: "Expenses",  icon: BiReceipt },
+  { to: "/rep-page/settings",   label: "Settings",  icon: IoSettingsOutline },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────

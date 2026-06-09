@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
@@ -40,6 +41,8 @@ const RepPage = () => {
   const [fabOpen, setFabOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const location = useLocation();
+  const showFab = location.pathname === '/rep-page' || location.pathname === '/rep-page/tasks';
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -119,53 +122,55 @@ const RepPage = () => {
       <MobileNav/>
       <InstallPrompt />
 
-      {/* Speed-dial FAB */}
-      <div
-        className="fixed z-40 flex flex-col items-end gap-3"
-        style={{ bottom: isMobile ? 72 : 32, right: isMobile ? 20 : 32 }}
-      >
-        {SPEED_DIAL.map(({ key, label, Icon, color, shadow }, i) => (
-          <div
-            key={key}
-            className="flex items-center gap-2"
-            style={{
-              opacity: fabOpen ? 1 : 0,
-              transform: fabOpen ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.85)',
-              transition: fabOpen
-                ? `opacity 0.18s ease ${i * 0.05}s, transform 0.18s ease ${i * 0.05}s`
-                : `opacity 0.12s ease ${(SPEED_DIAL.length - 1 - i) * 0.04}s, transform 0.12s ease ${(SPEED_DIAL.length - 1 - i) * 0.04}s`,
-              pointerEvents: fabOpen ? 'auto' : 'none',
-            }}
-          >
-            <span className="bg-white text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-md whitespace-nowrap">
-              {label}
-            </span>
-            <button
-              type="button"
-              onClick={() => openModal(key as any)}
-              aria-label={label}
-              className={`${color} ${shadow} text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
-              style={{ transition: 'background-color 0.15s' }}
-            >
-              <Icon className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
-
-        <button
-          type="button"
-          onClick={() => setFabOpen((o) => !o)}
-          aria-label="Open actions"
-          aria-expanded={fabOpen}
-          className="bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white rounded-full shadow-lg shadow-green-600/30 flex items-center justify-center gap-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-          style={{ padding: isMobile ? '14px' : '14px 20px', transition: 'background-color 0.15s' }}
+      {/* Speed-dial FAB — only on Home and Tasks */}
+      {showFab ? (
+        <div
+          className="fixed z-40 flex flex-col items-end gap-3"
+          style={{ bottom: isMobile ? 72 : 32, right: isMobile ? 20 : 32 }}
         >
-          {fabOpen
-            ? <FaXmark className="w-4 h-4" />
-            : <><FaPlus className="w-4 h-4" />{!isMobile && <span>Actions</span>}</>}
-        </button>
-      </div>
-      
+          {SPEED_DIAL.map(({ key, label, Icon, color, shadow }, i) => (
+            <div
+              key={key}
+              className="flex items-center gap-2"
+              style={{
+                opacity: fabOpen ? 1 : 0,
+                transform: fabOpen ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.85)',
+                transition: fabOpen
+                  ? `opacity 0.18s ease ${i * 0.05}s, transform 0.18s ease ${i * 0.05}s`
+                  : `opacity 0.12s ease ${(SPEED_DIAL.length - 1 - i) * 0.04}s, transform 0.12s ease ${(SPEED_DIAL.length - 1 - i) * 0.04}s`,
+                pointerEvents: fabOpen ? 'auto' : 'none',
+              }}
+            >
+              <span className="bg-white text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-md whitespace-nowrap">
+                {label}
+              </span>
+              <button
+                type="button"
+                onClick={() => openModal(key as any)}
+                aria-label={label}
+                className={`${color} ${shadow} text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+                style={{ transition: 'background-color 0.15s' }}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => setFabOpen((o) => !o)}
+            aria-label="Open actions"
+            aria-expanded={fabOpen}
+            className="bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white rounded-full shadow-lg shadow-green-600/30 flex items-center justify-center gap-2 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            style={{ padding: isMobile ? '14px' : '14px 20px', transition: 'background-color 0.15s' }}
+          >
+            {fabOpen
+              ? <FaXmark className="w-4 h-4" />
+              : <><FaPlus className="w-4 h-4" />{!isMobile && <span>Actions</span>}</>}
+          </button>
+        </div>
+      ) : null}
+
     </>
   );
 };

@@ -14,6 +14,7 @@ import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 interface Doctor { id: string; doctor_name: string; town: string; location: string; speciality: string[]; }
 interface CycleItem {
   id: string; tier: "A" | "B" | "C"; list_type?: DoctorListType;
+  territory_type?: "TOWN" | "UPCOUNTRY" | "REGIONAL" | null;
   frequency: number; visits_done: number; doctor: Doctor;
 }
 type DoctorListType = "KBL" | "BL" | "FOCUS";
@@ -345,6 +346,23 @@ const CallCycle = () => {
         </div>
       </div>
 
+      {/* Set Tour Plan prompt — shown once cycle is approved */}
+      {cycle.status === "APPROVED" && (
+        <div className="flex items-center justify-between gap-3 bg-[#f0fdf4] border border-[#86efac] rounded-xl px-4 py-3">
+          <div className="flex items-center gap-2">
+            <FiCheck className="w-4 h-4 text-[#16a34a] shrink-0" />
+            <p className="text-sm font-poppins-semibold text-[#15803d]">Cycle approved — ready to plan your routes</p>
+          </div>
+          <button
+            onClick={() => navigate('/rep-page/tour-plan')}
+            className="shrink-0 bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold px-3 py-1.5 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            style={{ transition: 'background-color 0.15s' }}
+          >
+            Set Tour Plan
+          </button>
+        </div>
+      )}
+
       {error && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
           <FiAlertCircle className="w-4 h-4 shrink-0" />{error}
@@ -450,7 +468,7 @@ const CallCycle = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <p className="font-poppins-semibold text-gray-800 truncate text-sm">{item.doctor.doctor_name}</p>
-                          {item.list_type && (() => {
+                          {item.list_type && item.territory_type !== "REGIONAL" && item.territory_type != null && (() => {
                             const ltCfg = LIST_TYPE_CONFIG[item.list_type];
                             return (
                               <span className={`shrink-0 text-[10px] font-poppins-bold px-1.5 py-0.5 rounded border ${ltCfg.cls}`}>
