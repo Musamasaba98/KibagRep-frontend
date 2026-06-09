@@ -10,8 +10,9 @@ import {
   addTerritoryPharmacyApi, removeTerritoryPharmacyApi,
   assignTerritoryRepApi, unassignTerritoryRepApi,
   getCompanyUsersApi,
+  getCompanyFacilitiesApi,
+  getCompanyPharmaciesApi,
 } from "../../services/api";
-import api from "../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -162,29 +163,39 @@ const TerritoryCard = ({
   const linkedPhrIds = new Set(territory.pharmacies.map(p => p.pharmacy.id));
   const assignedRepIds = new Set(territory.reps.map(r => r.id));
 
-  // Facility server-side search
+  // Facility search — scoped to company's curated list only
   const searchFacilities = (q: string) => {
     clearTimeout(facDebounce.current);
     setFacSearch(q);
     if (q.length < 2) { setFacResults([]); return; }
     setFacSearching(true);
     facDebounce.current = setTimeout(() => {
-      api.get("/facility/search", { params: { q } })
-        .then(r => setFacResults((r.data.data ?? []).filter((f: FacilityItem) => !linkedFacIds.has(f.id))))
+      getCompanyFacilitiesApi({ q, limit: 30 })
+        .then(r => {
+          const facilities = (r.data.data ?? [])
+            .map((row: any) => row.facility as FacilityItem)
+            .filter((f: FacilityItem) => !linkedFacIds.has(f.id));
+          setFacResults(facilities);
+        })
         .catch(() => {})
         .finally(() => setFacSearching(false));
     }, 300);
   };
 
-  // Pharmacy server-side search
+  // Pharmacy search — scoped to company's curated list only
   const searchPharmacies = (q: string) => {
     clearTimeout(phrDebounce.current);
     setPhrSearch(q);
     if (q.length < 2) { setPhrResults([]); return; }
     setPhrSearching(true);
     phrDebounce.current = setTimeout(() => {
-      api.get("/pharmacy/search", { params: { q } })
-        .then(r => setPhrResults((r.data.data ?? []).filter((p: PharmacyItem) => !linkedPhrIds.has(p.id))))
+      getCompanyPharmaciesApi({ q, limit: 30 })
+        .then(r => {
+          const pharmacies = (r.data.data ?? [])
+            .map((row: any) => row.pharmacy as PharmacyItem)
+            .filter((p: PharmacyItem) => !linkedPhrIds.has(p.id));
+          setPhrResults(pharmacies);
+        })
         .catch(() => {})
         .finally(() => setPhrSearching(false));
     }, 300);
