@@ -13,7 +13,7 @@ import {
   getCompanyUsersApi,
   getCompanyFacilitiesApi,
   getCompanyPharmaciesApi,
-  getTeamsApi,
+  getCompanyTeamsApi,
 } from "../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -253,7 +253,7 @@ const TerritoryCard = ({
   };
 
   const openTeamPicker = () => {
-    getTeamsApi().then(r => setAllTeams(r.data?.data ?? [])).catch(() => {});
+    getCompanyTeamsApi().then((r: any) => setAllTeams(r.data?.data ?? [])).catch(() => {});
     setShowTeamPicker(true);
   };
 
