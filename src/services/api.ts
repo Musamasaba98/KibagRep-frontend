@@ -246,6 +246,7 @@ export const rejectExpenseClaimApi = (claimId: string, data: { note: string }) =
 
 // ─── Territories ──────────────────────────────────────────────────────────────
 export const getTerritoriesApi = () => api.get('/territory');
+export const getMyTerritoryApi  = () => api.get('/territory/my');
 export const createTerritoryApi = (data: { name: string; region?: string; territory_type?: string }) => api.post('/territory', data);
 export const updateTerritoryApi = (id: string, data: unknown) => api.put(`/territory/${id}`, data);
 export const deleteTerritoryApi = (id: string) => api.delete(`/territory/${id}`);
@@ -255,6 +256,8 @@ export const addTerritoryPharmacyApi = (id: string, data: { pharmacy_id: string 
 export const removeTerritoryPharmacyApi = (id: string, pharmacyId: string) => api.delete(`/territory/${id}/pharmacies/${pharmacyId}`);
 export const assignTerritoryRepApi = (id: string, data: { user_id: string }) => api.post(`/territory/${id}/reps`, data);
 export const unassignTerritoryRepApi = (id: string, userId: string) => api.delete(`/territory/${id}/reps/${userId}`);
+export const assignTerritoryTeamApi = (id: string, data: { team_id: string }) => api.post(`/territory/${id}/teams`, data);
+export const unassignTerritoryTeamApi = (id: string, teamId: string) => api.delete(`/territory/${id}/teams/${teamId}`);
 
 // ─── Tour Plan (extended) ─────────────────────────────────────────────────────
 export const getCurrentTourPlanApi = () => api.get('/tour-plan/current');

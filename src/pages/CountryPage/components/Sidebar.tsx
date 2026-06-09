@@ -5,7 +5,7 @@ import { GoGear } from "react-icons/go";
 import { BsBell } from "react-icons/bs";
 import { SlLogout } from "react-icons/sl";
 import { TbReport } from "react-icons/tb";
-import { LuChartNoAxesCombined, LuMap, LuStethoscope } from "react-icons/lu";
+import { LuChartNoAxesCombined, LuMap, LuStethoscope, LuArrowRightLeft } from "react-icons/lu";
 import { IoMegaphoneOutline } from "react-icons/io5";
 import { logout } from "../../../store/authSlice";
 
@@ -49,6 +49,27 @@ const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
+      {/* View switching — CM can act as Manager or Supervisor */}
+      <div className="px-3 py-3 border-t border-gray-100 shrink-0">
+        <p className="text-[10px] font-poppins-semibold text-gray-400 uppercase tracking-widest px-3 mb-2">Switch View</p>
+        <button
+          onClick={() => navigate("/manager")}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[#444] hover:bg-amber-50 hover:text-amber-700 text-left"
+          style={{ transition: "background-color 0.15s, color 0.15s" }}
+        >
+          <LuArrowRightLeft className="w-[17px] h-[17px] shrink-0" />
+          <span className="text-[13px] font-poppins">Manager View</span>
+        </button>
+        <button
+          onClick={() => navigate("/supervisor")}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[#444] hover:bg-amber-50 hover:text-amber-700 text-left"
+          style={{ transition: "background-color 0.15s, color 0.15s" }}
+        >
+          <LuArrowRightLeft className="w-[17px] h-[17px] shrink-0" />
+          <span className="text-[13px] font-poppins">Supervisor View</span>
+        </button>
+      </div>
+
       <div className="border-t border-gray-100 py-4 flex flex-col gap-1 shrink-0">
         <button
           className="flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-[#444] hover:bg-gray-50 hover:text-[#16a34a] w-full text-left"

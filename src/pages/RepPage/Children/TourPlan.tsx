@@ -32,8 +32,7 @@ import {
   addTourPlanEntryApi,
   removeTourPlanEntryApi,
   submitTourPlanApi,
-  searchPharmaciesApi,
-  getFacilitiesApi,
+  getMyTerritoryApi,
   createLateRequestApi,
   getMyLateRequestsApi,
 } from "../../../services/api";
@@ -217,25 +216,42 @@ const AddPharmacyDropdown = ({
   onClose: () => void;
 }) => {
   const [q, setQ] = useState("");
-  const [results, setResults] = useState<PharmacyResult[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [territoryPharmacies, setTerritoryPharmacies] = useState<PharmacyResult[]>([]);
+  const [loading, setLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
   useEffect(() => {
-    clearTimeout(timer.current);
-    if (!q.trim()) { setResults([]); return; }
-    setLoading(true);
-    timer.current = setTimeout(() => {
-      searchPharmaciesApi(q)
-        .then((res) => setResults(res.data.data ?? []))
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    }, 300);
-    return () => clearTimeout(timer.current);
-  }, [q]);
+    getMyTerritoryApi()
+      .then((res) => {
+        const territories: any[] = res.data.data ?? [];
+        const seen = new Set<string>();
+        const phrs: PharmacyResult[] = [];
+        for (const t of territories) {
+          for (const tp of (t.pharmacies ?? [])) {
+            const p = tp.pharmacy ?? tp;
+            if (p?.id && !seen.has(p.id)) {
+              seen.add(p.id);
+              phrs.push({ id: p.id, pharmacy_name: p.pharmacy_name, location: p.location ?? "", town: p.town });
+            }
+          }
+        }
+        setTerritoryPharmacies(phrs);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!q.trim()) return territoryPharmacies.slice(0, 60);
+    const s = q.toLowerCase();
+    return territoryPharmacies.filter(p =>
+      p.pharmacy_name?.toLowerCase().includes(s) ||
+      p.town?.toLowerCase().includes(s) ||
+      p.location?.toLowerCase().includes(s)
+    ).slice(0, 60);
+  }, [territoryPharmacies, q]);
 
   return (
     <div className="absolute z-50 mt-1 w-72 bg-white rounded-2xl border-solid border border-gray-100 overflow-hidden">
@@ -247,17 +263,20 @@ const AddPharmacyDropdown = ({
         <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><MdClose className="w-4 h-4" /></button>
       </div>
       <div className="max-h-56 overflow-y-auto">
-        {loading && <p className="text-xs text-gray-400 text-center py-4">Searching…</p>}
-        {!loading && q && results.length === 0 && (
+        {loading && <p className="text-xs text-gray-400 text-center py-4">Loading…</p>}
+        {!loading && filtered.length === 0 && !q && (
+          <p className="text-[11px] text-gray-400 text-center py-4 px-3">No pharmacies on your route yet</p>
+        )}
+        {!loading && filtered.length === 0 && q && (
           <div className="px-3 py-3">
-            <p className="text-xs text-gray-400 mb-2">No match found in database.</p>
+            <p className="text-xs text-gray-400 mb-2">No match on your route.</p>
             <button onClick={() => { onAddNew(q); onClose(); }}
               className="w-full text-left text-xs font-semibold text-violet-600 hover:text-violet-700 flex items-center gap-1.5">
-              <FiPlus className="w-3.5 h-3.5" /> Add "{q}" as new pharmacy
+              <FiPlus className="w-3.5 h-3.5" /> Add "{q}" as new entry
             </button>
           </div>
         )}
-        {results.map((p) => (
+        {filtered.map((p) => (
           <button key={p.id} onClick={() => { onSelect(p); onClose(); }}
             className="w-full flex items-start gap-2.5 px-3 py-2 hover:bg-gray-50 text-left">
             <TbPill className="w-3.5 h-3.5 text-violet-400 shrink-0 mt-0.5" />
@@ -267,9 +286,6 @@ const AddPharmacyDropdown = ({
             </div>
           </button>
         ))}
-        {!q && (
-          <p className="text-[11px] text-gray-400 text-center py-4 px-3">Type to search the pharmacy database</p>
-        )}
       </div>
     </div>
   );
@@ -295,13 +311,30 @@ const AddFacilityDropdown = ({
   const [q, setQ] = useState("");
   const [all, setAll] = useState<FacilityResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [noTerritory, setNoTerritory] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
   useEffect(() => {
-    getFacilitiesApi()
-      .then((res) => setAll(res.data.data ?? res.data ?? []))
+    getMyTerritoryApi()
+      .then((res) => {
+        const territories: any[] = res.data.data ?? [];
+        if (territories.length === 0) { setNoTerritory(true); setLoading(false); return; }
+        // Flatten facilities across all assigned territories, deduplicate by id
+        const seen = new Set<string>();
+        const facs: FacilityResult[] = [];
+        for (const t of territories) {
+          for (const tf of (t.facilities ?? [])) {
+            const f = tf.facility ?? tf;
+            if (f?.id && !seen.has(f.id)) {
+              seen.add(f.id);
+              facs.push({ id: f.id, name: f.name, location: f.location ?? "", town: f.town, facility_type: f.facility_type });
+            }
+          }
+        }
+        setAll(facs);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -309,13 +342,13 @@ const AddFacilityDropdown = ({
   const filtered = useMemo(() => {
     const s = q.toLowerCase();
     return s.length < 1
-      ? all.slice(0, 40)
+      ? all.slice(0, 60)
       : all.filter(
           (f) =>
             f.name?.toLowerCase().includes(s) ||
             f.town?.toLowerCase().includes(s) ||
             f.location?.toLowerCase().includes(s)
-        ).slice(0, 40);
+        ).slice(0, 60);
   }, [all, q]);
 
   return (
@@ -336,8 +369,13 @@ const AddFacilityDropdown = ({
       </div>
       <div className="max-h-56 overflow-y-auto">
         {loading && <p className="text-xs text-gray-400 font-poppins text-center py-6">Loading…</p>}
-        {!loading && filtered.length === 0 && (
-          <p className="text-xs text-gray-400 font-poppins text-center py-6">No facilities found</p>
+        {!loading && noTerritory && (
+          <p className="text-xs text-gray-400 font-poppins text-center py-6 px-4">
+            No territory assigned — ask your manager to assign you a route.
+          </p>
+        )}
+        {!loading && !noTerritory && filtered.length === 0 && (
+          <p className="text-xs text-gray-400 font-poppins text-center py-6">No facilities on your route{q ? " matching search" : ""}</p>
         )}
         {filtered.map((f) => (
           <button

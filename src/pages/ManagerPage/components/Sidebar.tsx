@@ -7,11 +7,14 @@ import { BsBell } from "react-icons/bs";
 import { IoCalendarOutline, IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { SlLogout } from "react-icons/sl";
 import { TbReport } from "react-icons/tb";
-import { LuChartNoAxesCombined, LuStethoscope } from "react-icons/lu";
+import { LuChartNoAxesCombined, LuStethoscope, LuClipboardCheck, LuCalendarDays, LuArrowRightLeft } from "react-icons/lu";
 import { GrTask } from "react-icons/gr";
 import { FiMapPin } from "react-icons/fi";
 import { logout } from "../../../store/authSlice";
-import { getPendingReportsApi, getPendingExpenseClaimsApi } from "../../../services/api";
+import {
+  getPendingReportsApi, getPendingExpenseClaimsApi,
+  getPendingCyclesApi, getPendingTourPlansApi,
+} from "../../../services/api";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -22,10 +25,14 @@ const Sidebar = () => {
     Promise.allSettled([
       getPendingReportsApi(),
       getPendingExpenseClaimsApi(),
-    ]).then(([reports, expenses]) => {
+      getPendingCyclesApi(),
+      getPendingTourPlansApi(),
+    ]).then(([reports, expenses, cycles, tourplans]) => {
       let total = 0;
       if (reports.status === "fulfilled") total += (reports.value.data?.data ?? []).length;
       if (expenses.status === "fulfilled") total += (expenses.value.data?.data ?? []).length;
+      if (cycles.status === "fulfilled") total += (cycles.value.data?.data ?? []).length;
+      if (tourplans.status === "fulfilled") total += (tourplans.value.data?.data ?? []).length;
       setPendingCount(total);
     });
   }, []);
@@ -44,7 +51,9 @@ const Sidebar = () => {
     { to: "/manager/teams",                   icon: FaUserGroup,                 label: "My Teams"      },
     { to: "/manager/tasks",                   icon: GrTask,                      label: "Tasks"         },
     { to: "/manager/doctors",                 icon: LuStethoscope,               label: "HCP Directory" },
-    { to: "/manager/reports",                 icon: TbReport,                    label: "Reports",       showBadge: true },
+    { to: "/manager/approvals",               icon: LuClipboardCheck,            label: "Approvals",    showBadge: true },
+    { to: "/manager/cycles",                  icon: LuCalendarDays,              label: "Call Cycles"   },
+    { to: "/manager/reports",                 icon: TbReport,                    label: "Reports"       },
     { to: "/manager/analytics",               icon: LuChartNoAxesCombined,       label: "Analytics"     },
     { to: "/manager/messaging",               icon: IoChatbubbleEllipsesOutline, label: "Messaging"     },
     { to: "/manager/calendar",                icon: IoCalendarOutline,           label: "Calendar"      },
@@ -79,6 +88,19 @@ const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
+
+      {/* View switching — Manager can act as Supervisor */}
+      <div className="px-3 py-3 border-t border-gray-100 shrink-0">
+        <p className="text-[10px] font-poppins-semibold text-gray-400 uppercase tracking-widest px-3 mb-2">Switch View</p>
+        <button
+          onClick={() => navigate("/supervisor")}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[#444] hover:bg-amber-50 hover:text-amber-700 text-left"
+          style={{ transition: "background-color 0.15s, color 0.15s" }}
+        >
+          <LuArrowRightLeft className="w-[17px] h-[17px] shrink-0" />
+          <span className="text-[13px] font-poppins">Supervisor View</span>
+        </button>
+      </div>
 
       <div className="border-t border-gray-100 py-4 flex flex-col gap-1 shrink-0">
         <button

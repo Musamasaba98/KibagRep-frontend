@@ -38,6 +38,8 @@ import ManagerReports from "./pages/ManagerPage/children/ManagerReports";
 import ManagerAnalytics from "./pages/ManagerPage/children/Analytics";
 import ManagerCalendar from "./pages/ManagerPage/children/ManagerCalendar";
 import ManagerRepDetail from "./pages/ManagerPage/children/ManagerRepDetail";
+import ManagerApprovals from "./pages/ManagerPage/children/Approvals";
+import ManagerCycles from "./pages/ManagerPage/children/Cycles";
 import TerritoryManagement from "./pages/shared/TerritoryManagement";
 
 // Supervisor
@@ -140,9 +142,9 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Manager
+  // Manager (also accessible by COUNTRY_MGR for view-switching)
   {
-    element: <ProtectedRoute allowedRoles={["Manager", "SUPER_ADMIN"]} />,
+    element: <ProtectedRoute allowedRoles={["Manager", "COUNTRY_MGR", "SUPER_ADMIN"]} />,
     children: [
       {
         path: "/manager",
@@ -152,6 +154,8 @@ const router = createBrowserRouter([
           { path: "teams", element: <ManagerTeams /> },
           { path: "tasks", element: <ManagerTasks /> },
           { path: "doctors", element: <ManagerDoctors /> },
+          { path: "approvals", element: <ManagerApprovals /> },
+          { path: "cycles", element: <ManagerCycles /> },
           { path: "reports", element: <ManagerReports /> },
           { path: "analytics", element: <ManagerAnalytics /> },
           { path: "messaging", element: <Messaging /> },
@@ -163,9 +167,9 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Supervisor
+  // Supervisor (also accessible by Manager and COUNTRY_MGR for view-switching)
   {
-    element: <ProtectedRoute allowedRoles={["Supervisor", "SUPER_ADMIN"]} />,
+    element: <ProtectedRoute allowedRoles={["Supervisor", "Manager", "COUNTRY_MGR", "SUPER_ADMIN"]} />,
     children: [
       {
         path: "/supervisor",

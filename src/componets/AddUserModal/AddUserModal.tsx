@@ -111,9 +111,10 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
   const [copied, setCopied] = useState(false);
 
   // — Shared —
-  const [saving, setSaving] = useState(false);
-  const [error, setError]   = useState("");
-  const [done, setDone]     = useState<{ name: string; password: string } | null>(null);
+  const [saving, setSaving]           = useState(false);
+  const [error, setError]             = useState("");
+  const [done, setDone]               = useState<{ name: string; password: string } | null>(null);
+  const [requiresTeams, setRequiresTeams] = useState(false);
 
   const roles = ASSIGNABLE_ROLES[actorRole] ?? [];
 
@@ -137,8 +138,13 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
     if (!selected || !role) { setError("Select a user and a role"); return; }
     setSaving(true); setError("");
     try {
-      await addUserToCompanyApi({ userId: selected.id, role, ...(teamId ? { team_id: teamId } : {}), ...(companyId ? { company_id: companyId } : {}) });
-      onSuccess(); onClose();
+      const res = await addUserToCompanyApi({ userId: selected.id, role, ...(teamId ? { team_id: teamId } : {}), ...(companyId ? { company_id: companyId } : {}) });
+      onSuccess();
+      if (res.data?.requires_teams) {
+        setRequiresTeams(true);
+      } else {
+        onClose();
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to add user");
     } finally { setSaving(false); }
@@ -173,6 +179,35 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Warning: company now has 2+ supervisors but no teams
+  if (requiresTeams) return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+        <div className="w-14 h-14 bg-amber-50 rounded-full flex items-center justify-center mx-auto">
+          <span className="text-2xl">⚠️</span>
+        </div>
+        <div className="text-center">
+          <p className="font-poppins-bold text-[#1a2530] text-base">Teams Required</p>
+          <p className="text-sm font-poppins text-gray-500 mt-2 leading-relaxed">
+            Your company now has <strong>2 or more supervisors</strong>. Please create teams and assign each supervisor to a team so reps know who manages them.
+          </p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <button onClick={onClose}
+            className="w-full bg-[#16a34a] hover:bg-[#15803d] text-white font-poppins-semibold py-2.5 rounded-xl text-sm"
+            style={{ transition: "background-color 0.15s" }}>
+            OK — I'll create teams now
+          </button>
+          <button onClick={onClose}
+            className="w-full bg-gray-50 hover:bg-gray-100 text-gray-500 font-poppins py-2.5 rounded-xl text-sm"
+            style={{ transition: "background-color 0.15s" }}>
+            Remind me later
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   // Success state after creating new user
   if (done) return (

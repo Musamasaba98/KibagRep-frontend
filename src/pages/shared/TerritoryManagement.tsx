@@ -9,14 +9,17 @@ import {
   addTerritoryFacilityApi, removeTerritoryFacilityApi,
   addTerritoryPharmacyApi, removeTerritoryPharmacyApi,
   assignTerritoryRepApi, unassignTerritoryRepApi,
+  assignTerritoryTeamApi, unassignTerritoryTeamApi,
   getCompanyUsersApi,
   getCompanyFacilitiesApi,
   getCompanyPharmaciesApi,
+  getTeamsApi,
 } from "../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Rep { id: string; firstname: string; lastname: string; role: string; }
+interface TeamItem { id: string; team_name: string; supervisor_id?: string | null; }
 
 interface FacilityItem {
   id: string; name: string; location?: string; town?: string;
@@ -37,11 +40,12 @@ interface Territory {
   facilities:  { facility: FacilityItem }[];
   pharmacies:  { pharmacy: PharmacyItem }[];
   reps:        Rep[];
+  teams:       TeamItem[];
 }
 
 interface CompanyUser { id: string; firstname: string; lastname: string; role: string; }
 
-type CardTab = "reps" | "facilities" | "pharmacies" | "details";
+type CardTab = "reps" | "teams" | "facilities" | "pharmacies" | "details";
 
 const TYPE_LABELS: Record<string, string> = {
   TOWN: "Town / Urban", UPCOUNTRY: "Upcountry", REGIONAL: "Regional",
@@ -159,9 +163,14 @@ const TerritoryCard = ({
   const [repSearch, setRepSearch]         = useState("");
   const [showRepSearch, setShowRepSearch] = useState(false);
 
-  const linkedFacIds = new Set(territory.facilities.map(f => f.facility.id));
-  const linkedPhrIds = new Set(territory.pharmacies.map(p => p.pharmacy.id));
+  // team assignment
+  const [allTeams, setAllTeams]           = useState<TeamItem[]>([]);
+  const [showTeamPicker, setShowTeamPicker] = useState(false);
+
+  const linkedFacIds   = new Set(territory.facilities.map(f => f.facility.id));
+  const linkedPhrIds   = new Set(territory.pharmacies.map(p => p.pharmacy.id));
   const assignedRepIds = new Set(territory.reps.map(r => r.id));
+  const assignedTeamIds = new Set((territory.teams ?? []).map(t => t.id));
 
   // Facility search — scoped to company's curated list only
   const searchFacilities = (q: string) => {
@@ -243,6 +252,22 @@ const TerritoryCard = ({
     onUpdated({ ...territory, reps: territory.reps.filter(r => r.id !== userId) });
   };
 
+  const openTeamPicker = () => {
+    getTeamsApi().then(r => setAllTeams(r.data?.data ?? [])).catch(() => {});
+    setShowTeamPicker(true);
+  };
+
+  const addTeam = async (teamId: string) => {
+    const res = await assignTerritoryTeamApi(territory.id, { team_id: teamId }).catch(() => null);
+    if (!res) return;
+    onUpdated({ ...territory, teams: [...(territory.teams ?? []), res.data.data] });
+  };
+
+  const removeTeam = async (teamId: string) => {
+    await unassignTerritoryTeamApi(territory.id, teamId).catch(() => {});
+    onUpdated({ ...territory, teams: (territory.teams ?? []).filter(t => t.id !== teamId) });
+  };
+
   const handleDelete = async () => {
     if (!window.confirm(`Delete territory "${territory.name}"? All rep assignments and facility/pharmacy links will be removed.`)) return;
     setDeleting(true);
@@ -252,6 +277,7 @@ const TerritoryCard = ({
 
   const TABS: { key: CardTab; label: string; count?: number }[] = [
     { key: "reps",      label: "Reps",      count: territory.reps.length },
+    { key: "teams",     label: "Teams",     count: (territory.teams ?? []).length },
     { key: "facilities",label: "Facilities",count: territory.facilities.length },
     { key: "pharmacies",label: "Pharmacies",count: territory.pharmacies.length },
     { key: "details",   label: "Details" },
@@ -383,6 +409,64 @@ const TerritoryCard = ({
                     <div className="flex flex-col items-center py-6 text-gray-300">
                       <FiUsers className="w-7 h-7 mb-1.5 opacity-50" />
                       <p className="text-xs text-gray-400 font-semibold">No reps on this route yet</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Teams tab ── */}
+              {activeTab === "teams" && (
+                <div className="space-y-3">
+                  {(territory.teams ?? []).length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {(territory.teams ?? []).map(t => (
+                        <div key={t.id} className="flex items-center gap-1.5 bg-violet-50 border border-violet-100 rounded-full pl-3 pr-2 py-1.5">
+                          <FiUsers className="w-3 h-3 text-violet-500 shrink-0" />
+                          <span className="text-xs font-semibold text-violet-700">{t.team_name}</span>
+                          <button onClick={() => removeTeam(t.id)}
+                            className="text-violet-300 hover:text-red-500 ml-0.5 focus-visible:outline-none rounded">
+                            <FiX className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {showTeamPicker ? (
+                    <div className="border border-gray-200 rounded-xl overflow-hidden">
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
+                        <span className="text-xs font-semibold text-gray-600">Assign a team</span>
+                        <button onClick={() => setShowTeamPicker(false)} className="text-gray-400 hover:text-gray-600">
+                          <FiX className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="max-h-44 overflow-y-auto">
+                        {allTeams.filter(t => !assignedTeamIds.has(t.id)).length === 0
+                          ? <p className="text-xs text-gray-400 text-center py-4">No unassigned teams</p>
+                          : allTeams.filter(t => !assignedTeamIds.has(t.id)).map(t => (
+                            <button key={t.id} onClick={() => { addTeam(t.id); setShowTeamPicker(false); }}
+                              className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-violet-50 text-left">
+                              <div className="w-6 h-6 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+                                <FiUsers className="w-3 h-3 text-violet-600" />
+                              </div>
+                              <span className="text-xs font-semibold text-[#222f36] flex-1 truncate">{t.team_name}</span>
+                              <FiPlus className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+                            </button>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  ) : (
+                    <button onClick={openTeamPicker}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800 focus-visible:outline-none rounded">
+                      <FiPlus className="w-3.5 h-3.5" /> Assign team
+                    </button>
+                  )}
+
+                  {(territory.teams ?? []).length === 0 && !showTeamPicker && (
+                    <div className="flex flex-col items-center py-6 text-gray-300">
+                      <FiUsers className="w-7 h-7 mb-1.5 opacity-50" />
+                      <p className="text-xs text-gray-400 font-semibold">No teams on this route yet</p>
                     </div>
                   )}
                 </div>
