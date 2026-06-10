@@ -1,7 +1,19 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { FiFileText, FiCheckCircle, FiXCircle, FiClock, FiSend, FiUsers, FiDownload, FiAlertTriangle } from "react-icons/fi";
-import { getTodayReportApi, submitDailyReportApi, getMyReportsApi, getCompanyObserversApi, downloadReportApi, createLateRequestApi, getMyLateRequestsApi } from "../../../services/api";
+import {
+  FiFileText, FiCheckCircle, FiXCircle, FiClock, FiSend,
+  FiUsers, FiDownload, FiAlertTriangle,
+} from "react-icons/fi";
+import {
+  LuTrendingUp, LuCalendarCheck, LuActivity, LuBeaker,
+} from "react-icons/lu";
+import {
+  getTodayReportApi, submitDailyReportApi, getMyReportsApi,
+  getCompanyObserversApi, downloadReportApi,
+  createLateRequestApi, getMyLateRequestsApi, getMyReportSummaryApi,
+} from "../../../services/api";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DailyReport {
   id: string;
@@ -12,7 +24,6 @@ interface DailyReport {
   status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED";
   review_note: string | null;
   jfw_observer_id: string | null;
-  created_at: string;
 }
 
 interface Observer {
@@ -22,16 +33,48 @@ interface Observer {
   role: string;
 }
 
+interface SampleBalance {
+  product_id: string;
+  product_name: string;
+  issued: number;
+  given: number;
+  remaining: number;
+}
+
+interface MonthlySummary {
+  month: number;
+  year: number;
+  doctor_visits: number;
+  pharmacy_visits: number;
+  total_visits: number;
+  samples_given: number;
+  nca_count: number;
+  working_days: number;
+  reports_submitted: number;
+  reports_approved: number;
+  cycle_planned: number;
+  cycle_visited: number;
+  cycle_status: string | null;
+  sample_balances: SampleBalance[];
+}
+
+// ─── Small helpers ────────────────────────────────────────────────────────────
+
+const MONTH_NAMES = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+];
+
 const STATUS_CONFIG = {
-  DRAFT:     { label: "Draft",     icon: FiFileText,    bg: "bg-gray-100",   text: "text-gray-600"   },
-  SUBMITTED: { label: "Submitted", icon: FiClock,       bg: "bg-amber-100",  text: "text-amber-700"  },
-  APPROVED:  { label: "Approved",  icon: FiCheckCircle, bg: "bg-green-100",  text: "text-green-700"  },
-  REJECTED:  { label: "Rejected",  icon: FiXCircle,     bg: "bg-red-100",    text: "text-red-700"    },
-};
+  DRAFT:     { label: "Draft",     Icon: FiFileText,    bg: "bg-gray-100",   text: "text-gray-600"   },
+  SUBMITTED: { label: "Submitted", Icon: FiClock,       bg: "bg-amber-100",  text: "text-amber-700"  },
+  APPROVED:  { label: "Approved",  Icon: FiCheckCircle, bg: "bg-green-100",  text: "text-green-700"  },
+  REJECTED:  { label: "Rejected",  Icon: FiXCircle,     bg: "bg-red-100",    text: "text-red-700"    },
+} as const;
 
 const StatusBadge = ({ status }: { status: DailyReport["status"] }) => {
   const cfg = STATUS_CONFIG[status];
-  const Icon = cfg.icon;
+  const { Icon } = cfg;
   return (
     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-poppins-semibold ${cfg.bg} ${cfg.text}`}>
       <Icon className="w-3 h-3" />
@@ -40,84 +83,246 @@ const StatusBadge = ({ status }: { status: DailyReport["status"] }) => {
   );
 };
 
+const ProgressBar = ({ value, max, color = "#16a34a" }: { value: number; max: number; color?: string }) => {
+  const pct = max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0;
+  return (
+    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color, transition: "width 0.4s" }} />
+    </div>
+  );
+};
+
+// ─── Monthly Performance Section ─────────────────────────────────────────────
+
+const MonthlyPerformance = ({
+  summary, month, year,
+}: { summary: MonthlySummary | null; month: number; year: number }) => {
+  if (!summary) return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-8 text-center text-sm text-gray-400 font-poppins">
+      No data for {MONTH_NAMES[month - 1]} {year}
+    </div>
+  );
+
+  const submissionRate = summary.working_days > 0
+    ? Math.round((summary.reports_submitted / summary.working_days) * 100)
+    : 0;
+  const cycleRate = summary.cycle_planned > 0
+    ? Math.round((summary.cycle_visited / summary.cycle_planned) * 100)
+    : 0;
+
+  const kpis = [
+    {
+      label: "Total Visits",
+      value: summary.total_visits,
+      sub: `${summary.doctor_visits} Dr · ${summary.pharmacy_visits} Ph`,
+      Icon: LuActivity,
+      color: "#16a34a",
+    },
+    {
+      label: "Samples Given",
+      value: summary.samples_given,
+      sub: `${summary.nca_count} NCA this month`,
+      Icon: LuBeaker,
+      color: "#0284c7",
+    },
+    {
+      label: "Report Rate",
+      value: `${submissionRate}%`,
+      sub: `${summary.reports_submitted}/${summary.working_days} working days`,
+      Icon: LuTrendingUp,
+      color: submissionRate >= 80 ? "#16a34a" : submissionRate >= 60 ? "#d97706" : "#dc2626",
+    },
+    {
+      label: "Cycle Coverage",
+      value: `${cycleRate}%`,
+      sub: `${summary.cycle_visited}/${summary.cycle_planned} doctors`,
+      Icon: LuCalendarCheck,
+      color: cycleRate >= 80 ? "#16a34a" : cycleRate >= 60 ? "#d97706" : "#dc2626",
+    },
+  ];
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100">
+        <h2 className="font-poppins-bold text-gray-800 text-base">
+          {MONTH_NAMES[month - 1]} {year} — Performance
+        </h2>
+      </div>
+      <div className="grid grid-cols-2 divide-x divide-y divide-gray-100">
+        {kpis.map(({ label, value, sub, Icon, color }) => (
+          <div key={label} className="px-4 py-4 flex flex-col gap-1">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <Icon className="w-3.5 h-3.5" style={{ color }} />
+              <span className="text-[10px] font-poppins-semibold uppercase tracking-wider text-gray-400">{label}</span>
+            </div>
+            <span className="text-2xl font-poppins-bold" style={{ color }}>{value}</span>
+            <span className="text-[11px] font-poppins text-gray-400">{sub}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Cycle progress bar */}
+      {summary.cycle_planned > 0 && (
+        <div className="px-5 py-3 border-t border-gray-100 flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-poppins-semibold text-gray-600">Call cycle progress</span>
+            <span className="text-xs font-poppins text-gray-400">{summary.cycle_visited}/{summary.cycle_planned} doctors</span>
+          </div>
+          <ProgressBar value={summary.cycle_visited} max={summary.cycle_planned} />
+        </div>
+      )}
+
+      {/* Submission progress bar */}
+      {summary.working_days > 0 && (
+        <div className="px-5 py-3 border-t border-gray-100 flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-poppins-semibold text-gray-600">Report submissions</span>
+            <span className="text-xs font-poppins text-gray-400">{summary.reports_submitted}/{summary.working_days} days</span>
+          </div>
+          <ProgressBar
+            value={summary.reports_submitted}
+            max={summary.working_days}
+            color={submissionRate >= 80 ? "#16a34a" : submissionRate >= 60 ? "#d97706" : "#dc2626"}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Sample Balance Section ───────────────────────────────────────────────────
+
+const SampleBalanceSection = ({ balances }: { balances: SampleBalance[] }) => {
+  if (balances.length === 0) return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-5">
+      <div className="flex items-center gap-2 mb-2">
+        <LuBeaker className="w-4 h-4 text-[#16a34a]" />
+        <h2 className="font-poppins-bold text-gray-800 text-base">Sample Balance</h2>
+      </div>
+      <p className="text-sm font-poppins text-gray-400">No samples issued yet.</p>
+    </div>
+  );
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+        <LuBeaker className="w-4 h-4 text-[#16a34a]" />
+        <h2 className="font-poppins-bold text-gray-800 text-base">Sample Balance</h2>
+      </div>
+      <div className="divide-y divide-gray-50">
+        {balances.map((b) => {
+          const usedPct = b.issued > 0 ? Math.round((b.given / b.issued) * 100) : 0;
+          const lowStock = b.remaining <= 5 && b.issued > 0;
+          return (
+            <div key={b.product_id} className="px-5 py-3.5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-poppins-semibold text-gray-700">{b.product_name}</span>
+                <span className={`text-xs font-poppins-bold px-2 py-0.5 rounded-full ${
+                  lowStock ? "bg-red-100 text-red-600" : "bg-[#f0fdf4] text-[#16a34a]"
+                }`}>
+                  {b.remaining} left
+                </span>
+              </div>
+              <ProgressBar value={b.given} max={b.issued} color={lowStock ? "#dc2626" : "#16a34a"} />
+              <div className="flex justify-between mt-1.5 text-[11px] font-poppins text-gray-400">
+                <span>{b.given} given ({usedPct}%)</span>
+                <span>{b.issued} issued</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 const Reports = () => {
-  const [today, setToday] = useState<DailyReport | null>(null);
-  const [history, setHistory] = useState<DailyReport[]>([]);
-  const [summary, setSummary] = useState("");
+  const now = new Date();
+  const [selMonth, setSelMonth] = useState(now.getMonth() + 1);
+  const [selYear,  setSelYear]  = useState(now.getFullYear());
+
+  const [summary,   setSummary]   = useState<MonthlySummary | null>(null);
+  const [today,     setToday]     = useState<DailyReport | null>(null);
+  const [history,   setHistory]   = useState<DailyReport[]>([]);
+  const [observers, setObservers] = useState<Observer[]>([]);
+
+  const [reportSummary,  setReportSummary]  = useState("");
   const [jfwEnabled,     setJfwEnabled]     = useState(false);
   const [jfwObserverIds, setJfwObserverIds] = useState<string[]>([]);
-  const [observers,      setObservers]      = useState<Observer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+
+  const [loading,      setLoading]      = useState(true);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [submitting,   setSubmitting]   = useState(false);
+  const [downloading,  setDownloading]  = useState(false);
+
+  const [error,   setError]   = useState("");
   const [success, setSuccess] = useState("");
+
   const [midnightLocked, setMidnightLocked] = useState(false);
-  const [lateReqStatus, setLateReqStatus] = useState<"none"|"pending"|"approved">("none");
+  const [lateReqStatus,  setLateReqStatus]  = useState<"none"|"pending"|"approved">("none");
   const [sendingLateReq, setSendingLateReq] = useState(false);
-  const [lateNote, setLateNote] = useState("");
-  const [dlMonth, setDlMonth] = useState(() => new Date().getMonth() + 1);
-  const [dlYear,  setDlYear]  = useState(() => new Date().getFullYear());
-  const [downloading, setDownloading] = useState(false);
+  const [lateNote,       setLateNote]       = useState("");
 
-  const handleDownload = async () => {
-    setDownloading(true);
-    try {
-      const res = await downloadReportApi(dlMonth, dlYear);
-      const url = URL.createObjectURL(new Blob([res.data]));
-      const a   = document.createElement("a");
-      a.href    = url;
-      a.download = `Report_${dlMonth}_${dlYear}.xlsx`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      // silently fail — server may return error blob
-    } finally {
-      setDownloading(false);
-    }
-  };
+  const [dlMonth, setDlMonth] = useState(now.getMonth() + 1);
+  const [dlYear,  setDlYear]  = useState(now.getFullYear());
 
-  const fetchData = async () => {
-    try {
-      const now = new Date();
-      const month = now.getMonth() + 1;
-      const year  = now.getFullYear();
-      const [todayRes, histRes, obsRes, lateRes] = await Promise.all([
-        getTodayReportApi(),
-        getMyReportsApi(30),
-        getCompanyObserversApi(),
-        getMyLateRequestsApi(),
-      ]);
-      const todayReport: DailyReport = todayRes.data.data;
-      setToday(todayReport);
-      setSummary(todayReport.summary ?? "");
-      if (todayReport.jfw_observer_id) {
-        setJfwEnabled(true);
-        setJfwObserverIds([todayReport.jfw_observer_id]);
+  const thisYear = now.getFullYear();
+  const years    = [thisYear - 1, thisYear];
+
+  // Load fixed data once
+  useEffect(() => {
+    const fetchCore = async () => {
+      try {
+        const curMonth = now.getMonth() + 1;
+        const curYear  = now.getFullYear();
+        const [todayRes, histRes, obsRes, lateRes, sumRes] = await Promise.all([
+          getTodayReportApi(),
+          getMyReportsApi(30),
+          getCompanyObserversApi(),
+          getMyLateRequestsApi(),
+          getMyReportSummaryApi(curMonth, curYear),
+        ]);
+        const todayRpt: DailyReport = todayRes.data.data;
+        setToday(todayRpt);
+        setReportSummary(todayRpt.summary ?? "");
+        if (todayRpt.jfw_observer_id) {
+          setJfwEnabled(true);
+          setJfwObserverIds([todayRpt.jfw_observer_id]);
+        }
+        setHistory((histRes.data.data as DailyReport[]).filter((r) => r.id !== todayRpt.id));
+        setObservers(obsRes.data.data ?? []);
+        const reqs = lateRes.data.data ?? [];
+        const match = reqs.find((r: any) => r.type === "DAILY_REPORT" && r.month === curMonth && r.year === curYear);
+        if (match?.status === "APPROVED")   setLateReqStatus("approved");
+        else if (match?.status === "PENDING") setLateReqStatus("pending");
+        setSummary(sumRes.data.data);
+      } catch {
+        setError("Failed to load reports.");
+      } finally {
+        setLoading(false);
       }
-      const hist: DailyReport[] = histRes.data.data;
-      setHistory(hist.filter((r) => r.id !== todayReport.id));
-      setObservers(obsRes.data.data ?? []);
-      // Check late request status for today's report
-      const reqs = lateRes.data.data ?? [];
-      const match = reqs.find((r: any) => r.type === "DAILY_REPORT" && r.month === month && r.year === year);
-      if (match?.status === "APPROVED") setLateReqStatus("approved");
-      else if (match?.status === "PENDING") setLateReqStatus("pending");
-    } catch {
-      setError("Failed to load reports.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchCore();
+  }, []);
 
-  useEffect(() => { fetchData(); }, []);
+  // Reload summary when month/year selector changes
+  useEffect(() => {
+    setSummaryLoading(true);
+    getMyReportSummaryApi(selMonth, selYear)
+      .then((r) => setSummary(r.data.data))
+      .catch(() => setSummary(null))
+      .finally(() => setSummaryLoading(false));
+  }, [selMonth, selYear]);
 
   const handleSubmit = async () => {
-    if (!summary.trim()) { setError("Please write a summary before submitting."); return; }
+    if (!reportSummary.trim()) { setError("Please write a summary before submitting."); return; }
     setError(""); setSuccess("");
     setSubmitting(true);
     try {
       const res = await submitDailyReportApi({
-        summary,
+        summary: reportSummary,
         jfw_observer_id:  jfwEnabled && jfwObserverIds.length > 0 ? jfwObserverIds[0] : undefined,
         jfw_observer_ids: jfwEnabled && jfwObserverIds.length > 0 ? jfwObserverIds    : undefined,
       });
@@ -137,7 +342,6 @@ const Reports = () => {
 
   const handleSendLateReq = async () => {
     if (!lateNote.trim()) return;
-    const now = new Date();
     setSendingLateReq(true);
     try {
       await createLateRequestApi({ type: "DAILY_REPORT", month: now.getMonth() + 1, year: now.getFullYear(), note: lateNote });
@@ -147,9 +351,23 @@ const Reports = () => {
     finally { setSendingLateReq(false); }
   };
 
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const res = await downloadReportApi(dlMonth, dlYear);
+      const url = URL.createObjectURL(new Blob([res.data]));
+      const a   = document.createElement("a");
+      a.href    = url;
+      a.download = `Report_${dlMonth}_${dlYear}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { /* silently fail */ }
+    finally { setDownloading(false); }
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+      <div className="flex items-center justify-center h-64 text-gray-400 text-sm font-poppins">
         Loading…
       </div>
     );
@@ -157,14 +375,48 @@ const Reports = () => {
 
   const canSubmit = today && (today.status === "DRAFT" || today.status === "REJECTED");
 
-  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const thisYear = new Date().getFullYear();
-  const years = [thisYear - 1, thisYear];
-
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
 
-      {/* Download monthly report */}
+      {/* ── Monthly Performance ──────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-poppins-semibold uppercase tracking-wider text-gray-400">
+            Monthly Performance
+          </h2>
+          <div className="flex items-center gap-2">
+            <select
+              value={selMonth}
+              onChange={(e) => setSelMonth(Number(e.target.value))}
+              className="border border-gray-200 rounded-lg px-2 py-1 text-xs font-poppins outline-none focus:border-[#16a34a] bg-white"
+            >
+              {MONTH_NAMES.map((m, i) => (
+                <option key={i + 1} value={i + 1}>{m.slice(0, 3)}</option>
+              ))}
+            </select>
+            <select
+              value={selYear}
+              onChange={(e) => setSelYear(Number(e.target.value))}
+              className="border border-gray-200 rounded-lg px-2 py-1 text-xs font-poppins outline-none focus:border-[#16a34a] bg-white"
+            >
+              {years.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {summaryLoading ? (
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm h-32 flex items-center justify-center text-sm text-gray-400 font-poppins">
+            Loading…
+          </div>
+        ) : (
+          <MonthlyPerformance summary={summary} month={selMonth} year={selYear} />
+        )}
+      </div>
+
+      {/* ── Sample Balance ────────────────────────────────────────────────── */}
+      <SampleBalanceSection balances={summary?.sample_balances ?? []} />
+
+      {/* ── Download Monthly Report ───────────────────────────────────────── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
           <FiDownload className="w-4 h-4 text-[#16a34a]" />
@@ -178,7 +430,7 @@ const Reports = () => {
               onChange={(e) => setDlMonth(Number(e.target.value))}
               className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-poppins outline-none focus:border-[#16a34a] bg-white"
             >
-              {MONTHS.map((m, i) => (
+              {MONTH_NAMES.map((m, i) => (
                 <option key={i + 1} value={i + 1}>{m}</option>
               ))}
             </select>
@@ -196,19 +448,19 @@ const Reports = () => {
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-poppins-semibold px-4 py-2 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+            className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-poppins-semibold px-4 py-2 rounded-lg text-sm"
             style={{ transition: "background-color 0.15s" }}
           >
             <FiDownload className="w-4 h-4" />
             {downloading ? "Generating…" : "Download Excel"}
           </button>
           <p className="text-xs font-poppins text-gray-400 w-full">
-            Generates the Veeram-style daily report with all visits, samples, and pharmacy coverage for the selected month.
+            Veeram-style report — all visits, samples, and pharmacy coverage for the selected month.
           </p>
         </div>
       </div>
 
-      {/* Today's report */}
+      {/* ── Today's Report ────────────────────────────────────────────────── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
@@ -244,7 +496,6 @@ const Reports = () => {
             </div>
           )}
 
-          {/* Midnight lock banner */}
           {midnightLocked && today?.status === "DRAFT" && (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 space-y-3">
               <div className="flex items-start gap-2">
@@ -253,8 +504,8 @@ const Reports = () => {
                   <p className="text-sm font-poppins-semibold text-red-700">Report window closed at midnight</p>
                   <p className="text-xs font-poppins text-red-600 mt-0.5">
                     {lateReqStatus === "pending"
-                      ? "Your request is pending supervisor approval. You'll be able to submit once approved."
-                      : "You need supervisor approval to submit a late report. Explain the reason below."}
+                      ? "Your request is pending supervisor approval."
+                      : "You need supervisor approval to submit a late report."}
                   </p>
                 </div>
               </div>
@@ -262,7 +513,7 @@ const Reports = () => {
                 <div className="space-y-2">
                   <textarea
                     value={lateNote}
-                    onChange={e => setLateNote(e.target.value)}
+                    onChange={(e) => setLateNote(e.target.value)}
                     rows={2}
                     placeholder="Explain why you couldn't submit before midnight…"
                     className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm font-poppins outline-none focus:border-red-400 resize-none bg-white"
@@ -284,12 +535,12 @@ const Reports = () => {
               Summary / Notes
             </label>
             <textarea
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
+              value={reportSummary}
+              onChange={(e) => setReportSummary(e.target.value)}
               disabled={!canSubmit}
               rows={5}
               placeholder="How was your day? Key highlights, challenges, follow-ups needed…"
-              className="w-full font-poppins  border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] resize-none disabled:bg-gray-50 disabled:text-gray-400"
+              className="w-full font-poppins border border-gray-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] resize-none disabled:bg-gray-50 disabled:text-gray-400"
             />
           </div>
 
@@ -316,7 +567,6 @@ const Reports = () => {
                   Observers — who joined you in the field
                 </label>
 
-                {/* Selected observer chips */}
                 {jfwObserverIds.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {jfwObserverIds.map((id) => {
@@ -324,7 +574,7 @@ const Reports = () => {
                       return (
                         <span key={id}
                           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-poppins-semibold bg-[#f0fdf4] text-[#16a34a] border border-[#dcfce7]">
-                          {obs ? `${obs.firstname} ${obs.lastname}` : 'Observer'}
+                          {obs ? `${obs.firstname} ${obs.lastname}` : "Observer"}
                           {canSubmit && (
                             <button type="button"
                               onClick={() => setJfwObserverIds((prev) => prev.filter((x) => x !== id))}
@@ -339,20 +589,18 @@ const Reports = () => {
                   </div>
                 )}
 
-                {/* Add observer dropdown */}
                 {canSubmit && (() => {
                   const unselected = observers.filter((o) => !jfwObserverIds.includes(o.id));
                   if (unselected.length === 0) return null;
                   return (
                     <select defaultValue=""
                       onChange={(e) => {
-                        const selected = e.target.value;
-                        if (selected) {
-                          setJfwObserverIds((prev) => [...prev, selected]);
+                        if (e.target.value) {
+                          setJfwObserverIds((prev) => [...prev, e.target.value]);
                           e.target.value = "";
                         }
                       }}
-                      className="w-full font-poppins border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white">
+                      className="w-full font-poppins border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] bg-white">
                       <option value="">+ Add observer…</option>
                       {unselected.map((o) => (
                         <option key={o.id} value={o.id}>
@@ -374,7 +622,7 @@ const Reports = () => {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex items-center font-poppins justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-60 disabled:cursor-not-allowed text-white py-2.5 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+              className="flex items-center font-poppins justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-60 disabled:cursor-not-allowed text-white py-2.5 rounded-lg text-sm"
               style={{ transition: "opacity 0.15s" }}
             >
               <FiSend className="w-4 h-4" />
@@ -395,17 +643,15 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* History */}
+      {/* ── History ───────────────────────────────────────────────────────── */}
       {history.length > 0 && (
         <div className="flex flex-col gap-2">
           <h3 className="text-xs font-poppins-semibold uppercase tracking-wider text-gray-400 px-1">
             Past 30 days
           </h3>
           {history.map((r) => (
-            <div
-              key={r.id}
-              className="bg-white rounded-lg border border-gray-100 px-4 py-3 flex items-start justify-between gap-4 shadow-sm"
-            >
+            <div key={r.id}
+              className="bg-white rounded-lg border border-gray-100 px-4 py-3 flex items-start justify-between gap-4 shadow-sm">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-poppins-semibold text-gray-700">
                   {format(new Date(r.report_date), "dd MMM yyyy")}
@@ -418,15 +664,10 @@ const Reports = () => {
                 )}
                 {r.jfw_observer_id && (() => {
                   const obs = observers.find((o) => o.id === r.jfw_observer_id);
-                  return obs ? (
+                  return (
                     <p className="text-xs font-poppins text-[#16a34a] mt-1 flex items-center gap-1">
                       <FiUsers className="w-3 h-3" />
-                      JFW — {obs.firstname} {obs.lastname}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-[#16a34a] font-poppins mt-1 flex items-center gap-1">
-                      <FiUsers className="w-3 h-3" />
-                      JFW (observer)
+                      JFW — {obs ? `${obs.firstname} ${obs.lastname}` : "observer"}
                     </p>
                   );
                 })()}
@@ -441,6 +682,7 @@ const Reports = () => {
           ))}
         </div>
       )}
+
     </div>
   );
 };

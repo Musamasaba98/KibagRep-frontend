@@ -295,6 +295,9 @@ export const downloadReportApi = (month: number, year: number, userId?: string) 
     responseType: 'blob',
   });
 
+export const getMyReportSummaryApi = (month?: number, year?: number) =>
+  api.get('/report/my-summary', { params: { month, year } });
+
 // ─── Stock Placement Targets ──────────────────────────────────────────────────
 export const getPlacementTargetsApi = (month?: number, year?: number) =>
   api.get('/placement', { params: { month, year } });
