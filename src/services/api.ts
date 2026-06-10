@@ -307,6 +307,24 @@ export const getProductDetailingApi = (month?: number, year?: number) =>
 export const getAnomaliesApi = (days?: number) =>
   api.get('/report/anomalies', { params: { days } });
 
+export const getNationalOverviewApi = (month?: number, year?: number) =>
+  api.get('/report/national-overview', { params: { month, year } });
+
+export const getTerritoryCoverageApi = (month?: number, year?: number) =>
+  api.get('/report/territory-coverage', { params: { month, year } });
+
+export const getTierCoverageApi = (month?: number, year?: number) =>
+  api.get('/report/tier-coverage', { params: { month, year } });
+
+export const exportReportApi = (
+  type: string, start: string, end: string,
+  repId?: string, teamId?: string
+) =>
+  api.get('/report/export', {
+    params: { type, start, end, rep_id: repId || undefined, team_id: teamId || undefined },
+    responseType: 'blob',
+  });
+
 // ─── Stock Placement Targets ──────────────────────────────────────────────────
 export const getPlacementTargetsApi = (month?: number, year?: number) =>
   api.get('/placement', { params: { month, year } });

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { FaFileLines, FaDownload, FaCircleCheck } from "react-icons/fa6";
-import api, {
+import {
   getCompanyUsersApi,
   getCompanyTeamsApi,
+  exportReportApi,
 } from "../../../services/api";
 
 type ReportType = "visits" | "samples" | "call_cycle" | "nca" | "expenses" | "compliance";
@@ -64,11 +65,7 @@ const Reports = () => {
     setLoading(type);
     setSuccess(null);
     try {
-      const params = new URLSearchParams({ type, start: startDate, end: endDate });
-      if (repId)  params.set("rep_id", repId);
-      if (teamId) params.set("team_id", teamId);
-
-      const res = await api.get(`/report/export?${params.toString()}`, { responseType: "blob" });
+      const res = await exportReportApi(type, startDate, endDate, repId || undefined, teamId || undefined);
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -79,7 +76,7 @@ const Reports = () => {
       setSuccess(type);
       setTimeout(() => setSuccess(null), 3000);
     } catch {
-      alert("Report generation failed. The export endpoint may not be ready yet.");
+      alert("Report generation failed. Please try again.");
     } finally {
       setLoading(null);
     }
