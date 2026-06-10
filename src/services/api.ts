@@ -298,6 +298,15 @@ export const downloadReportApi = (month: number, year: number, userId?: string) 
 export const getMyReportSummaryApi = (month?: number, year?: number) =>
   api.get('/report/my-summary', { params: { month, year } });
 
+export const getVisitTrendApi = (days?: number) =>
+  api.get('/report/visit-trend', { params: { days } });
+
+export const getProductDetailingApi = (month?: number, year?: number) =>
+  api.get('/report/product-detailing', { params: { month, year } });
+
+export const getAnomaliesApi = (days?: number) =>
+  api.get('/report/anomalies', { params: { days } });
+
 // ─── Stock Placement Targets ──────────────────────────────────────────────────
 export const getPlacementTargetsApi = (month?: number, year?: number) =>
   api.get('/placement', { params: { month, year } });
