@@ -115,7 +115,7 @@ const Approvals = () => {
     setLoading(true);
     Promise.all([
       getPendingReportsApi().then(r => setReports(r.data?.data ?? [])).catch(() => {}),
-      getPendingCyclesApi().then(r => setCycles(r.data?.data ?? [])).catch(() => {}),
+      getPendingCyclesApi("SUBMITTED").then(r => setCycles(r.data?.data ?? [])).catch(() => {}),
       getPendingExpenseClaimsApi().then(r => setExpenses(r.data?.data ?? [])).catch(() => {}),
       getRecommendationsApi().then(r => setRecs((r.data?.data ?? []).filter((x: Recommendation) => x.status === "PENDING"))).catch(() => {}),
       getPendingTourPlansApi().then(r => setTourplans(r.data?.data ?? [])).catch(() => {}),

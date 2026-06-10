@@ -179,7 +179,7 @@ export const getCurrentCycleApi = (month?: number, year?: number) =>
   api.get('/cycle/current', { params: { ...(month && { month }), ...(year && { year }) } });
 export const submitCycleApi = (id: string) => api.post(`/cycle/${id}/submit`);
 export const carryForwardCycleApi = () => api.post('/cycle/carry-forward');
-export const getPendingCyclesApi = () => api.get('/cycle/pending');
+export const getPendingCyclesApi = (status?: string) => api.get('/cycle/pending', { params: status ? { status } : undefined });
 export const approveCycleApi = (id: string) => api.put(`/cycle/${id}/approve`);
 export const rejectCycleApi = (id: string, data: { note: string }) => api.put(`/cycle/${id}/reject`, data);
 
