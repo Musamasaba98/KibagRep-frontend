@@ -31,7 +31,7 @@ const SalesAdminPage = () => {
       )}
 
       {/* Main content */}
-      <div className="flex-1 lg:ml-64 min-w-0">
+      <div className="flex-1 lg:ml-64 min-w-0 h-screen overflow-y-auto">
         {/* Mobile topbar */}
         <div className="lg:hidden h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3 sticky top-0 z-10">
           <button
