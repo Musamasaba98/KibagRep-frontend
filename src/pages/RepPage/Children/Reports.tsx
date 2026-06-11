@@ -274,35 +274,50 @@ const Reports = () => {
   // Load fixed data once
   useEffect(() => {
     const fetchCore = async () => {
-      try {
-        const curMonth = now.getMonth() + 1;
-        const curYear  = now.getFullYear();
-        const [todayRes, histRes, obsRes, lateRes, sumRes] = await Promise.all([
-          getTodayReportApi(),
-          getMyReportsApi(30),
-          getCompanyObserversApi(),
-          getMyLateRequestsApi(),
-          getMyReportSummaryApi(curMonth, curYear),
-        ]);
-        const todayRpt: DailyReport = todayRes.data.data;
+      const curMonth = now.getMonth() + 1;
+      const curYear  = now.getFullYear();
+      const [todayRes, histRes, obsRes, lateRes, sumRes] = await Promise.allSettled([
+        getTodayReportApi(),
+        getMyReportsApi(30),
+        getCompanyObserversApi(),
+        getMyLateRequestsApi(),
+        getMyReportSummaryApi(curMonth, curYear),
+      ]);
+
+      // Today's report is critical — show error if it fails
+      if (todayRes.status === "fulfilled") {
+        const todayRpt: DailyReport = todayRes.value.data.data;
         setToday(todayRpt);
         setReportSummary(todayRpt.summary ?? "");
         if (todayRpt.jfw_observer_id) {
           setJfwEnabled(true);
           setJfwObserverIds([todayRpt.jfw_observer_id]);
         }
-        setHistory((histRes.data.data as DailyReport[]).filter((r) => r.id !== todayRpt.id));
-        setObservers(obsRes.data.data ?? []);
-        const reqs = lateRes.data.data ?? [];
-        const match = reqs.find((r: any) => r.type === "DAILY_REPORT" && r.month === curMonth && r.year === curYear);
-        if (match?.status === "APPROVED")   setLateReqStatus("approved");
-        else if (match?.status === "PENDING") setLateReqStatus("pending");
-        setSummary(sumRes.data.data);
-      } catch {
-        setError("Failed to load reports.");
-      } finally {
-        setLoading(false);
+      } else {
+        setError("Failed to load today's report.");
       }
+
+      if (histRes.status === "fulfilled") {
+        const todayId = todayRes.status === "fulfilled" ? todayRes.value.data.data?.id : null;
+        setHistory((histRes.value.data.data as DailyReport[]).filter((r) => r.id !== todayId));
+      }
+
+      if (obsRes.status === "fulfilled") {
+        setObservers(obsRes.value.data.data ?? []);
+      }
+
+      if (lateRes.status === "fulfilled") {
+        const reqs = lateRes.value.data.data ?? [];
+        const match = reqs.find((r: any) => r.type === "DAILY_REPORT" && r.month === curMonth && r.year === curYear);
+        if (match?.status === "APPROVED")    setLateReqStatus("approved");
+        else if (match?.status === "PENDING") setLateReqStatus("pending");
+      }
+
+      if (sumRes.status === "fulfilled") {
+        setSummary(sumRes.value.data.data);
+      }
+
+      setLoading(false);
     };
     fetchCore();
   }, []);
