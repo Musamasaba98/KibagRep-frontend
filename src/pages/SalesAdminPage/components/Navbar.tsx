@@ -10,7 +10,7 @@ const Navbar = () => {
     : "A";
 
   return (
-    <div className="w-full px-6 z-[300] sticky top-0 flex items-center justify-between bg-white h-[60px] border-solid border-b-[1px] border-gray-200">
+    <div className="w-full px-6 flex items-center justify-between bg-white h-[60px] border-solid border-b-[1px] border-gray-200">
       {/* nav left */}
       <div className="cursor-pointer hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a] rounded-md p-0.5">
         <BiMenu className="w-7 h-7 text-[#4c4c5c]" />

@@ -16,7 +16,7 @@ import {
   getPendingCyclesApi, getPendingTourPlansApi,
 } from "../../../services/api";
 
-const Sidebar = () => {
+const Sidebar = ({ onNav }: { onNav?: () => void }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState<number | null>(null);
@@ -73,7 +73,7 @@ const Sidebar = () => {
 
       <nav className="flex-1 py-5 flex flex-col gap-1 overflow-y-auto">
         {navLinks.map(({ to, end, icon: Icon, label, showBadge }) => (
-          <NavLink key={to} to={to} end={end} className={navLinkClass}>
+          <NavLink key={to} to={to} end={end} className={navLinkClass} onClick={() => onNav?.()}>
             {({ isActive }) => (
               <>
                 <Icon className="w-[19px] h-[19px] shrink-0" />

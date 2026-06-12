@@ -51,7 +51,7 @@ const Navabar = () => {
             <BiMenu className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2 px-3 w-[260px] h-9 rounded-xl bg-gray-50 border border-gray-100 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/20 transition-colors">
+          <div className="hidden sm:flex items-center gap-2 px-3 w-40 md:w-[260px] h-9 rounded-xl bg-gray-50 border border-gray-100 focus-within:border-[#16a34a] focus-within:ring-1 focus-within:ring-[#16a34a]/20 transition-colors">
             <BiSearch className="w-4 h-4 text-gray-400 shrink-0" />
             <input
               className="w-full font-poppins bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"

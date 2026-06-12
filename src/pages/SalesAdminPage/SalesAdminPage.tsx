@@ -47,8 +47,8 @@ const SalesAdminPage = () => {
           </div>
         </div>
 
-        {/* Desktop navbar */}
-        <div className="hidden lg:block">
+        {/* Desktop navbar — sticky wrapper so the navbar sticks within the scrolling container */}
+        <div className="hidden lg:block sticky top-0 z-30">
           <Navbar />
         </div>
 

@@ -136,7 +136,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="w-full p-6 space-y-6">
+    <div className="w-full p-4 sm:p-6 space-y-4 sm:space-y-6">
       <div>
         <h1 className="font-poppins-extrabold text-2xl text-[#1a1a1a] tracking-tight">Manager Dashboard</h1>
         <p className="text-gray-400 font-poppins text-sm mt-0.5">Team performance overview and pending approvals</p>
