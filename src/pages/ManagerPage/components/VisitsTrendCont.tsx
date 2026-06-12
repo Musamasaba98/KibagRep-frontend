@@ -75,7 +75,7 @@ const VisitsTrendCont = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Team Visit Trend</h2>

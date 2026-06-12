@@ -19,7 +19,7 @@ const NAV_LINKS = [
   { to: "/country/reports",                icon: TbReport,              label: "Reports"       },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ onNav }: { onNav?: () => void }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => { dispatch(logout()); navigate("/login"); };
@@ -43,7 +43,7 @@ const Sidebar = () => {
       </div>
       <nav className="flex-1 py-5 flex flex-col gap-1 overflow-y-auto">
         {NAV_LINKS.map(({ to, end, icon: Icon, label }) => (
-          <NavLink key={to} to={to} end={end} className={navLinkClass}>
+          <NavLink key={to} to={to} end={end} className={navLinkClass} onClick={() => onNav?.()}>
             <Icon className="w-[19px] h-[19px] shrink-0" />
             <span className="text-[15px] font-poppins">{label}</span>
           </NavLink>

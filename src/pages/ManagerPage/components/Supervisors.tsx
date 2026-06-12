@@ -47,7 +47,7 @@ const Supervisors = () => {
   return (
     <div className="bg-white rounded-2xl border border-gray-100">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-wrap gap-3">
+      <div className="flex items-start sm:items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100 flex-wrap gap-3">
         <div>
           <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Supervisor Activity</h2>
           <p className="text-xs font-poppins text-gray-400 mt-0.5">
@@ -90,7 +90,7 @@ const Supervisors = () => {
               <div
                 key={sup.id}
                 onClick={() => navigate("/manager/teams")}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 cursor-pointer"
+                className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50/60 cursor-pointer"
                 style={{ transition: "background-color 0.15s" }}
               >
                 {/* Avatar */}
@@ -110,13 +110,13 @@ const Supervisors = () => {
 
                 {/* Performance bar */}
                 <div className="flex items-center gap-3 shrink-0">
-                  <div className="w-24 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="hidden sm:block w-24 h-1.5 rounded-full bg-gray-100 overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${pct}%`, backgroundColor: barColor, transition: "width 0.4s ease" }}
                     />
                   </div>
-                  <div className="flex items-center gap-1 w-14 justify-end">
+                  <div className="flex items-center gap-1 justify-end">
                     <TrendIcon className={`w-3.5 h-3.5 shrink-0 ${trendColor}`} />
                     <span className="text-sm font-poppins-bold text-gray-700">{pct}%</span>
                   </div>

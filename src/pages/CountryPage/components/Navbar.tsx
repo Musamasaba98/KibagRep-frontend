@@ -9,7 +9,7 @@ const Navbar = () => {
   const initial = user?.firstname ? user.firstname.charAt(0).toUpperCase() : "C";
 
   return (
-    <div className="w-full px-6 z-[300] sticky top-0 flex items-center justify-between bg-white/80 backdrop-blur-md h-[60px] border-b border-gray-200">
+    <div className="w-full px-6 flex items-center justify-between bg-white/80 backdrop-blur-md h-[60px] border-b border-gray-200">
 
       {/* Left — page title */}
       <div className="hidden sm:block">
