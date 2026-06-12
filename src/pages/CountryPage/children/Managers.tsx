@@ -25,14 +25,14 @@ const Managers = () => {
   useEffect(() => { load(); }, []);
 
   return (
-    <div className="w-full p-6 flex flex-col gap-5">
-      <div className="flex items-center justify-between">
+    <div className="w-full p-4 sm:p-6 flex flex-col gap-5">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Managers</h1>
           <p className="text-gray-400 font-poppins text-sm mt-0.5">Regional field line managers</p>
         </div>
         <button onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-poppins-semibold px-4 py-2.5 rounded-xl shadow-[0_2px_8px_0_rgba(22,163,74,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+          className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-poppins-semibold px-4 py-2.5 rounded-xl shadow-[0_2px_8px_0_rgba(22,163,74,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a] flex-shrink-0"
           style={{ transition: "background-color 0.15s" }}>
           <FaUserPlus className="w-3.5 h-3.5" /><span className="font-poppins">Add Manager</span>
         </button>
@@ -51,16 +51,16 @@ const Managers = () => {
         ) : (
           <div className="divide-y divide-gray-50">
             {managers.map((m) => (
-              <div key={m.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/50">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+              <div key={m.id} className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-4 hover:bg-gray-50/50">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
                   <span className="text-amber-700 font-poppins-extrabold text-sm">{m.firstname[0]}{m.lastname[0]}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-poppins-semibold text-[#1a2530] text-sm">{m.firstname} {m.lastname}</p>
-                  <p className="text-xs font-poppins text-gray-400">@{m.username} · {m.email}</p>
+                  <p className="font-poppins-semibold text-[#1a2530] text-sm truncate">{m.firstname} {m.lastname}</p>
+                  <p className="text-xs font-poppins text-gray-400 truncate">{m.email}</p>
                 </div>
                 {m.team && (
-                  <span className="text-xs font-poppins-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full border border-gray-200 shrink-0">
+                  <span className="hidden sm:inline text-xs font-poppins-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full border border-gray-200 shrink-0">
                     {m.team.team_name}
                   </span>
                 )}

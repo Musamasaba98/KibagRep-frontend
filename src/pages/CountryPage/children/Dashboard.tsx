@@ -220,18 +220,18 @@ const Dashboard = () => {
           return (
             <div
               key={card.label}
-              className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${card.gradient} p-5 shadow-lg ${card.shadow} cursor-pointer hover:-translate-y-0.5`}
+              className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${card.gradient} p-4 sm:p-5 shadow-lg ${card.shadow} cursor-pointer hover:-translate-y-0.5`}
               style={{ transition: "transform 0.2s ease" }}
             >
               <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-white/10 pointer-events-none" />
               <div className="absolute -right-2 -bottom-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
               <div className="relative z-10">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
-                  <Icon className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/20 flex items-center justify-center mb-2 sm:mb-3">
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <p className="font-poppins-extrabold text-white text-3xl leading-none">{card.value}</p>
-                <p className="text-white/90 font-poppins-bold text-[13px] mt-2 leading-tight">{card.label}</p>
-                <p className="text-white/60 text-xs font-poppins mt-0.5">{card.sub}</p>
+                <p className="font-poppins-extrabold text-white text-2xl sm:text-3xl leading-none">{card.value}</p>
+                <p className="text-white/90 font-poppins-bold text-[12px] sm:text-[13px] mt-1.5 sm:mt-2 leading-tight">{card.label}</p>
+                <p className="text-white/60 text-[11px] font-poppins mt-0.5 hidden sm:block">{card.sub}</p>
               </div>
             </div>
           );
@@ -239,10 +239,10 @@ const Dashboard = () => {
       </div>
 
       {/* ── Manager Performance + Product Performance ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
         {/* Manager Performance */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Manager Performance</h2>
@@ -261,14 +261,14 @@ const Dashboard = () => {
                     <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
                       {mgr.trend === "up" && <FaArrowTrendUp className="w-3 h-3 text-[#16a34a]" />}
                       {mgr.trend === "down" && <FaArrowTrendDown className="w-3 h-3 text-red-500" />}
-                      <span className={`text-xs font-poppins-semiboldbold ${mgr.pct >= 75 ? "text-[#16a34a]" : mgr.pct >= 50 ? "text-amber-600" : "text-red-500"}`}>
+                      <span className={`text-xs font-poppins-semibold ${mgr.pct >= 75 ? "text-[#16a34a]" : mgr.pct >= 50 ? "text-amber-600" : "text-red-500"}`}>
                         {mgr.pct}%
                       </span>
                     </div>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
                     <div
-                      className={`h-2 rounded-full ${barColor(mgr.pct)}`}
+                      className={`h-full rounded-full ${barColor(mgr.pct)}`}
                       style={{ width: `${mgr.pct}%`, transition: "width 0.6s ease" }}
                     />
                   </div>
@@ -280,7 +280,7 @@ const Dashboard = () => {
         </div>
 
         {/* Product Performance */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border-gray-200">
+        <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border-gray-200">
           <div className="mb-5">
             <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Product Performance</h2>
             <p className="text-xs font-poppins text-gray-400 mt-0.5">
@@ -323,7 +323,7 @@ const Dashboard = () => {
       </div>
 
       {/* ── Regional Coverage ── */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm shadow-gray-100 border border-gray-200">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm shadow-gray-100 border border-gray-200">
         <div className="flex items-start justify-between mb-5">
           <div>
             <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Coverage by Region</h2>
@@ -363,7 +363,7 @@ const Dashboard = () => {
 
       {/* ── GPS Anomalies — National ── */}
       {!loading && gpsAnomalies.length > 0 && (
-        <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-5">
+        <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-4 sm:p-5">
           <div className="flex items-center gap-3 mb-4">
             <MdOutlineGpsOff className="w-5 h-5 text-red-500 flex-shrink-0" />
             <div className="flex-1">
@@ -403,7 +403,7 @@ const Dashboard = () => {
       )}
 
       {/* ── Active Campaigns ── */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm shadow-gray-100 border border-gray-50">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm shadow-gray-100 border border-gray-50">
         <div className="mb-5">
           <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Active Campaigns</h2>
           <p className="text-xs font-poppins text-gray-400 mt-0.5">Rep delivery coverage per campaign</p>
@@ -447,7 +447,7 @@ const Dashboard = () => {
       </div>
 
       {/* ── Competitor Intelligence ── */}
-      <div className="bg-white rounded-2xl p-5 border border-gray-100">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100">
         <div className="flex items-center gap-2 mb-5">
           <LuShield className="w-5 h-5 text-[#16a34a]" />
           <div>
