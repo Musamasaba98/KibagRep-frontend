@@ -630,10 +630,10 @@ const Reports = () => {
   const canSubmit = !!(today && (today.status === "DRAFT" || today.status === "REJECTED"));
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-5">
+    <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-5">
 
-      {/* Tab bar */}
-      <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+      {/* Mobile-only tab bar */}
+      <div className="flex md:hidden items-center gap-1 bg-gray-100 rounded-xl p-1">
         <button
           onClick={() => setMainTab("report")}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-poppins-semibold focus-visible:outline-none ${mainTab === "report" ? "bg-white text-[#16a34a] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
@@ -653,7 +653,37 @@ const Reports = () => {
         </button>
       </div>
 
-      {mainTab === "report" && (
+      {/* Mobile: tab-driven content */}
+      <div className="md:hidden">
+        {mainTab === "report" && (
+          <DailyReportTab
+            today={today} history={history} observers={observers}
+            error={error} success={success}
+            reportSummary={reportSummary} setReportSummary={setReportSummary}
+            jfwEnabled={jfwEnabled} setJfwEnabled={setJfwEnabled}
+            jfwObserverIds={jfwObserverIds} setJfwObserverIds={setJfwObserverIds}
+            midnightLocked={midnightLocked}
+            lateReqStatus={lateReqStatus} lateNote={lateNote} setLateNote={setLateNote}
+            sendingLateReq={sendingLateReq} handleSendLateReq={handleSendLateReq}
+            submitting={submitting} handleSubmit={handleSubmit}
+            canSubmit={canSubmit}
+          />
+        )}
+        {mainTab === "performance" && (
+          <PerformanceTab
+            summary={summary}
+            selMonth={selMonth} selYear={selYear}
+            setSelMonth={setSelMonth} setSelYear={setSelYear}
+            summaryLoading={summaryLoading}
+            dlMonth={dlMonth} dlYear={dlYear}
+            setDlMonth={setDlMonth} setDlYear={setDlYear}
+            downloading={downloading} handleDownload={handleDownload}
+          />
+        )}
+      </div>
+
+      {/* Desktop: side-by-side */}
+      <div className="hidden md:grid md:grid-cols-2 gap-6 items-start">
         <DailyReportTab
           today={today} history={history} observers={observers}
           error={error} success={success}
@@ -666,9 +696,6 @@ const Reports = () => {
           submitting={submitting} handleSubmit={handleSubmit}
           canSubmit={canSubmit}
         />
-      )}
-
-      {mainTab === "performance" && (
         <PerformanceTab
           summary={summary}
           selMonth={selMonth} selYear={selYear}
@@ -678,7 +705,7 @@ const Reports = () => {
           setDlMonth={setDlMonth} setDlYear={setDlYear}
           downloading={downloading} handleDownload={handleDownload}
         />
-      )}
+      </div>
     </div>
   );
 };
