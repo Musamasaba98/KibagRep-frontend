@@ -177,6 +177,8 @@ export const getProductsApi = () => api.get('/product/company');
 export const getSampleBalancesApi = (month?: number, year?: number) =>
   api.get('/sample-balance/my', { params: { ...(month && { month }), ...(year && { year }) } });
 export const getSampleBalanceHistoryApi = () => api.get('/sample-balance/history');
+export const getTeamSampleSummaryApi = (params: { from_month: number; from_year: number; to_month: number; to_year: number }) =>
+  api.get('/sample-balance/team-summary', { params });
 
 // ─── Call Cycles ──────────────────────────────────────────────────────────────
 export const getCurrentCycleApi = (month?: number, year?: number) =>
