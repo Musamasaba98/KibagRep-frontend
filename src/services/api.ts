@@ -109,6 +109,7 @@ export const updateProductNameApi = (id: string, data: { product_name?: string; 
 // ─── Sample Balance ───────────────────────────────────────────────────────────
 export const issueSamplesAdminApi = (data: { user_id: string; product_id: string; quantity: number }) => api.post('/sample-balance/issue', data);
 export const getTeamSampleBalancesFullApi = () => api.get('/sample-balance/team');
+export const getProductsForRepApi = (userId: string) => api.get(`/sample-balance/products-for-rep/${userId}`);
 
 // ─── Password Reset ───────────────────────────────────────────────────────────
 export const forgotPasswordApi = (email: string) => api.post('/user/forgot-password', { email });

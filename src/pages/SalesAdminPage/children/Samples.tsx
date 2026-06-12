@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { FaPills, FaPlus, FaXmark } from "react-icons/fa6";
 import { MdOutlineMedication } from "react-icons/md";
-import { getCompanyProductsApi, getCompanyUsersApi, issueSamplesAdminApi, getTeamSampleBalancesFullApi } from "../../../services/api";
+import { getCompanyUsersApi, issueSamplesAdminApi, getTeamSampleBalancesFullApi, getProductsForRepApi } from "../../../services/api";
 
 interface Product { id: string; product_name: string; }
 interface User { id: string; firstname: string; lastname: string; role: string; }
 interface Balance { id: string; issued: number; given: number; product: { product_name: string }; user: { firstname: string; lastname: string }; }
 
 const Samples = () => {
-  const [products, setProducts]   = useState<Product[]>([]);
+  const [modalProducts, setModalProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
   const [reps, setReps]           = useState<User[]>([]);
   const [balances, setBalances]   = useState<Balance[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -20,12 +21,10 @@ const Samples = () => {
   const load = () => {
     setLoading(true);
     Promise.all([
-      getCompanyProductsApi(),
       getCompanyUsersApi(),
       getTeamSampleBalancesFullApi(),
     ])
-      .then(([pr, ur, br]) => {
-        setProducts(pr.data.data ?? []);
+      .then(([ur, br]) => {
         setReps((ur.data.data ?? []).filter((u: User) => ["MedicalRep","Supervisor"].includes(u.role)));
         setBalances(br.data.data ?? []);
       })
@@ -34,7 +33,18 @@ const Samples = () => {
   };
   useEffect(() => { load(); }, []);
 
-  const handleIssue = async (e: React.FormEvent) => {
+  // When a rep is selected, fetch their scoped products (team → company fallback)
+  useEffect(() => {
+    if (!form.user_id) { setModalProducts([]); return; }
+    setProductsLoading(true);
+    setForm(f => ({ ...f, product_id: "" }));
+    getProductsForRepApi(form.user_id)
+      .then(r => setModalProducts(r.data.data ?? []))
+      .catch(() => setModalProducts([]))
+      .finally(() => setProductsLoading(false));
+  }, [form.user_id]);
+
+  const handleIssue = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); setFormError("");
     const qty = parseInt(form.quantity);
     if (!form.user_id || !form.product_id || !qty || qty < 1) { setFormError("All fields required"); return; }
@@ -132,10 +142,14 @@ const Samples = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1.5">Product</label>
-                <select required value={form.product_id} onChange={e => setForm(f => ({ ...f, product_id: e.target.value }))}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white">
-                  <option value="">Select product…</option>
-                  {products.map(p => <option key={p.id} value={p.id}>{p.product_name}</option>)}
+                <select required value={form.product_id}
+                  disabled={!form.user_id || productsLoading}
+                  onChange={e => setForm(f => ({ ...f, product_id: e.target.value }))}
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white disabled:opacity-50">
+                  <option value="">
+                    {!form.user_id ? "Select a rep first…" : productsLoading ? "Loading products…" : "Select product…"}
+                  </option>
+                  {modalProducts.map((p: Product) => <option key={p.id} value={p.id}>{p.product_name}</option>)}
                 </select>
               </div>
               <div>
