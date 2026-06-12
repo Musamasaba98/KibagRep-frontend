@@ -648,12 +648,11 @@ const TerritoryManagement = () => {
   const [search, setSearch]           = useState("");
 
   useEffect(() => {
-    Promise.all([getTerritoriesApi(), getCompanyUsersApi()])
+    Promise.allSettled([getTerritoriesApi(), getCompanyUsersApi()])
       .then(([tRes, uRes]) => {
-        setTerritories(tRes.data.data ?? []);
-        setAllUsers(uRes.data.data ?? []);
+        if (tRes.status === "fulfilled") setTerritories(tRes.value.data?.data ?? []);
+        if (uRes.status === "fulfilled") setAllUsers(uRes.value.data?.data ?? []);
       })
-      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 

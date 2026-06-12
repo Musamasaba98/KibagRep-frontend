@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../../store/authSlice";
 import {
   FaHouse, FaUserDoctor, FaHospital, FaBoxOpen, FaBuildingColumns,
-  FaArrowUpFromBracket, FaRotate, FaFileLines, FaUsers, FaPills, FaWarehouse, FaMap,
+  FaArrowUpFromBracket, FaRotate, FaFileLines, FaUsers, FaPills, FaWarehouse, FaMap, FaUserGroup,
 } from "react-icons/fa6";
 import { LuClipboardCheck, LuWallet, LuCalendarClock } from "react-icons/lu";
 import { BsBell } from "react-icons/bs";
@@ -55,6 +55,7 @@ const Sidebar = ({ onNav }: { onNav?: () => void }) => {
 
   const peopleLinks = [
     { to: "/admin/users",                 icon: FaUsers,              label: "Team Members", showBadge: false },
+    { to: "/admin/teams",                 icon: FaUserGroup,          label: "Teams",        showBadge: false },
     { to: "/admin/territories",           icon: FaMap,                label: "Territories",  showBadge: false },
     { to: "/admin/compliance",            icon: LuClipboardCheck,     label: "Compliance",   showBadge: true  },
     { to: "/admin/expenses",              icon: LuWallet,             label: "Expenses",     showBadge: true  },
