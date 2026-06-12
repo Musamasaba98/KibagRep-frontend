@@ -110,7 +110,7 @@ export const updateProductNameApi = (id: string, data: { product_name?: string; 
 export const issueSamplesAdminApi = (data: { user_id: string; product_id: string; quantity: number }) => api.post('/sample-balance/issue', data);
 export const getTeamSampleBalancesFullApi = () => api.get('/sample-balance/team');
 export const getProductsForRepApi = (userId: string) => api.get(`/sample-balance/products-for-rep/${userId}`);
-export const issueSamplesBatchApi = (data: { user_id: string; allocations: { product_id: string; quantity: number }[]; new_month: boolean }) => api.post('/sample-balance/issue-batch', data);
+export const issueSamplesBatchApi = (data: { user_id: string; allocations: { product_id: string; quantity: number }[]; new_month: boolean; month?: number; year?: number }) => api.post('/sample-balance/issue-batch', data);
 
 // ─── Password Reset ───────────────────────────────────────────────────────────
 export const forgotPasswordApi = (email: string) => api.post('/user/forgot-password', { email });
@@ -174,7 +174,9 @@ export const getPharmacyActivityHistoryApi = (params?: { days?: number; limit?: 
 export const getProductsApi = () => api.get('/product/company');
 
 // ─── Sample Balance ───────────────────────────────────────────────────────────
-export const getSampleBalancesApi = () => api.get('/sample-balance/my');
+export const getSampleBalancesApi = (month?: number, year?: number) =>
+  api.get('/sample-balance/my', { params: { ...(month && { month }), ...(year && { year }) } });
+export const getSampleBalanceHistoryApi = () => api.get('/sample-balance/history');
 
 // ─── Call Cycles ──────────────────────────────────────────────────────────────
 export const getCurrentCycleApi = (month?: number, year?: number) =>
