@@ -5,7 +5,7 @@
 import { store } from "../store/store";
 
 const DB_NAME = "kibag_offline";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE = "queue";
 
 export type QueueItemType = "doctor_visit" | "pharmacy_visit" | "nca" | "daily_report";

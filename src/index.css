@@ -72,7 +72,7 @@ html, body, #root {
 
 @font-face {
     font-family: 'poppins-semibold';
-    src: url('./assets/fonts/Poppins-Semibold.ttf');
+    src: url('./assets/fonts/Poppins-SemiBold.ttf');
 }
 
 @font-face {
@@ -87,7 +87,7 @@ html, body, #root {
 
 @font-face {
     font-family: 'poppins-extrabold';
-    src: url('./assets/fonts/Poppins-Extrabold.ttf');
+    src: url('./assets/fonts/Poppins-ExtraBold.ttf');
 }
 
 @font-face {
