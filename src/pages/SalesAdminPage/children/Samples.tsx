@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { FaPills, FaPlus, FaXmark } from "react-icons/fa6";
+import { FaPills, FaPlus, FaXmark, FaCalendarCheck } from "react-icons/fa6";
 import { MdOutlineMedication } from "react-icons/md";
-import { getCompanyUsersApi, issueSamplesAdminApi, getTeamSampleBalancesFullApi, getProductsForRepApi } from "../../../services/api";
+import { getCompanyUsersApi, getTeamSampleBalancesFullApi, getProductsForRepApi, issueSamplesBatchApi } from "../../../services/api";
 
 interface Product { id: string; product_name: string; }
 interface User { id: string; firstname: string; lastname: string; role: string; }
 interface Balance { id: string; issued: number; given: number; product: { product_name: string }; user: { firstname: string; lastname: string }; }
+interface Allocation { product_id: string; quantity: string; }
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const Samples = () => {
   const [modalProducts, setModalProducts] = useState<Product[]>([]);
@@ -14,16 +17,18 @@ const Samples = () => {
   const [balances, setBalances]   = useState<Balance[]>([]);
   const [loading, setLoading]     = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm]           = useState({ user_id: "", product_id: "", quantity: "10" });
+  const [repId, setRepId]         = useState("");
+  const [newMonth, setNewMonth]   = useState(true);
+  const [allocations, setAllocations] = useState<Allocation[]>([]);
   const [saving, setSaving]       = useState(false);
   const [formError, setFormError] = useState("");
 
+  const now = new Date();
+  const currentMonthLabel = `${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+
   const load = () => {
     setLoading(true);
-    Promise.all([
-      getCompanyUsersApi(),
-      getTeamSampleBalancesFullApi(),
-    ])
+    Promise.all([getCompanyUsersApi(), getTeamSampleBalancesFullApi()])
       .then(([ur, br]) => {
         setReps((ur.data.data ?? []).filter((u: User) => ["MedicalRep","Supervisor"].includes(u.role)));
         setBalances(br.data.data ?? []);
@@ -33,28 +38,40 @@ const Samples = () => {
   };
   useEffect(() => { load(); }, []);
 
-  // When a rep is selected, fetch their scoped products (team → company fallback)
+  // When a rep is selected, fetch their scoped products and pre-populate allocation rows
   useEffect(() => {
-    if (!form.user_id) { setModalProducts([]); return; }
+    if (!repId) { setModalProducts([]); setAllocations([]); return; }
     setProductsLoading(true);
-    setForm(f => ({ ...f, product_id: "" }));
-    getProductsForRepApi(form.user_id)
-      .then(r => setModalProducts(r.data.data ?? []))
-      .catch(() => setModalProducts([]))
+    getProductsForRepApi(repId)
+      .then(r => {
+        const prods: Product[] = r.data.data ?? [];
+        setModalProducts(prods);
+        setAllocations(prods.map(p => ({ product_id: p.id, quantity: "" })));
+      })
+      .catch(() => { setModalProducts([]); setAllocations([]); })
       .finally(() => setProductsLoading(false));
-  }, [form.user_id]);
+  }, [repId]);
+
+  const setQty = (idx: number, qty: string) =>
+    setAllocations(a => a.map((row, i) => i === idx ? { ...row, quantity: qty } : row));
 
   const handleIssue = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); setFormError("");
-    const qty = parseInt(form.quantity);
-    if (!form.user_id || !form.product_id || !qty || qty < 1) { setFormError("All fields required"); return; }
+    const valid = allocations.filter(a => parseInt(a.quantity) > 0);
+    if (!repId) { setFormError("Select a rep"); return; }
+    if (valid.length === 0) { setFormError("Enter a quantity for at least one product"); return; }
+    const payload = valid.map(a => ({ product_id: a.product_id, quantity: parseInt(a.quantity) }));
     setSaving(true);
     try {
-      await issueSamplesAdminApi({ user_id: form.user_id, product_id: form.product_id, quantity: qty });
-      setShowModal(false); setForm({ user_id: "", product_id: "", quantity: "10" }); load();
+      await issueSamplesBatchApi({ user_id: repId, allocations: payload, new_month: newMonth });
+      setShowModal(false);
+      setRepId(""); setAllocations([]); setNewMonth(true);
+      load();
     } catch (err: any) { setFormError(err.response?.data?.message || "Failed to issue samples"); }
     finally { setSaving(false); }
   };
+
+  const openModal = () => { setRepId(""); setAllocations([]); setNewMonth(true); setFormError(""); setShowModal(true); };
 
   // Group balances by rep
   const byRep: Record<string, { name: string; items: Balance[] }> = {};
@@ -71,7 +88,7 @@ const Samples = () => {
           <h1 className="text-xl sm:text-2xl font-black text-[#1a2530] tracking-tight">Sample Management</h1>
           <p className="text-sm text-gray-400 mt-0.5">Issue samples to reps and track balances</p>
         </div>
-        <button onClick={() => setShowModal(true)}
+        <button onClick={openModal}
           className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-[0_2px_8px_0_rgba(22,163,74,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
           style={{ transition: "background-color 0.15s" }}>
           <FaPlus className="w-3.5 h-3.5" /><span>Issue Samples</span>
@@ -123,48 +140,90 @@ const Samples = () => {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.45)" }}>
-          <div className="bg-white rounded-2xl shadow-[0_8px_40px_0_rgba(0,0,0,0.18)] w-full max-w-md">
-            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
-              <h2 className="font-black text-[#1a2530] text-lg tracking-tight">Issue Samples</h2>
+          <div className="bg-white rounded-2xl shadow-[0_8px_40px_0_rgba(0,0,0,0.18)] w-full max-w-lg max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
+              <div>
+                <h2 className="font-black text-[#1a2530] text-lg tracking-tight">Issue Samples</h2>
+                <p className="text-xs text-gray-400 mt-0.5">{currentMonthLabel} allocation</p>
+              </div>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 focus-visible:outline-none">
                 <FaXmark className="w-4 h-4" />
               </button>
             </div>
-            <form onSubmit={handleIssue} className="px-6 py-5 flex flex-col gap-4">
-              {formError && <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3 py-2.5 rounded-xl">{formError}</div>}
+
+            <form onSubmit={handleIssue} className="flex flex-col gap-4 px-6 py-5 overflow-y-auto">
+              {formError && (
+                <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3 py-2.5 rounded-xl">{formError}</div>
+              )}
+
+              {/* Rep selector */}
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1.5">Rep</label>
-                <select required value={form.user_id} onChange={e => setForm(f => ({ ...f, user_id: e.target.value }))}
+                <select required value={repId} onChange={e => setRepId(e.target.value)}
                   className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white">
                   <option value="">Select rep…</option>
                   {reps.map(r => <option key={r.id} value={r.id}>{r.firstname} {r.lastname}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Product</label>
-                <select required value={form.product_id}
-                  disabled={!form.user_id || productsLoading}
-                  onChange={e => setForm(f => ({ ...f, product_id: e.target.value }))}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white disabled:opacity-50">
-                  <option value="">
-                    {!form.user_id ? "Select a rep first…" : productsLoading ? "Loading products…" : "Select product…"}
-                  </option>
-                  {modalProducts.map((p: Product) => <option key={p.id} value={p.id}>{p.product_name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Quantity</label>
-                <input type="number" required min={1} value={form.quantity}
-                  onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))}
-                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20" />
-              </div>
-              <div className="flex gap-3 pt-1">
+
+              {/* Monthly reset toggle */}
+              <button type="button" onClick={() => setNewMonth(v => !v)}
+                className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl border text-left text-sm font-semibold focus-visible:outline-none ${newMonth ? "border-[#16a34a] bg-[#f0fdf4] text-[#15803d]" : "border-gray-200 bg-gray-50 text-gray-500"}`}
+                style={{ transition: "border-color 0.15s, background-color 0.15s" }}>
+                <FaCalendarCheck className="w-4 h-4 shrink-0" />
+                <div className="flex-1">
+                  <span>New Month Allocation</span>
+                  <p className="text-xs font-normal mt-0.5 opacity-70">
+                    {newMonth
+                      ? "Resets given to 0 and sets new quantities — use at the start of each month"
+                      : "Adds to existing balance — use for mid-month top-ups"}
+                  </p>
+                </div>
+                <div className={`w-9 h-5 rounded-full shrink-0 relative ${newMonth ? "bg-[#16a34a]" : "bg-gray-300"}`} style={{ transition: "background-color 0.15s" }}>
+                  <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${newMonth ? "translate-x-4" : "translate-x-0.5"}`} />
+                </div>
+              </button>
+
+              {/* Product quantity rows */}
+              {!repId ? (
+                <p className="text-xs text-gray-400 text-center py-4">Select a rep to see their products</p>
+              ) : productsLoading ? (
+                <div className="flex justify-center py-6">
+                  <div className="w-5 h-5 border-2 border-gray-200 border-t-[#16a34a] rounded-full animate-spin" />
+                </div>
+              ) : allocations.length === 0 ? (
+                <p className="text-xs text-gray-400 text-center py-4">No products found for this rep</p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-gray-500">Quantities</label>
+                  {allocations.map((row, idx) => (
+                    <div key={row.product_id} className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2.5">
+                      <MdOutlineMedication className="w-4 h-4 text-[#16a34a] shrink-0" />
+                      <span className="flex-1 text-sm text-[#1a2530] font-medium truncate">
+                        {modalProducts[idx]?.product_name}
+                      </span>
+                      <input
+                        type="number" min={0} placeholder="0"
+                        value={row.quantity}
+                        onChange={e => setQty(idx, e.target.value)}
+                        className="w-20 px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm text-right outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 bg-white"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-1 shrink-0">
                 <button type="button" onClick={() => setShowModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 focus-visible:outline-none">Cancel</button>
-                <button type="submit" disabled={saving}
+                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 focus-visible:outline-none"
+                  style={{ transition: "background-color 0.15s" }}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={saving || !repId || allocations.every(a => !parseInt(a.quantity))}
                   className="flex-1 py-2.5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                   style={{ transition: "background-color 0.15s" }}>
-                  {saving ? "Issuing…" : "Issue Samples"}
+                  {saving ? "Issuing…" : newMonth ? `Issue for ${currentMonthLabel}` : "Top Up"}
                 </button>
               </div>
             </form>
