@@ -136,10 +136,10 @@ const Expenses = () => {
     : claims;
 
   return (
-    <div className="p-6 flex flex-col gap-6">
+    <div className="p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 overflow-x-hidden">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-black text-2xl text-[#1a1a1a] tracking-tight">Expense Claims</h1>
+          <h1 className="font-black text-xl sm:text-2xl text-[#1a1a1a] tracking-tight">Expense Claims</h1>
           <p className="text-gray-400 text-sm mt-0.5">Review and action submitted expense claims</p>
         </div>
         <div className="flex items-center gap-2">
@@ -216,17 +216,19 @@ const Expenses = () => {
             return (
               <div key={claim.id} className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_0_rgba(0,0,0,0.04)] overflow-hidden">
                 {/* Row header */}
-                <div className="flex items-center gap-4 px-5 py-4">
+                <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-4">
                   <Avatar first={claim.user?.firstname} last={claim.user?.lastname} />
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[#1a1a1a] text-sm truncate">{repName}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      Period: <span className="font-semibold text-gray-600">{claim.period}</span>
-                      {claim.created_at && ` · Submitted ${format(new Date(claim.created_at), "dd MMM yyyy")}`}
+                      <span className="font-semibold text-gray-600">{claim.period}</span>
+                      {claim.created_at && ` · ${format(new Date(claim.created_at), "dd MMM yyyy")}`}
                     </p>
+                    {/* Status badge visible on mobile only */}
+                    <div className="mt-1 sm:hidden">{statusBadge}</div>
                   </div>
 
-                  {/* Amount */}
+                  {/* Amount + status — desktop only */}
                   <div className="text-right shrink-0 hidden sm:block">
                     <p className="text-lg font-black text-[#1a1a1a]">UGX {claim.total_amount.toLocaleString()}</p>
                     {statusBadge}
@@ -244,11 +246,11 @@ const Expenses = () => {
 
                 {/* Actions row (always visible for pending) */}
                 {isPending && (
-                  <div className="flex items-center gap-3 px-5 pb-4">
+                  <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-5 pb-3 sm:pb-4">
                     <button
                       onClick={() => handleApprove(claim.id)}
                       disabled={actioning === claim.id}
-                      className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#16a34a] text-white hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                      className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold rounded-xl bg-[#16a34a] text-white hover:bg-[#15803d] active:bg-[#166534] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                       style={{ transition: "background-color 0.15s" }}
                     >
                       <FiCheckCircle className="w-3.5 h-3.5" />
@@ -257,13 +259,13 @@ const Expenses = () => {
                     <button
                       onClick={() => setRejectTarget(claim)}
                       disabled={actioning === claim.id}
-                      className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 active:bg-red-200 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                      className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold rounded-xl bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 active:bg-red-200 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
                       style={{ transition: "background-color 0.15s" }}
                     >
                       <FiXCircle className="w-3.5 h-3.5" />
                       Reject
                     </button>
-                    <span className="ml-auto text-xs text-gray-400 sm:hidden font-semibold">
+                    <span className="ml-auto text-xs text-gray-400 sm:hidden font-semibold tabular-nums">
                       UGX {claim.total_amount.toLocaleString()}
                     </span>
                   </div>
@@ -271,7 +273,7 @@ const Expenses = () => {
 
                 {/* Expanded items */}
                 {isOpen && claim.items && claim.items.length > 0 && (
-                  <div className="border-t border-gray-50 px-5 py-3 flex flex-col gap-2">
+                  <div className="border-t border-gray-50 px-4 sm:px-5 py-3 flex flex-col gap-2">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Claim Items</p>
                     {claim.items.map((item) => (
                       <div key={item.id} className="flex items-center gap-3">

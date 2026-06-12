@@ -276,8 +276,8 @@ const ActiveClaim = ({ claim, onRefresh }: ActiveClaimProps) => {
         <StatusBadge status={claim.status} />
       </div>
 
-      {/* rejection note */}
-      {isRejected && claim.review_note && (
+      {/* rejection note — shown whenever review_note exists (backend sets status back to DRAFT on rejection) */}
+      {claim.review_note && (
         <div className="mx-5 mt-4 bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2.5 rounded-lg">
           <span className="font-semibold">Returned: </span>{claim.review_note}
         </div>
