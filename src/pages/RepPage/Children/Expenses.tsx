@@ -182,7 +182,7 @@ const AddItemForm = ({ claimId, onAdded }: { claimId: string; onAdded: () => voi
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-semibold pointer-events-none">UGX</span>
               <input
                 type="number" placeholder="Amount" value={amount}
-                onChange={(e) => setAmount(e.target.value)} min="1" step="100"
+                onChange={(e) => setAmount(e.target.value)} min="1" step="any"
                 className="w-full pl-11 pr-3 py-2 font-poppins text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a] bg-white"
                 style={{ transition: "border-color 0.15s" }}
               />
