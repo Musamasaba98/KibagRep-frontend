@@ -682,7 +682,7 @@ const Reports = () => {
     try {
       const res = await submitDailyReportApi({
         summary: report.summary ?? "",
-        report_date: new Date(report.report_date).toISOString().slice(0, 10),
+        report_id: report.id,
       });
       setHistory((prev) => prev.map((r) => r.id === report.id ? res.data.data : r));
       setSuccess(`Report for ${format(new Date(report.report_date), "dd MMM")} submitted.`);
