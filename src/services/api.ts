@@ -199,7 +199,7 @@ export const rejectLateRequestApi = (id: string, data?: { note?: string }) => ap
 
 // ─── Daily Reports ────────────────────────────────────────────────────────────
 export const getTodayReportApi = () => api.get('/daily-report/today');
-export const submitDailyReportApi = (data: unknown) => api.post('/daily-report/submit', data);
+export const submitDailyReportApi = (data: { summary?: string; jfw_observer_id?: string; jfw_observer_ids?: string[]; report_date?: string }) => api.post('/daily-report/submit', data);
 export const getMyReportsApi = (days?: number) => api.get('/daily-report/my', { params: days ? { days } : undefined });
 export const getPendingReportsApi = () => api.get('/daily-report/pending');
 export const approveReportApi = (id: string) => api.put(`/daily-report/${id}/approve`);

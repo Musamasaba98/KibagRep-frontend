@@ -88,6 +88,9 @@ const DailyReportTab = ({
   midnightLocked, lateReqStatus, lateNote, setLateNote,
   sendingLateReq, handleSendLateReq,
   submitting, handleSubmit, canSubmit,
+  onSubmitHistory, historySubmitting,
+  historyLateFor, historyLateNote, setHistoryLateNote,
+  historyLateSending, onSendHistoryLateReq, onCancelHistoryLate,
 }: {
   today: DailyReport | null;
   history: DailyReport[];
@@ -102,6 +105,13 @@ const DailyReportTab = ({
   sendingLateReq: boolean; handleSendLateReq: () => void;
   submitting: boolean; handleSubmit: () => void;
   canSubmit: boolean;
+  onSubmitHistory: (r: DailyReport) => void;
+  historySubmitting: Set<string>;
+  historyLateFor: DailyReport | null;
+  historyLateNote: string; setHistoryLateNote: (v: string) => void;
+  historyLateSending: boolean;
+  onSendHistoryLateReq: () => void;
+  onCancelHistoryLate: () => void;
 }) => (
   <div className="flex flex-col gap-5">
     {/* Today's report card */}
@@ -279,37 +289,92 @@ const DailyReportTab = ({
     {history.length > 0 && (
       <div className="flex flex-col gap-2">
         <h3 className="text-xs font-poppins-semibold uppercase tracking-wider text-gray-400 px-1">Past 30 days</h3>
-        {history.map((r) => (
-          <div key={r.id}
-            className="bg-white rounded-lg border border-gray-100 px-4 py-3 flex items-start justify-between gap-4 shadow-sm">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-poppins-semibold text-gray-700">
-                {format(new Date(r.report_date), "dd MMM yyyy")}
-              </p>
-              <p className="text-xs font-poppins text-gray-400 mt-0.5">
-                {r.visits_count} visits · {r.samples_count} samples
-              </p>
-              {r.summary && (
-                <p className="text-xs text-gray-500 font-poppins mt-1 line-clamp-2">{r.summary}</p>
-              )}
-              {r.jfw_observer_id && (() => {
-                const obs = observers.find((o) => o.id === r.jfw_observer_id);
-                return (
-                  <p className="text-xs font-poppins text-[#16a34a] mt-1 flex items-center gap-1">
-                    <FiUsers className="w-3 h-3" />
-                    JFW — {obs ? `${obs.firstname} ${obs.lastname}` : "observer"}
+        {history.map((r) => {
+          const isDraft = r.status === "DRAFT";
+          const isLateTarget = historyLateFor?.id === r.id;
+          return (
+            <div key={r.id}
+              className="bg-white rounded-lg border border-gray-100 px-4 py-3 shadow-sm flex flex-col gap-2">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-poppins-semibold text-gray-700">
+                    {format(new Date(r.report_date), "dd MMM yyyy")}
                   </p>
-                );
-              })()}
-              {r.status === "REJECTED" && r.review_note && (
-                <p className="text-xs font-poppins text-red-600 mt-1">
-                  <span className="font-poppins-semibold">Note: </span>{r.review_note}
-                </p>
+                  <p className="text-xs font-poppins text-gray-400 mt-0.5">
+                    {r.visits_count} visits · {r.samples_count} samples
+                  </p>
+                  {r.summary && (
+                    <p className="text-xs text-gray-500 font-poppins mt-1 line-clamp-2">{r.summary}</p>
+                  )}
+                  {r.jfw_observer_id && (() => {
+                    const obs = observers.find((o) => o.id === r.jfw_observer_id);
+                    return (
+                      <p className="text-xs font-poppins text-[#16a34a] mt-1 flex items-center gap-1">
+                        <FiUsers className="w-3 h-3" />
+                        JFW — {obs ? `${obs.firstname} ${obs.lastname}` : "observer"}
+                      </p>
+                    );
+                  })()}
+                  {r.status === "REJECTED" && r.review_note && (
+                    <p className="text-xs font-poppins text-red-600 mt-1">
+                      <span className="font-poppins-semibold">Note: </span>{r.review_note}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <StatusBadge status={r.status} />
+                  {isDraft && (
+                    <button
+                      onClick={() => onSubmitHistory(r)}
+                      disabled={historySubmitting.has(r.id)}
+                      className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-poppins-semibold bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-50 text-white rounded-lg focus-visible:outline-none"
+                      style={{ transition: "background-color 0.15s" }}
+                    >
+                      <FiSend className="w-3 h-3" />
+                      {historySubmitting.has(r.id) ? "Submitting…" : "Submit"}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Inline late-request form when gate fires for this report */}
+              {isLateTarget && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-3 flex flex-col gap-2">
+                  <div className="flex items-start gap-2">
+                    <FiAlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                    <p className="text-xs font-poppins-semibold text-amber-700">
+                      Report window closed — supervisor approval required to submit late.
+                    </p>
+                  </div>
+                  <textarea
+                    value={historyLateNote}
+                    onChange={(e) => setHistoryLateNote(e.target.value)}
+                    rows={2}
+                    placeholder="Explain why this report wasn't submitted on time…"
+                    className="w-full border border-amber-200 rounded-lg px-3 py-2 text-xs font-poppins outline-none focus:border-amber-400 resize-none bg-white"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={onSendHistoryLateReq}
+                      disabled={historyLateSending || !historyLateNote.trim()}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-lg focus-visible:outline-none"
+                      style={{ transition: "background-color 0.15s" }}
+                    >
+                      {historyLateSending ? "Sending…" : "Request Late Submission"}
+                    </button>
+                    <button
+                      onClick={onCancelHistoryLate}
+                      className="px-3 py-1.5 text-xs font-poppins-semibold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus-visible:outline-none"
+                      style={{ transition: "background-color 0.15s" }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
-            <StatusBadge status={r.status} />
-          </div>
-        ))}
+          );
+        })}
       </div>
     )}
   </div>
@@ -515,6 +580,12 @@ const Reports = () => {
   const [sendingLateReq, setSendingLateReq] = useState(false);
   const [lateNote,       setLateNote]       = useState("");
 
+  // History report submission
+  const [historySubmitting,  setHistorySubmitting]  = useState<Set<string>>(new Set());
+  const [historyLateFor,     setHistoryLateFor]     = useState<DailyReport | null>(null);
+  const [historyLateNote,    setHistoryLateNote]    = useState("");
+  const [historyLateSending, setHistoryLateSending] = useState(false);
+
   // Load fixed data once
   useEffect(() => {
     const fetchCore = async () => {
@@ -605,6 +676,45 @@ const Reports = () => {
     finally { setSendingLateReq(false); }
   };
 
+  const handleSubmitHistory = async (report: DailyReport) => {
+    setHistorySubmitting((prev) => new Set(prev).add(report.id));
+    setError(""); setSuccess("");
+    try {
+      const res = await submitDailyReportApi({
+        summary: report.summary ?? "",
+        report_date: new Date(report.report_date).toISOString().slice(0, 10),
+      });
+      setHistory((prev) => prev.map((r) => r.id === report.id ? res.data.data : r));
+      setSuccess(`Report for ${format(new Date(report.report_date), "dd MMM")} submitted.`);
+    } catch (err: any) {
+      if (err.response?.data?.error === "LATE_SUBMISSION_REQUIRED") {
+        setHistoryLateFor(report);
+      } else {
+        setError(err.response?.data?.message || "Failed to submit report.");
+      }
+    } finally {
+      setHistorySubmitting((prev) => { const s = new Set(prev); s.delete(report.id); return s; });
+    }
+  };
+
+  const handleSendHistoryLateReq = async () => {
+    if (!historyLateNote.trim() || !historyLateFor) return;
+    setHistoryLateSending(true);
+    const d = new Date(historyLateFor.report_date);
+    try {
+      await createLateRequestApi({
+        type: "DAILY_REPORT",
+        month: d.getUTCMonth() + 1,
+        year:  d.getUTCFullYear(),
+        note:  historyLateNote,
+      });
+      setHistoryLateFor(null);
+      setHistoryLateNote("");
+      setSuccess("Late submission request sent. You can submit once your supervisor approves.");
+    } catch { /* ignore */ }
+    finally { setHistoryLateSending(false); }
+  };
+
   const handleDownload = async () => {
     setDownloading(true);
     try {
@@ -667,6 +777,13 @@ const Reports = () => {
             sendingLateReq={sendingLateReq} handleSendLateReq={handleSendLateReq}
             submitting={submitting} handleSubmit={handleSubmit}
             canSubmit={canSubmit}
+            onSubmitHistory={handleSubmitHistory}
+            historySubmitting={historySubmitting}
+            historyLateFor={historyLateFor}
+            historyLateNote={historyLateNote} setHistoryLateNote={setHistoryLateNote}
+            historyLateSending={historyLateSending}
+            onSendHistoryLateReq={handleSendHistoryLateReq}
+            onCancelHistoryLate={() => { setHistoryLateFor(null); setHistoryLateNote(""); }}
           />
         )}
         {mainTab === "performance" && (
@@ -695,6 +812,13 @@ const Reports = () => {
           sendingLateReq={sendingLateReq} handleSendLateReq={handleSendLateReq}
           submitting={submitting} handleSubmit={handleSubmit}
           canSubmit={canSubmit}
+          onSubmitHistory={handleSubmitHistory}
+          historySubmitting={historySubmitting}
+          historyLateFor={historyLateFor}
+          historyLateNote={historyLateNote} setHistoryLateNote={setHistoryLateNote}
+          historyLateSending={historyLateSending}
+          onSendHistoryLateReq={handleSendHistoryLateReq}
+          onCancelHistoryLate={() => { setHistoryLateFor(null); setHistoryLateNote(""); }}
         />
         <PerformanceTab
           summary={summary}
