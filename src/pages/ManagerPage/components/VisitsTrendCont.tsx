@@ -72,10 +72,9 @@ const VisitsTrendCont = () => {
     xAxis: {
       label: {
         style: { fill: "#9ca3af", fontSize: 10 },
-        autoHide: true,
         autoRotate: false,
+        formatter: (_: string, __: unknown, index: number) => index % 2 === 0 ? _ : "",
       },
-      tickCount: 7,
     },
     tooltip: { showMarkers: true },
     padding: [16, 24, 32, 40],
