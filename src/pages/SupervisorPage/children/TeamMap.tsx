@@ -2,12 +2,17 @@ import { useEffect, useState, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MdOutlineGpsOff } from "react-icons/md";
-import { LuMapPin } from "react-icons/lu";
+import { MdOutlineGpsOff, MdChevronLeft, MdChevronRight, MdToday } from "react-icons/md";
+import { LuMapPin, LuRoute } from "react-icons/lu";
 import { getTeamMapApi, getRepTrailApi } from "../../../services/api";
 import { BiX } from "react-icons/bi";
 import { useDispatch } from "react-redux";
 import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
+
+function toDateStr(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+const TODAY_STR = toDateStr(new Date());
 
 // Fix Leaflet default icon broken by Vite
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -82,6 +87,7 @@ const TeamMap = () => {
   const [trailRepId, setTrailRepId] = useState<string | null>(null);
   const [trail, setTrail] = useState<TrailPing[]>([]);
   const [trailLoading, setTrailLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>(TODAY_STR);
 
   const load = useCallback((d: Days) => {
     setLoading(true);
@@ -97,6 +103,24 @@ const TeamMap = () => {
 
   useEffect(() => { load(days); }, [load, days]);
 
+  // Refetch trail whenever rep or date changes
+  useEffect(() => {
+    if (!trailRepId) return;
+    setTrail([]);
+    setTrailLoading(true);
+    getRepTrailApi(trailRepId, selectedDate)
+      .then(r => setTrail(r.data?.data ?? []))
+      .catch(() => {})
+      .finally(() => setTrailLoading(false));
+  }, [trailRepId, selectedDate]);
+
+  const stepDate = (delta: number) => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + delta);
+    if (d > new Date()) return; // can't go into the future
+    setSelectedDate(toDateStr(d));
+  };
+
   const toggleRep = (id: string) => {
     setActiveReps(prev => {
       const next = new Set(prev);
@@ -105,29 +129,26 @@ const TeamMap = () => {
     });
   };
 
-  const toggleTrail = (id: string) => {
+  const openTrail = (id: string) => {
     if (trailRepId === id) { setTrailRepId(null); setTrail([]); return; }
     setTrailRepId(id);
-    setTrail([]);
-    setTrailLoading(true);
-    getRepTrailApi(id)
-      .then(r => setTrail(r.data?.data ?? []))
-      .catch(() => {})
-      .finally(() => setTrailLoading(false));
+    // trail fetch is handled by the useEffect above
   };
 
   const visibleData = repData.filter(r => activeReps.has(r.user.id));
 
-  const allPoints: [number, number][] = visibleData.flatMap(r =>
+  const visitPoints: [number, number][] = visibleData.flatMap(r =>
     r.activities.map(a => [a.gps_lat, a.gps_lng] as [number, number])
   );
+  const trailPoints: [number, number][] = trail.map(p => [p.lat, p.lng]);
+  const allPoints: [number, number][] = trailPoints.length > 0 ? trailPoints : visitPoints;
 
   const colorOf = (userId: string) => {
     const idx = repData.findIndex(r => r.user.id === userId);
     return PALETTE[idx % PALETTE.length];
   };
 
-  const totalPins = visibleData.reduce((s, r) => s + r.activities.length, 0);
+  const totalPins = visitPoints.length;
   const dispatch = useDispatch()
 
   return (
@@ -165,6 +186,59 @@ const TeamMap = () => {
           <p className="text-xs font-poppins text-gray-400 mt-2">{totalPins} GPS points visible</p>
         </div>
 
+        {/* Date navigator — shown when a trail is active */}
+        {trailRepId && (
+          <div className="px-3 py-2.5 border-b border-gray-100 bg-gray-50">
+            <p className="text-[10px] font-poppins-semibold text-gray-400 uppercase tracking-widest mb-2">Route date</p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => stepDate(-1)}
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a] text-gray-500"
+                style={{ transition: "border-color 0.15s, color 0.15s" }}
+              >
+                <MdChevronLeft className="w-4 h-4" />
+              </button>
+              <input
+                type="date"
+                value={selectedDate}
+                max={TODAY_STR}
+                onChange={e => e.target.value && setSelectedDate(e.target.value)}
+                className="flex-1 text-[11px] font-poppins-semibold text-[#1a1a1a] border border-gray-200 rounded-lg px-2 py-1.5 text-center focus:outline-none focus:border-[#16a34a]"
+              />
+              <button
+                onClick={() => stepDate(1)}
+                disabled={selectedDate >= TODAY_STR}
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a] text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed"
+                style={{ transition: "border-color 0.15s, color 0.15s" }}
+              >
+                <MdChevronRight className="w-4 h-4" />
+              </button>
+              {selectedDate !== TODAY_STR && (
+                <button
+                  onClick={() => setSelectedDate(TODAY_STR)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a] text-gray-500"
+                  title="Go to today"
+                  style={{ transition: "border-color 0.15s, color 0.15s" }}
+                >
+                  <MdToday className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            {trailLoading ? (
+              <p className="text-[10px] font-poppins text-gray-400 mt-1.5 flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full border border-gray-400 border-t-transparent animate-spin inline-block" />
+                Loading route…
+              </p>
+            ) : (
+              <p className="text-[10px] font-poppins text-gray-400 mt-1.5">
+                {trail.length > 0
+                  ? `${trail.length} GPS pings · ${new Date(trail[0].recorded_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} → ${new Date(trail[trail.length - 1].recorded_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                  : "No pings recorded for this day"}
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto py-2">
           {loading ? (
             <div className="py-8 flex justify-center">
@@ -184,20 +258,20 @@ const TeamMap = () => {
                   <button onClick={() => toggleRep(r.user.id)}
                     className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
                     style={{ transition: "opacity 0.15s" }}>
-                  <span className="w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate">
-                      {r.user.firstname} {r.user.lastname}
-                    </p>
-                    <p className="text-[10px] font-poppins text-gray-400">
-                      {count} visit{count !== 1 ? "s" : ""}
-                      {anomalies > 0 && <span className="text-red-500 ml-1">· {anomalies} anomal{anomalies !== 1 ? "ies" : "y"}</span>}
-                    </p>
-                  </div>
+                    <span className="w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate">
+                        {r.user.firstname} {r.user.lastname}
+                      </p>
+                      <p className="text-[10px] font-poppins text-gray-400">
+                        {count} visit{count !== 1 ? "s" : ""}
+                        {anomalies > 0 && <span className="text-red-500 ml-1">· {anomalies} anomal{anomalies !== 1 ? "ies" : "y"}</span>}
+                      </p>
+                    </div>
                   </button>
-                  {/* Trail toggle button */}
+                  {/* Route trail toggle */}
                   <button
-                    onClick={() => toggleTrail(r.user.id)}
+                    onClick={() => openTrail(r.user.id)}
                     className={`mx-4 mb-2 flex items-center gap-1.5 text-[10px] font-poppins-semibold px-2.5 py-1 rounded-full border ${
                       showingTrail
                         ? "bg-[#16a34a] text-white border-[#16a34a]"
@@ -205,12 +279,8 @@ const TeamMap = () => {
                     }`}
                     style={{ transition: "all 0.15s" }}
                   >
-                    {trailLoading && showingTrail ? (
-                      <span className="w-2.5 h-2.5 rounded-full border border-white border-t-transparent animate-spin" />
-                    ) : (
-                      <span className={`w-2 h-0.5 rounded-full ${showingTrail ? "bg-white" : "bg-gray-400"}`} />
-                    )}
-                    {showingTrail ? `Trail (${trail.length} pings)` : "Show trail"}
+                    <LuRoute className={`w-2.5 h-2.5 ${showingTrail ? "text-white" : "text-gray-400"}`} />
+                    {showingTrail ? "Hide route" : "Show route"}
                   </button>
                 </div>
               );
@@ -245,34 +315,57 @@ const TeamMap = () => {
             />
             <FitBounds points={allPoints} />
 
-            {/* GPS movement trail for selected rep */}
-            {trail.length > 1 && (
-              <>
-                <Polyline
-                  positions={trail.map(p => [p.lat, p.lng] as [number, number])}
-                  pathOptions={{ color: "#16a34a", weight: 3, opacity: 0.7, dashArray: "6 4" }}
-                />
-                {/* Flag speed anomaly pings in red */}
-                {trail.filter(p => p.speed_anomaly || p.mock_flag).map((p, i) => (
-                  <CircleMarker key={`anomaly-${i}`}
-                    center={[p.lat, p.lng]}
+            {/* Solid route trail for selected rep */}
+            {trail.length > 1 && trailRepId && (() => {
+              const trailColor = colorOf(trailRepId);
+              return (
+                <>
+                  <Polyline
+                    positions={trail.map(p => [p.lat, p.lng] as [number, number])}
+                    pathOptions={{ color: trailColor, weight: 4, opacity: 0.85 }}
+                  />
+                  {/* Start dot */}
+                  <CircleMarker
+                    center={[trail[0].lat, trail[0].lng]}
                     radius={6}
-                    pathOptions={{ color: p.mock_flag ? "#7c3aed" : "#ef4444", fillColor: p.mock_flag ? "#7c3aed" : "#ef4444", fillOpacity: 0.8, weight: 1 }}
+                    pathOptions={{ color: trailColor, fillColor: "white", fillOpacity: 1, weight: 2.5 }}
                   >
-                    <Popup>
-                      <p className="text-xs font-poppins-semibold">
-                        {p.mock_flag ? "⚠ Possible mock GPS (perfect accuracy)" : "⚠ Impossible travel speed"}
-                      </p>
-                      <p className="text-[10px] text-gray-400">{new Date(p.recorded_at).toLocaleTimeString()}</p>
-                    </Popup>
+                    <Popup><p className="text-xs font-poppins-semibold">Start · {new Date(trail[0].recorded_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p></Popup>
                   </CircleMarker>
-                ))}
-              </>
-            )}
+                  {/* End dot */}
+                  <CircleMarker
+                    center={[trail[trail.length - 1].lat, trail[trail.length - 1].lng]}
+                    radius={6}
+                    pathOptions={{ color: trailColor, fillColor: trailColor, fillOpacity: 1, weight: 2 }}
+                  >
+                    <Popup><p className="text-xs font-poppins-semibold">Last ping · {new Date(trail[trail.length - 1].recorded_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p></Popup>
+                  </CircleMarker>
+                  {/* Flag anomaly pings */}
+                  {trail.filter(p => p.speed_anomaly || p.mock_flag).map((p, i) => (
+                    <CircleMarker key={`anomaly-${i}`}
+                      center={[p.lat, p.lng]}
+                      radius={6}
+                      pathOptions={{ color: p.mock_flag ? "#7c3aed" : "#ef4444", fillColor: p.mock_flag ? "#7c3aed" : "#ef4444", fillOpacity: 0.85, weight: 1 }}
+                    >
+                      <Popup>
+                        <p className="text-xs font-poppins-semibold">
+                          {p.mock_flag ? "⚠ Possible mock GPS" : "⚠ Impossible travel speed"}
+                        </p>
+                        <p className="text-[10px] text-gray-400">{new Date(p.recorded_at).toLocaleTimeString()}</p>
+                      </Popup>
+                    </CircleMarker>
+                  ))}
+                </>
+              );
+            })()}
 
             {visibleData.map((r) => {
               const color = colorOf(r.user.id);
-              return r.activities.map(a => (
+              // When trail mode is active for this rep, show only that day's visits
+              const activities = (trailRepId === r.user.id)
+                ? r.activities.filter(a => a.date.slice(0, 10) === selectedDate)
+                : r.activities;
+              return activities.map(a => (
                 <div key={a.id}>
                   <Marker
                     position={[a.gps_lat, a.gps_lng]}
