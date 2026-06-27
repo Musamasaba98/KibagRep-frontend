@@ -1,21 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navabar from "./components/Navabar";
 import Sidebar from "./components/Sidebar";
-import { getPendingReportsApi, getPendingExpenseClaimsApi } from "../../services/api";
 
 const AdminPage = () => {
-  const [sidebarOpen, setSidebarOpen]   = useState(false);
-  const [pendingCount, setPendingCount] = useState(0);
-
-  useEffect(() => {
-    Promise.allSettled([getPendingReportsApi(), getPendingExpenseClaimsApi()]).then(([rRes, eRes]) => {
-      let total = 0;
-      if (rRes.status === "fulfilled") total += (rRes.value.data?.data ?? []).length;
-      if (eRes.status === "fulfilled") total += (eRes.value.data?.data ?? []).length;
-      setPendingCount(total);
-    });
-  }, []);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -36,10 +25,7 @@ const AdminPage = () => {
 
       {/* Main content */}
       <div className="w-full lg:ml-64">
-        <Navabar
-          onMenuToggle={() => setSidebarOpen((o) => !o)}
-          pendingCount={pendingCount}
-        />
+        <Navabar onMenuToggle={() => setSidebarOpen((o) => !o)} />
         <div className="w-full">
           <Outlet />
         </div>

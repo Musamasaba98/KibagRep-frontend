@@ -1,59 +1,51 @@
-import { BiBell, BiMenu, BiSearch, BiSolidGrid } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
 import { FaRegComment } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
+import NotificationBell from "../../../componets/NotificationBell/NotificationBell";
 
 const Navbar = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
-  const avatarLetter = user?.firstname
-    ? user.firstname.charAt(0).toUpperCase()
-    : "A";
+  const user     = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
+  const fullName = user?.firstname
+    ? `${user.firstname} ${user.lastname ?? ""}`.trim()
+    : "Sales Admin";
+  const initial = user?.firstname ? user.firstname.charAt(0).toUpperCase() : "A";
 
   return (
-    <div className="w-full px-6 flex items-center justify-between bg-white h-[60px] border-solid border-b-[1px] border-gray-200">
-      {/* nav left */}
-      <div className="cursor-pointer hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a] rounded-md p-0.5">
-        <BiMenu className="w-7 h-7 text-[#4c4c5c]" />
+    <div className="w-full px-5 flex items-center justify-between bg-white h-[60px] border-b border-gray-200">
+
+      {/* Left — title */}
+      <div>
+        <p className="font-poppins-bold text-[#1a1a1a] text-[15px] leading-tight">Sales Admin</p>
+        <p className="text-xs font-poppins text-gray-400 leading-tight hidden sm:block">Master data &amp; reporting</p>
       </div>
 
-      {/* nav right */}
-      <div className="flex items-center gap-5">
-        <button
-          aria-label="Search"
-          className="relative w-[35px] h-[35px] flex items-center justify-center cursor-pointer bg-gray-100 rounded-full hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
-        >
-          <BiSearch className="w-5 h-5 text-[#4c4c5c]" />
-        </button>
+      {/* Right */}
+      <div className="flex items-center gap-1.5">
 
         <button
-          aria-label="Notifications"
-          className="relative w-[35px] h-[35px] flex items-center justify-center cursor-pointer bg-gray-100 rounded-full hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
-        >
-          <BiBell className="w-5 h-5 text-[#4c4c5c]" />
-        </button>
-
-        <button
+          onClick={() => navigate("/sales-admin/messaging")}
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-500 hover:bg-[#dcfce7] hover:text-[#16a34a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+          style={{ transition: "background-color 0.15s, color 0.15s" }}
           aria-label="Messages"
-          className="relative w-[35px] h-[35px] flex items-center justify-center cursor-pointer bg-gray-100 rounded-full hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
         >
-          <FaRegComment className="w-5 h-5 text-[#4c4c5c]" />
+          <FaRegComment className="w-[18px] h-[18px]" />
         </button>
 
-        <button
-          aria-label="Apps"
-          className="relative w-[35px] h-[35px] flex items-center justify-center cursor-pointer bg-gray-100 rounded-full hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]"
-        >
-          <BiSolidGrid className="w-6 h-6 text-[#4c4c5c]" />
-        </button>
+        <NotificationBell />
 
-        {/* user avatar */}
-        <div
-          aria-label={`User: ${user?.firstname ?? "Admin"}`}
-          className="w-[35px] h-[35px] rounded-full bg-[#16a34a] flex items-center justify-center cursor-pointer select-none"
-        >
-          <span className="text-white font-bold text-sm leading-none">
-            {avatarLetter}
-          </span>
+        <div className="w-px h-6 bg-gray-200 mx-1" />
+
+        {/* User chip */}
+        <div className="flex items-center gap-2.5 pl-1.5 pr-2 py-1.5 rounded-xl">
+          <div className="w-8 h-8 rounded-xl bg-[#16a34a] flex items-center justify-center shrink-0">
+            <span className="text-white font-bold text-sm leading-none">{initial}</span>
+          </div>
+          <div className="hidden sm:block text-left">
+            <p className="text-xs font-poppins-bold text-[#222f36] leading-tight">{fullName}</p>
+            <p className="text-[10px] font-poppins text-gray-400 leading-tight">Sales Admin</p>
+          </div>
         </div>
       </div>
     </div>

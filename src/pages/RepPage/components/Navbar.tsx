@@ -5,7 +5,6 @@ import {
   BiMenu, BiSearch, BiSolidBell, BiSolidComment, BiChevronDown,
 } from "react-icons/bi";
 import { MdArrowBack, MdLocationOn } from "react-icons/md";
-import { FaChartPie } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleShowMenu, toggleSidebarPanel } from '../../../store/uiStateSlice';
 import OfflineSyncBadge from '../../../componets/OfflineSync/OfflineSyncBadge';
@@ -153,7 +152,14 @@ const Navbar = () => {
                 <BiSearch className="w-[18px] h-[18px]" />
               </button>
 
-              <NavIconBtn icon={BiSolidBell} badge={2} />
+              <button
+                onClick={() => navigate("/rep-page/reports")}
+                className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:bg-[#dcfce7] hover:text-[#16a34a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                style={{ transition: "background-color 0.15s, color 0.15s" }}
+                aria-label="Reports"
+              >
+                <BiSolidBell className="w-[18px] h-[18px]" />
+              </button>
 
               <button
                 onClick={() => dispatch(toggleShowMenu())}
@@ -210,8 +216,8 @@ const Navbar = () => {
 
         {/* Right */}
         <div className="flex items-center gap-1.5">
-          <NavIconBtn icon={BiSolidComment} badge={3} />
-          <NavIconBtn icon={BiSolidBell} badge={2} />
+          <NavIconBtn icon={BiSolidComment} onClick={() => navigate("/rep-page/messages")} />
+          <NavIconBtn icon={BiSolidBell} onClick={() => navigate("/rep-page/reports")} />
 
           <div className="w-px h-6 bg-gray-200 mx-2" />
 
