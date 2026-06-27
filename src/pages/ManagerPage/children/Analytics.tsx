@@ -74,27 +74,27 @@ const Analytics = () => {
 
   const kpiCards = [
     {
-      label: "Team Visits This Month",
+      label: "Monthly Visits",
       value: loading ? "—" : totalVisitsMonth,
-      sub: "Across all reps",
+      sub: "Across all reps this month",
       icon: LuTrendingUp,
     },
     {
-      label: "Avg Cycle Adherence",
+      label: "Cycle Adherence",
       value: loading ? "—" : avgAdherence != null ? `${avgAdherence}%` : "N/A",
-      sub: "Non-null reps averaged",
+      sub: "Team average",
       icon: BsGraphUp,
     },
     {
-      label: "GPS Anomalies This Week",
+      label: "GPS Anomalies",
       value: loading ? "—" : totalGpsAnomalies,
-      sub: "Flagged location events",
+      sub: "Flagged this week",
       icon: LuMapPin,
     },
     {
       label: "Pending Reports",
       value: loading ? "—" : totalPendingReports,
-      sub: "Awaiting review",
+      sub: "Awaiting your review",
       icon: LuClipboardList,
     },
   ];

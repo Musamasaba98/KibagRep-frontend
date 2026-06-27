@@ -311,10 +311,10 @@ const HcpDirectory = () => {
     finally { setActioning(null); }
   };
 
-  const tabs: { key: Tab; label: string; count?: number }[] = [
-    { key: "company",         label: "Company List",    count: companyDocs.length },
-    { key: "directory",       label: "Full Directory",  count: dirTotal || undefined },
-    { key: "recommendations", label: "Recommendations", count: recommendations.length },
+  const tabs: { key: Tab; label: string; mobileLabel: string; count?: number }[] = [
+    { key: "company",         label: "Company List",    mobileLabel: "My List",    count: companyDocs.length },
+    { key: "directory",       label: "Full Directory",  mobileLabel: "Directory",  count: dirTotal || undefined },
+    { key: "recommendations", label: "Recommendations", mobileLabel: "Recs",       count: recommendations.length },
   ];
 
   return (
@@ -324,7 +324,7 @@ const HcpDirectory = () => {
       <div>
         <h1 className="font-poppins-extrabold text-[#1a1a1a] text-xl tracking-tight">HCP Directory</h1>
         <p className="text-gray-400 font-poppins text-sm mt-0.5">
-          Company doctor list, full KibagRep directory, and pending recommendations
+          Your company list, full directory &amp; pending recs
         </p>
       </div>
 
@@ -339,17 +339,19 @@ const HcpDirectory = () => {
       {/* Tab bar + search */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="flex border-b border-gray-100">
-          {tabs.map(({ key, label, count }) => (
+          {tabs.map(({ key, label, mobileLabel, count }) => (
             <button key={key}
               onClick={() => { setTab(key); setSearch(""); setDirPage(1); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs sm:text-sm font-poppins sm:font-poppins-semibold focus-visible:outline-none transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] sm:text-sm font-poppins-semibold focus-visible:outline-none ${
                 tab === key
                   ? "text-[#16a34a] border-b-2 border-[#16a34a] bg-[#f0fdf4]/50"
                   : "text-gray-400 hover:text-gray-600 hover:bg-gray-50/60"
-              }`}>
-              {label}
+              }`}
+              style={{ transition: "background-color 0.15s, color 0.15s" }}>
+              <span className="sm:hidden">{mobileLabel}</span>
+              <span className="hidden sm:inline">{label}</span>
               {count !== undefined && (
-                <span className={`text-[11px] px-2 py-0.5 rounded-full font-poppins ${
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-poppins-bold leading-tight ${
                   tab === key ? "bg-[#16a34a] text-white"
                   : key === "recommendations" && count > 0 ? "bg-orange-100 text-orange-600"
                   : "bg-gray-100 text-gray-500"

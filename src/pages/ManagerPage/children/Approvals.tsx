@@ -300,8 +300,8 @@ const Approvals = () => {
                       {r.user.firstname[0]}{r.user.lastname[0]}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{r.user.firstname} {r.user.lastname}</p>
-                      <p className="text-xs font-poppins text-gray-500">{FMT(r.report_date)} · {r.visits_count} visits · {r.samples_count} samples</p>
+                      <p className="text-sm font-poppins-semibold text-[#1a1a1a] truncate">{r.user.firstname} {r.user.lastname}</p>
+                      <p className="text-xs font-poppins text-gray-500 truncate">{FMT(r.report_date)} · {r.visits_count} visits · {r.samples_count} samples</p>
                       {r.summary && <p className="text-xs text-gray-400 mt-0.5 truncate">{r.summary}</p>}
                     </div>
                   </div>
