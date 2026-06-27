@@ -79,7 +79,7 @@ const Sidebar = ({ onNav }: { onNav?: () => void }) => {
                 <Icon className="w-[19px] h-[19px] shrink-0" />
                 <span className="text-[15px] font-poppins flex-1">{label}</span>
                 {showBadge && !isActive && pendingCount !== null && pendingCount > 0 && (
-                  <span className="min-w-[20px] h-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                  <span className="min-w-[20px] h-5 px-1.5 mr-1 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 leading-none">
                     {pendingCount > 99 ? "99+" : pendingCount}
                   </span>
                 )}

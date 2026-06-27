@@ -69,7 +69,13 @@ const VisitsTrendCont = () => {
     area: { style: { fill: "l(270) 0:rgba(22,163,74,0) 1:rgba(22,163,74,0.12)" } },
     legend: false,
     yAxis: { grid: { line: { style: { stroke: "#f3f4f6", lineWidth: 1 } } }, label: { style: { fill: "#9ca3af", fontSize: 11 } } },
-    xAxis: { label: { style: { fill: "#9ca3af", fontSize: 11 } } },
+    xAxis: {
+      label: {
+        style: { fill: "#9ca3af", fontSize: 10 },
+        autoHide: true,
+        autoRotate: false,
+      },
+    },
     tooltip: { showMarkers: true },
     padding: [16, 24, 32, 40],
   };
