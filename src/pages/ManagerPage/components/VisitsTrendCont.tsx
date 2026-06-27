@@ -75,6 +75,7 @@ const VisitsTrendCont = () => {
         autoHide: true,
         autoRotate: false,
       },
+      tickCount: 7,
     },
     tooltip: { showMarkers: true },
     padding: [16, 24, 32, 40],

@@ -295,30 +295,28 @@ const Approvals = () => {
             <div className="divide-y divide-gray-50">
               {reports.map(r => (
                 <div key={r.id} className={`p-4 ${actioning === r.id ? "opacity-50 pointer-events-none" : ""}`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-full bg-[#f0fdf4] flex items-center justify-center shrink-0 text-xs font-poppins-bold text-[#16a34a]">
-                        {r.user.firstname[0]}{r.user.lastname[0]}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{r.user.firstname} {r.user.lastname}</p>
-                        <p className="text-xs font-poppins text-gray-500">{FMT(r.report_date)} · {r.visits_count} visits · {r.samples_count} samples</p>
-                        {r.summary && <p className="text-xs text-gray-400 mt-0.5 truncate">{r.summary}</p>}
-                      </div>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-[#f0fdf4] flex items-center justify-center shrink-0 text-xs font-poppins-bold text-[#16a34a]">
+                      {r.user.firstname[0]}{r.user.lastname[0]}
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button onClick={() => setPreviewReport(r)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#16a34a] hover:border-[#16a34a]/30 focus-visible:outline-none"
-                        style={{ transition: "background-color 0.15s, color 0.15s" }}>
-                        <FiEye className="w-3.5 h-3.5" /> Preview
-                      </button>
-                      <button onClick={() => approveReport(r.id)}
-                        className="flex items-center font-poppins gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-                        style={{ transition: "background-color 0.15s" }}>
-                        <LuCheck className="w-3.5 h-3.5" /> Approve
-                      </button>
-                      <RejectInput onConfirm={note => rejectReport(r.id, note)} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{r.user.firstname} {r.user.lastname}</p>
+                      <p className="text-xs font-poppins text-gray-500">{FMT(r.report_date)} · {r.visits_count} visits · {r.samples_count} samples</p>
+                      {r.summary && <p className="text-xs text-gray-400 mt-0.5 truncate">{r.summary}</p>}
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3 ml-12 flex-wrap">
+                    <button onClick={() => setPreviewReport(r)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#16a34a] hover:border-[#16a34a]/30 focus-visible:outline-none"
+                      style={{ transition: "background-color 0.15s, color 0.15s" }}>
+                      <FiEye className="w-3.5 h-3.5" /> Preview
+                    </button>
+                    <button onClick={() => approveReport(r.id)}
+                      className="flex items-center font-poppins gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                      style={{ transition: "background-color 0.15s" }}>
+                      <LuCheck className="w-3.5 h-3.5" /> Approve
+                    </button>
+                    <RejectInput onConfirm={note => rejectReport(r.id, note)} />
                   </div>
                 </div>
               ))}
@@ -331,30 +329,28 @@ const Approvals = () => {
             <div className="divide-y divide-gray-50">
               {cycles.map(c => (
                 <div key={c.id} className={`p-4 ${actioning === c.id ? "opacity-50 pointer-events-none" : ""}`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center shrink-0 text-xs font-bold text-amber-700">
-                        {c.user.firstname[0]}{c.user.lastname[0]}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{c.user.firstname} {c.user.lastname}</p>
-                        <p className="text-xs font-poppins text-gray-500">{MONTHS[c.month]} {c.year} · {(c.items ?? []).length} doctors</p>
-                      </div>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center shrink-0 text-xs font-bold text-amber-700">
+                      {c.user.firstname[0]}{c.user.lastname[0]}
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button onClick={() => setExpandedCycle(expandedCycle === c.id ? null : c.id)}
-                        className="flex items-center font-poppins gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50"
-                        style={{ transition: "background-color 0.15s" }}>
-                        {expandedCycle === c.id ? <LuChevronUp className="w-3.5 h-3.5" /> : <LuChevronDown className="w-3.5 h-3.5" />}
-                        Doctors
-                      </button>
-                      <button onClick={() => approveCycle(c.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-                        style={{ transition: "background-color 0.15s" }}>
-                        <LuCheck className="w-3.5 h-3.5" /> Approve
-                      </button>
-                      <RejectInput onConfirm={reason => rejectCycle(c.id, reason)} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{c.user.firstname} {c.user.lastname}</p>
+                      <p className="text-xs font-poppins text-gray-500">{MONTHS[c.month]} {c.year} · {(c.items ?? []).length} doctors</p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3 ml-12 flex-wrap">
+                    <button onClick={() => setExpandedCycle(expandedCycle === c.id ? null : c.id)}
+                      className="flex items-center font-poppins gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50"
+                      style={{ transition: "background-color 0.15s" }}>
+                      {expandedCycle === c.id ? <LuChevronUp className="w-3.5 h-3.5" /> : <LuChevronDown className="w-3.5 h-3.5" />}
+                      Doctors
+                    </button>
+                    <button onClick={() => approveCycle(c.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                      style={{ transition: "background-color 0.15s" }}>
+                      <LuCheck className="w-3.5 h-3.5" /> Approve
+                    </button>
+                    <RejectInput onConfirm={reason => rejectCycle(c.id, reason)} />
                   </div>
                   {expandedCycle === c.id && (
                     <div className="mt-3 ml-12 grid grid-cols-1 gap-1">
@@ -384,36 +380,34 @@ const Approvals = () => {
 
                 return (
                   <div key={tp.id} className={`p-4 ${isActioning ? "opacity-50 pointer-events-none" : ""}`}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center shrink-0 text-xs font-bold text-sky-700">
-                          {tp.user.firstname[0]}{tp.user.lastname[0]}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{tp.user.firstname} {tp.user.lastname}</p>
-                          <p className="text-xs font-poppins text-gray-500">
-                            {MONTHS[tp.month]} {tp.year}
-                            {uniqueDays > 0 && ` · ${uniqueDays} day${uniqueDays !== 1 ? "s" : ""} planned`}
-                            {clinicianCount > 0 && ` · ${clinicianCount} HCP${clinicianCount !== 1 ? "s" : ""}`}
-                            {pharmacyCount > 0 && ` · ${pharmacyCount} pharmacies`}
-                          </p>
-                        </div>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center shrink-0 text-xs font-bold text-sky-700">
+                        {tp.user.firstname[0]}{tp.user.lastname[0]}
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => setExpandedTourPlan(isExpanded ? null : tp.id)}
-                          className="flex items-center font-poppins gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50"
-                          style={{ transition: "background-color 0.15s" }}>
-                          {isExpanded ? <LuChevronUp className="w-3.5 h-3.5" /> : <LuChevronDown className="w-3.5 h-3.5" />}
-                          View
-                        </button>
-                        <button onClick={() => approveTourPlan(tp.id)}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-                          style={{ transition: "background-color 0.15s" }}>
-                          <LuCheck className="w-3.5 h-3.5" /> Approve
-                        </button>
-                        <RejectInput onConfirm={note => rejectTourPlan(tp.id, note)} />
+                      <div className="min-w-0">
+                        <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{tp.user.firstname} {tp.user.lastname}</p>
+                        <p className="text-xs font-poppins text-gray-500">
+                          {MONTHS[tp.month]} {tp.year}
+                          {uniqueDays > 0 && ` · ${uniqueDays} day${uniqueDays !== 1 ? "s" : ""} planned`}
+                          {clinicianCount > 0 && ` · ${clinicianCount} HCP${clinicianCount !== 1 ? "s" : ""}`}
+                          {pharmacyCount > 0 && ` · ${pharmacyCount} pharmacies`}
+                        </p>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-3 ml-12 flex-wrap">
+                      <button
+                        onClick={() => setExpandedTourPlan(isExpanded ? null : tp.id)}
+                        className="flex items-center font-poppins gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg border border-gray-200 hover:bg-gray-50"
+                        style={{ transition: "background-color 0.15s" }}>
+                        {isExpanded ? <LuChevronUp className="w-3.5 h-3.5" /> : <LuChevronDown className="w-3.5 h-3.5" />}
+                        View
+                      </button>
+                      <button onClick={() => approveTourPlan(tp.id)}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                        style={{ transition: "background-color 0.15s" }}>
+                        <LuCheck className="w-3.5 h-3.5" /> Approve
+                      </button>
+                      <RejectInput onConfirm={note => rejectTourPlan(tp.id, note)} />
                     </div>
 
                     {isExpanded && (tp.entries ?? []).length > 0 && (
@@ -466,27 +460,25 @@ const Approvals = () => {
             <div className="divide-y divide-gray-50">
               {expenses.map(e => (
                 <div key={e.id} className={`p-4 ${actioning === e.id ? "opacity-50 pointer-events-none" : ""}`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center shrink-0 text-xs font-bold text-sky-700">
-                        {e.user.firstname[0]}{e.user.lastname[0]}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1a1a1a]">{e.user.firstname} {e.user.lastname}</p>
-                        <p className="text-xs font-poppins text-gray-500">
-                          {e.period} · UGX {e.total_amount.toLocaleString()}
-                          {e.submitted_at && ` · submitted ${FMT(e.submitted_at)}`}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center shrink-0 text-xs font-bold text-sky-700">
+                      {e.user.firstname[0]}{e.user.lastname[0]}
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button onClick={() => approveExpense(e.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-                        style={{ transition: "background-color 0.15s" }}>
-                        <LuCheck className="w-3.5 h-3.5" /> Approve
-                      </button>
-                      <RejectInput onConfirm={reason => rejectExpense(e.id, reason)} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#1a1a1a]">{e.user.firstname} {e.user.lastname}</p>
+                      <p className="text-xs font-poppins text-gray-500">
+                        {e.period} · UGX {e.total_amount.toLocaleString()}
+                        {e.submitted_at && ` · submitted ${FMT(e.submitted_at)}`}
+                      </p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3 ml-12 flex-wrap">
+                    <button onClick={() => approveExpense(e.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                      style={{ transition: "background-color 0.15s" }}>
+                      <LuCheck className="w-3.5 h-3.5" /> Approve
+                    </button>
+                    <RejectInput onConfirm={reason => rejectExpense(e.id, reason)} />
                   </div>
                 </div>
               ))}
@@ -499,43 +491,41 @@ const Approvals = () => {
             <div className="divide-y divide-gray-50">
               {recs.map(rec => (
                 <div key={rec.id} className={`p-4 ${actioning === rec.id ? "opacity-50 pointer-events-none" : ""}`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
-                        <TbStethoscope className="w-4.5 h-4.5 text-violet-600" />
-                      </div>
-                      <div className="min-w-0">
-                        {rec.doctor ? (
-                          <>
-                            <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{rec.doctor.doctor_name}</p>
-                            <p className="text-xs font-poppins text-gray-500">{rec.doctor.town} · {rec.doctor.speciality?.join(", ")}</p>
-                          </>
-                        ) : (
-                          <>
-                            <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{rec.clinician_name ?? "Unknown clinician"}</p>
-                            <p className="text-xs font-poppins text-gray-500">
-                              {rec.clinician_cadre} {rec.clinician_location ? `· ${rec.clinician_location}` : ""}
-                            </p>
-                          </>
-                        )}
-                        <p className="text-xs font-poppins text-gray-400 mt-0.5">
-                          By {rec.recommended_by.firstname} {rec.recommended_by.lastname} · {rec.unplanned_visit_count} unplanned visit{rec.unplanned_visit_count !== 1 ? "s" : ""} · {FMT(rec.created_at)}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+                      <TbStethoscope className="w-4.5 h-4.5 text-violet-600" />
                     </div>
-                    <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-                      <button onClick={() => approveRec(rec.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-                        style={{ transition: "background-color 0.15s" }}>
-                        <FiCheckCircle className="w-3.5 h-3.5" /> Add to List
-                      </button>
-                      <button onClick={() => forwardRec(rec.id)}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-violet-200 text-violet-700 hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-400"
-                        style={{ transition: "background-color 0.15s" }}>
-                        Forward
-                      </button>
-                      <RejectInput onConfirm={note => rejectRec(rec.id, note)} />
+                    <div className="min-w-0">
+                      {rec.doctor ? (
+                        <>
+                          <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{rec.doctor.doctor_name}</p>
+                          <p className="text-xs font-poppins text-gray-500">{rec.doctor.town} · {rec.doctor.speciality?.join(", ")}</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-poppins-semibold text-[#1a1a1a]">{rec.clinician_name ?? "Unknown clinician"}</p>
+                          <p className="text-xs font-poppins text-gray-500">
+                            {rec.clinician_cadre} {rec.clinician_location ? `· ${rec.clinician_location}` : ""}
+                          </p>
+                        </>
+                      )}
+                      <p className="text-xs font-poppins text-gray-400 mt-0.5">
+                        By {rec.recommended_by.firstname} {rec.recommended_by.lastname} · {rec.unplanned_visit_count} unplanned visit{rec.unplanned_visit_count !== 1 ? "s" : ""} · {FMT(rec.created_at)}
+                      </p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3 ml-12 flex-wrap">
+                    <button onClick={() => approveRec(rec.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                      style={{ transition: "background-color 0.15s" }}>
+                      <FiCheckCircle className="w-3.5 h-3.5" /> Add to List
+                    </button>
+                    <button onClick={() => forwardRec(rec.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-violet-200 text-violet-700 hover:bg-violet-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-400"
+                      style={{ transition: "background-color 0.15s" }}>
+                      Forward
+                    </button>
+                    <RejectInput onConfirm={note => rejectRec(rec.id, note)} />
                   </div>
                 </div>
               ))}

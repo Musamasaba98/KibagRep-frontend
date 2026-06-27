@@ -18,13 +18,6 @@ interface RepPerformance {
 const getInitials = (firstname: string, lastname: string) =>
   `${firstname?.[0] ?? ""}${lastname?.[0] ?? ""}`.toUpperCase();
 
-const cycleColor = (pct: number | null): string => {
-  if (pct == null) return "text-gray-400";
-  if (pct >= 80) return "text-[#16a34a]";
-  if (pct >= 50) return "text-amber-500";
-  return "text-red-500";
-};
-
 const cycleBg = (pct: number | null): string => {
   if (pct == null) return "bg-gray-100 text-gray-500";
   if (pct >= 80) return "bg-[#dcfce7] text-[#16a34a]";
@@ -161,21 +154,21 @@ const Analytics = () => {
       </div>
 
       {/* ── Section 1: KPI Cards ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {kpiCards.map(({ label, value, sub, icon: Icon }) => (
           <div
             key={label}
-            className="bg-white rounded-2xl border border-l-4 border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] px-5 py-5 flex items-start justify-between gap-3"
+            className="bg-white rounded-2xl border-l-4 border border-gray-100 shadow-[0_2px_12px_0_rgba(0,0,0,0.05)] p-3 sm:p-4"
             style={{ borderLeftColor: "#16a34a" }}
           >
-            <div className="flex-1 min-w-0">
-              <p className="text-2xl font-poppins-extrabold text-[#1a1a1a] leading-none">{value}</p>
-              <p className="text-xs font-poppins-semibold text-gray-700 mt-2 leading-tight">{label}</p>
-              <p className="text-xs font-poppins text-gray-400 mt-0.5">{sub}</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-xl sm:text-2xl font-poppins-extrabold text-[#1a1a1a] leading-none">{value}</p>
+              <div className="w-8 h-8 rounded-xl bg-[#f0fdf4] flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-[#16a34a]" />
+              </div>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] flex items-center justify-center shrink-0">
-              <Icon className="w-4 h-4 text-[#16a34a]" />
-            </div>
+            <p className="text-[11px] sm:text-xs font-poppins-semibold text-gray-700 mt-2 leading-tight">{label}</p>
+            <p className="text-[10px] sm:text-xs font-poppins text-gray-400 mt-0.5 leading-tight hidden sm:block">{sub}</p>
           </div>
         ))}
       </div>
