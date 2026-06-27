@@ -96,15 +96,28 @@ const Pricing = () => {
         </div>
 
         {/* Setup fee notice */}
-        <div className="max-w-2xl mx-auto mb-12 bg-amber-50 border border-amber-200 rounded-2xl px-6 py-4 flex items-start gap-3">
-          <LuInfo className="text-amber-600 mt-0.5 shrink-0" size={16} />
-          <p className="text-amber-800 font-poppins text-sm leading-relaxed">
-            <span className="font-poppins-bold">One-time onboarding fee applies.</span>{" "}
-            Every new company goes through a structured setup: we load your doctor and pharmacy data, configure your territories and teams, and run training sessions for your reps, supervisors, and managers.
-            Setup fee starts at <span className="font-poppins-bold">UGX 750,000</span> for Starter teams and{" "}
-            <span className="font-poppins-bold">UGX 1,500,000</span> for Growth teams. Enterprise is scoped separately.
-          </p>
-        </div>
+        {(() => {
+          const source = display.length > 0 ? display : FALLBACK_PLANS;
+          const starter    = source.find(p => p.plan === "STARTER");
+          const growth     = source.find(p => p.plan === "GROWTH");
+          const starterFee = starter?.setup_fee_ugx;
+          const growthFee  = growth?.setup_fee_ugx;
+          return (
+            <div className="max-w-2xl mx-auto mb-12 bg-amber-50 border border-amber-200 rounded-2xl px-6 py-4 flex items-start gap-3">
+              <LuInfo className="text-amber-600 mt-0.5 shrink-0" size={16} />
+              <p className="text-amber-800 font-poppins text-sm leading-relaxed">
+                <span className="font-poppins-bold">One-time onboarding fee applies.</span>{" "}
+                Every new company goes through a structured setup: we load your doctor and pharmacy data, configure your territories and teams, and run training sessions for your reps, supervisors, and managers.
+                {starterFee && growthFee ? (
+                  <> Setup fee starts at <span className="font-poppins-bold">UGX {fmt(starterFee)}</span> for Starter teams and{" "}
+                  <span className="font-poppins-bold">UGX {fmt(growthFee)}</span> for Growth teams. Enterprise is scoped separately.</>
+                ) : (
+                  <> Contact us for setup fee details.</>
+                )}
+              </p>
+            </div>
+          );
+        })()}
 
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
@@ -241,7 +254,7 @@ const Pricing = () => {
 const FALLBACK_PLANS: PlanConfig[] = [
   {
     plan: "STARTER", display_name: "Starter", price_ugx: 60000, show_price: true,
-    rep_limit: 10, setup_fee_ugx: 750000, annual_discount_pct: 17,
+    rep_limit: 10, setup_fee_ugx: 2000000, annual_discount_pct: 17,
     features: [
       "Up to 10 medical reps", "GPS-verified visit logging", "Call cycle management",
       "Daily report submission & approval", "Expense claims", "HCP directory access",
@@ -250,7 +263,7 @@ const FALLBACK_PLANS: PlanConfig[] = [
   },
   {
     plan: "GROWTH", display_name: "Growth", price_ugx: 50000, show_price: true,
-    rep_limit: 50, setup_fee_ugx: 1500000, annual_discount_pct: 17,
+    rep_limit: 50, setup_fee_ugx: 3500000, annual_discount_pct: 17,
     features: [
       "Up to 50 medical reps", "Everything in Starter", "Supervisor approval workflows",
       "Joint Field Work (JFW) scoring", "Tour plan management",
