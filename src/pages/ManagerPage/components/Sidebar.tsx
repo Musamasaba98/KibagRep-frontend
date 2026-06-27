@@ -14,12 +14,14 @@ import { logout } from "../../../store/authSlice";
 import {
   getPendingReportsApi, getPendingExpenseClaimsApi,
   getPendingCyclesApi, getPendingTourPlansApi,
+  getCompanyUsersApi,
 } from "../../../services/api";
 
 const Sidebar = ({ onNav }: { onNav?: () => void }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState<number | null>(null);
+  const [hasSupervisors, setHasSupervisors] = useState<boolean | null>(null);
 
   useEffect(() => {
     Promise.allSettled([
@@ -35,6 +37,13 @@ const Sidebar = ({ onNav }: { onNav?: () => void }) => {
       if (tourplans.status === "fulfilled") total += (tourplans.value.data?.data ?? []).length;
       setPendingCount(total);
     });
+
+    getCompanyUsersApi()
+      .then((res) => {
+        const users: any[] = res.data?.data ?? res.data ?? [];
+        setHasSupervisors(users.some((u) => u.role === "Supervisor"));
+      })
+      .catch(() => setHasSupervisors(false));
   }, []);
 
   const handleLogout = () => { dispatch(logout()); navigate("/login"); };
@@ -89,18 +98,20 @@ const Sidebar = ({ onNav }: { onNav?: () => void }) => {
         ))}
       </nav>
 
-      {/* View switching — Manager can act as Supervisor */}
-      <div className="px-3 py-3 border-t border-gray-100 shrink-0">
-        <p className="text-[10px] font-poppins-semibold text-gray-400 uppercase tracking-widest px-3 mb-2">Switch View</p>
-        <button
-          onClick={() => navigate("/supervisor")}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[#444] hover:bg-amber-50 hover:text-amber-700 text-left"
-          style={{ transition: "background-color 0.15s, color 0.15s" }}
-        >
-          <LuArrowRightLeft className="w-[17px] h-[17px] shrink-0" />
-          <span className="text-[13px] font-poppins">Supervisor View</span>
-        </button>
-      </div>
+      {/* View switching — only shown when company has no dedicated supervisor */}
+      {hasSupervisors === false && (
+        <div className="px-3 py-3 border-t border-gray-100 shrink-0">
+          <p className="text-[10px] font-poppins-semibold text-gray-400 uppercase tracking-widest px-3 mb-2">Switch View</p>
+          <button
+            onClick={() => navigate("/supervisor")}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[#444] hover:bg-amber-50 hover:text-amber-700 text-left"
+            style={{ transition: "background-color 0.15s, color 0.15s" }}
+          >
+            <LuArrowRightLeft className="w-[17px] h-[17px] shrink-0" />
+            <span className="text-[13px] font-poppins">Supervisor View</span>
+          </button>
+        </div>
+      )}
 
       <div className="border-t border-gray-100 py-4 flex flex-col gap-1 shrink-0">
         <button
@@ -116,7 +127,9 @@ const Sidebar = ({ onNav }: { onNav?: () => void }) => {
           </div>
           <span className="text-[15px] flex-1">Notifications</span>
           {pendingCount !== null && pendingCount > 0 && (
-            <span className="text-xs font-poppins-semibold text-orange-500">{pendingCount}</span>
+            <span className="min-w-[22px] h-5 px-1.5 mr-1 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold flex items-center justify-center shrink-0 leading-none">
+            {(pendingCount ?? 0) > 99 ? "99+" : pendingCount}
+          </span>
           )}
         </button>
         <button
