@@ -17,7 +17,7 @@ const SupervisorPage = () => {
     <div className="flex overflow-x-hidden h-screen bg-gray-50">
       <Sidebar />
 
-      <div className="w-full md:ml-64 flex flex-col min-h-screen">
+      <div className="w-full md:ml-64 flex flex-col min-h-screen overflow-x-hidden">
         {/* View-switch banner */}
         {isSwitched && (
           <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between gap-3 shrink-0">

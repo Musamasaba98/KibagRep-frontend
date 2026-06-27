@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navabar from "./components/Navabar";
 import Sidebar from "./components/Sidebar";
+import MobileNav from "./components/MobileNav";
 import { FaBars, FaXmark } from "react-icons/fa6";
 
 const ManagerPage = () => {
@@ -31,7 +32,7 @@ const ManagerPage = () => {
       )}
 
       {/* Main content */}
-      <div className="flex-1 lg:ml-64 min-w-0 h-screen overflow-y-auto">
+      <div className="flex-1 lg:ml-64 min-w-0 h-screen overflow-y-auto overflow-x-hidden">
         {/* Mobile topbar */}
         <div className="lg:hidden h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3 sticky top-0 z-10">
           <button
@@ -50,10 +51,12 @@ const ManagerPage = () => {
           <Navabar />
         </div>
 
-        <div className="w-full">
+        <div className="w-full pb-20 lg:pb-0">
           <Outlet />
         </div>
       </div>
+
+      <MobileNav />
     </div>
   );
 };

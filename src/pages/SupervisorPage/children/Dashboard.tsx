@@ -438,13 +438,13 @@ const Dashboard = () => {
       {/* -----------------------Block 1 — Pending Daily Reports ---------------------------*/}
       {!loading && pendingReports.length > 0 && (
         <div className="bg-white rounded-2xl border border-orange-100 shadow-sm shadow-orange-50">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-orange-100">
-            <LuReceiptText className="w-5 h-5 text-orange-500" />
-            <div className="flex-1">
+          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-orange-100">
+            <LuReceiptText className="w-5 h-5 text-orange-500 shrink-0" />
+            <div className="flex-1 min-w-0">
               <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Daily Reports</h2>
-              <p className="text-xs font-poppins text-gray-300">Rep daily reports awaiting review</p>
+              <p className="text-xs font-poppins text-gray-300 hidden sm:block">Rep daily reports awaiting review</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-orange-100 text-orange-600">
+            <span className="px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-orange-100 text-orange-600 shrink-0">
               {pendingReports.length}
             </span>
           </div>
@@ -453,16 +453,15 @@ const Dashboard = () => {
               const isActioning = actioningReport === r.id;
               return (
                 <div key={r.id}>
-                  <div className="flex items-center justify-between gap-4 px-6 py-4">
+                  <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {/* the rep name short forms */}
                       <div className="w-9 hidden sm:flex h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] items-center justify-center flex-shrink-0">
                         <span className="text-[#16a34a] font-black text-sm">
                           {r.user.firstname.charAt(0)}{r.user.lastname.charAt(0)}
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <p className="font-bold text-sm text-[#1a1a1a]">
+                        <p className="font-bold text-sm text-[#1a1a1a] truncate">
                           {r.user.firstname} {r.user.lastname}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
@@ -475,29 +474,31 @@ const Dashboard = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                       {isActioning ? (
                         <span className="text-xs text-gray-400">Saving…</span>
                       ) : (
                         <>
                           <button
                             onClick={() => handleApproveReport(r.id)}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] active:bg-[#166534] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
+                            className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] active:bg-[#166534] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
                             style={{ transition: "opacity 0.15s" }}
                           >
                             <FiCheckCircle className="w-3.5 h-3.5" />
-                            Approve
+                            <span className="hidden xs:inline">Approve</span>
+                            <span className="xs:hidden">✓</span>
                           </button>
                           <RejectRow onConfirm={(note) => handleRejectReport(r.id, note)} />
                         </>
                       )}
                       <button
                         onClick={() => setPreviewReport(r)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#16a34a] hover:border-[#16a34a]/30 focus-visible:outline-none"
+                        className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-poppins-semibold rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#16a34a] hover:border-[#16a34a]/30 focus-visible:outline-none"
                         style={{ transition: "background-color 0.15s, color 0.15s" }}
                         title="Preview report"
                       >
-                        <FiEye className="w-3.5 h-3.5" /> Preview
+                        <FiEye className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline ml-1">Preview</span>
                       </button>
                     </div>
                   </div>
@@ -511,13 +512,13 @@ const Dashboard = () => {
       {/* Block 2 — Pending Call Cycles */}
       {!loading && pendingCycles.length > 0 && (
         <div className="bg-white rounded-2xl border border-violet-100 shadow-sm shadow-violet-50">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-violet-100">
-            <IoCalendarOutline className="w-5 h-5 text-violet-500" />
-            <div className="flex-1">
+          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-violet-100">
+            <IoCalendarOutline className="w-5 h-5 text-violet-500 shrink-0" />
+            <div className="flex-1 min-w-0">
               <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Call Cycles</h2>
-              <p className="text-xs font-popins text-gray-400">Monthly call plans awaiting approval</p>
+              <p className="text-xs font-popins text-gray-400 hidden sm:block">Monthly call plans awaiting approval</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-violet-100 text-violet-600">
+            <span className="px-2.5 py-1 rounded-full text-xs font-poppins-bold bg-violet-100 text-violet-600 shrink-0">
               {pendingCycles?.length}
             </span>
           </div>
@@ -529,7 +530,7 @@ const Dashboard = () => {
               const tierCounts = { A: 0, B: 0, C: 0 };
               c.items?.forEach((i) => { if (i.tier in tierCounts) tierCounts[i.tier as keyof typeof tierCounts]++; });
               return (
-                <div key={c.id} className="px-6 py-4">
+                <div key={c.id} className="px-4 sm:px-6 py-3 sm:py-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
@@ -645,13 +646,13 @@ const Dashboard = () => {
       {/* Block 3 — Pending Expense Claims */}
       {!loading && pendingExpenses.length > 0 && (
         <div className="bg-white rounded-2xl border border-amber-100 shadow-sm shadow-amber-50">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-amber-100">
-            <LuWallet className="w-5 h-5 text-amber-500" />
-            <div className="flex-1">
+          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-amber-100">
+            <LuWallet className="w-5 h-5 text-amber-500 shrink-0" />
+            <div className="flex-1 min-w-0">
               <h2 className="font-bold text-[#1a1a1a] text-[15px]">Expense Claims</h2>
-              <p className="text-xs text-gray-400">Rep expense claims awaiting approval</p>
+              <p className="text-xs text-gray-400 hidden sm:block">Rep expense claims awaiting approval</p>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-600">
+            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-600 shrink-0">
               {pendingExpenses.length}
             </span>
           </div>
@@ -659,7 +660,7 @@ const Dashboard = () => {
             {pendingExpenses.map((e) => {
               const isActioning = actioningExpense === e.id;
               return (
-                <div key={e.id} className="flex items-center justify-between gap-4 px-6 py-4">
+                <div key={e.id} className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
                       <span className="text-[#16a34a] font-black text-sm">
@@ -705,7 +706,7 @@ const Dashboard = () => {
 
       {/* -----------------------------------THE REP PERFORMANCE TABLE--------------------------------------------------------------- */}
       <div className="bg-white rounded-2xl border border-gray-100">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
           <div>
             <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Rep Performance</h2>
             <p className="text-xs sm:block hidden font-poppins text-[#454545] mt-0.5">Cycle adherence, visit frequency &amp; field alerts — {new Date().toLocaleString("default", { month: "long", year: "numeric" })}</p>
@@ -731,7 +732,7 @@ const Dashboard = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="text-left px-6 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Rep</th>
+                  <th className="text-left px-4 sm:px-6 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Rep</th>
                   <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Today</th>
                   <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">MTD</th>
                   <th className="text-left px-4 py-3 text-xs font-poppins-bold text-gray-400 uppercase tracking-wider">Cycle</th>
@@ -764,7 +765,7 @@ const Dashboard = () => {
 
                   return (
                     <tr key={row.user.id} className={`hover:bg-gray-50/60 ${isInactive ? "bg-red-50/30" : ""}`} style={{ transition: "background-color 0.15s" }}>
-                      <td className="px-6 py-3">
+                      <td className="px-4 sm:px-6 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] hidden sm:flex items-center justify-center flex-shrink-0">
                             <span className="text-[#16a34a] font-poppins-extrabold text-xs">
