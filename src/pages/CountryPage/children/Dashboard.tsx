@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserGroup, FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 import { IoCalendarOutline, IoMegaphoneOutline } from "react-icons/io5";
-import { LuReceiptText, LuChartNoAxesCombined, LuUsers } from "react-icons/lu";
+import { LuReceiptText, LuChartNoAxesCombined, LuUsers, LuFlaskConical, LuCalendarCheck } from "react-icons/lu";
 import { MdOutlineWarningAmber, MdOutlineGpsOff } from "react-icons/md";
 import { LuChevronRight } from "react-icons/lu";
 import { format } from "date-fns";
@@ -11,6 +11,9 @@ import {
   getPendingReportsApi,
   getCompanyUsersApi,
   getCompanyTeamsApi,
+  getCompanySampleSummaryApi,
+  getPendingCyclesApi,
+  getCampaignsApi,
 } from "../../../services/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -74,6 +77,15 @@ const Dashboard = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
 
+  // Samples
+  const [sampleTotals, setSampleTotals] = useState<{ issued: number; given: number } | null>(null);
+
+  // Call cycle compliance
+  const [cycleStats, setCycleStats] = useState<{ total: number; approved: number; submitted: number } | null>(null);
+
+  // Active campaigns
+  const [activeCampaigns, setActiveCampaigns] = useState<{ id: string; name: string; product?: { product_name: string } | null }[]>([]);
+
   const [error, setError] = useState("");
 
   // ── Feed data ──────────────────────────────────────────────────────────────
@@ -113,6 +125,31 @@ const Dashboard = () => {
         : [];
       setTeams(teamList);
     }).finally(() => setUsersLoading(false));
+  }, []);
+
+  // ── Samples + Cycles + Campaigns ──────────────────────────────────────────
+  useEffect(() => {
+    Promise.allSettled([
+      getCompanySampleSummaryApi(),
+      getPendingCyclesApi(),
+      getCampaignsApi("ACTIVE"),
+    ]).then(([sampleRes, cycleRes, campaignRes]) => {
+      if (sampleRes.status === "fulfilled") {
+        const rows: { total_issued: number; total_given: number }[] = sampleRes.value.data?.data ?? [];
+        const issued = rows.reduce((s, r) => s + r.total_issued, 0);
+        const given  = rows.reduce((s, r) => s + r.total_given,  0);
+        setSampleTotals({ issued, given });
+      }
+      if (cycleRes.status === "fulfilled") {
+        const cycles: { status: string }[] = cycleRes.value.data?.data ?? [];
+        const approved  = cycles.filter((c) => c.status === "APPROVED" || c.status === "LOCKED").length;
+        const submitted = cycles.filter((c) => c.status === "SUBMITTED").length;
+        setCycleStats({ total: cycles.length, approved, submitted });
+      }
+      if (campaignRes.status === "fulfilled") {
+        setActiveCampaigns(campaignRes.value.data?.data ?? []);
+      }
+    });
   }, []);
 
   // ── Derived values ─────────────────────────────────────────────────────────
@@ -519,6 +556,142 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+
+      {/* ── Accountability Strip: Samples + Call Cycles + Active Campaigns ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        {/* Sample accountability */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0">
+              <LuFlaskConical className="w-4 h-4 text-violet-600" />
+            </div>
+            <div>
+              <h3 className="font-poppins-bold text-[#1a1a1a] text-sm">Sample Accountability</h3>
+              <p className="text-[11px] font-poppins text-gray-400">Issued vs given, all reps</p>
+            </div>
+          </div>
+          {sampleTotals === null ? (
+            <div className="h-12 flex items-center">
+              <div className="w-5 h-5 border-2 border-gray-200 border-t-violet-500 rounded-full animate-spin" />
+            </div>
+          ) : (
+            <>
+              <div className="flex items-end justify-between mb-2">
+                <div>
+                  <p className="text-2xl font-poppins-extrabold text-violet-600">{sampleTotals.given.toLocaleString()}</p>
+                  <p className="text-[11px] font-poppins text-gray-400">given to doctors</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-poppins-bold text-gray-500">{sampleTotals.issued.toLocaleString()}</p>
+                  <p className="text-[11px] font-poppins text-gray-400">issued to reps</p>
+                </div>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-violet-500"
+                  style={{
+                    width: sampleTotals.issued > 0
+                      ? `${Math.min(100, Math.round((sampleTotals.given / sampleTotals.issued) * 100))}%`
+                      : "0%",
+                    transition: "width 0.6s ease",
+                  }}
+                />
+              </div>
+              <p className="text-[11px] font-poppins text-gray-400 mt-1.5">
+                {sampleTotals.issued > 0
+                  ? `${Math.round((sampleTotals.given / sampleTotals.issued) * 100)}% utilisation`
+                  : "No samples issued yet"}
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Call cycle compliance */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
+              <LuCalendarCheck className="w-4 h-4 text-sky-600" />
+            </div>
+            <div>
+              <h3 className="font-poppins-bold text-[#1a1a1a] text-sm">Call Cycle Compliance</h3>
+              <p className="text-[11px] font-poppins text-gray-400">Approved cycles this month</p>
+            </div>
+          </div>
+          {cycleStats === null ? (
+            <div className="h-12 flex items-center">
+              <div className="w-5 h-5 border-2 border-gray-200 border-t-sky-500 rounded-full animate-spin" />
+            </div>
+          ) : cycleStats.total === 0 ? (
+            <p className="text-sm font-poppins text-gray-400 py-2">No cycles submitted yet</p>
+          ) : (
+            <>
+              <div className="flex items-end justify-between mb-2">
+                <div>
+                  <p className="text-2xl font-poppins-extrabold text-sky-600">{cycleStats.approved}</p>
+                  <p className="text-[11px] font-poppins text-gray-400">approved / locked</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-poppins-bold text-amber-500">{cycleStats.submitted}</p>
+                  <p className="text-[11px] font-poppins text-gray-400">awaiting approval</p>
+                </div>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-sky-500"
+                  style={{
+                    width: `${Math.round((cycleStats.approved / cycleStats.total) * 100)}%`,
+                    transition: "width 0.6s ease",
+                  }}
+                />
+              </div>
+              <p className="text-[11px] font-poppins text-gray-400 mt-1.5">
+                {Math.round((cycleStats.approved / cycleStats.total) * 100)}% of {cycleStats.total} cycle{cycleStats.total !== 1 ? "s" : ""} approved
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Active campaigns */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                <IoMegaphoneOutline className="w-4 h-4 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="font-poppins-bold text-[#1a1a1a] text-sm">Active Campaigns</h3>
+                <p className="text-[11px] font-poppins text-gray-400">Running right now</p>
+              </div>
+            </div>
+            <button onClick={() => navigate("/country/campaigns")}
+              className="text-[11px] font-poppins-semibold text-[#16a34a] hover:underline focus-visible:outline-none flex-shrink-0">
+              Manage
+            </button>
+          </div>
+          {activeCampaigns.length === 0 ? (
+            <p className="text-sm font-poppins text-gray-400 py-2">No active campaigns</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {activeCampaigns.slice(0, 4).map((c) => (
+                <div key={c.id} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-poppins-semibold text-[#1a1a1a] truncate">{c.name}</p>
+                    {c.product && (
+                      <p className="text-[11px] font-poppins text-gray-400 truncate">{c.product.product_name}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {activeCampaigns.length > 4 && (
+                <p className="text-[11px] font-poppins text-gray-400">+{activeCampaigns.length - 4} more</p>
+              )}
+            </div>
+          )}
+        </div>
+
+      </div>
 
     </div>
   );

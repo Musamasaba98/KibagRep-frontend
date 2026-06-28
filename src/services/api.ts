@@ -422,6 +422,26 @@ export const removeLiteratureItemApi = (id: string) => api.delete(`/library/${id
 // ─── Plan / Subscription ───────────────────────────────────────────────────────
 export const getPublicPlanConfigsApi = () => api.get('/plan/public');
 export const getMyPlanStatusApi = () => api.get('/plan/status');
+// ─── Campaigns ────────────────────────────────────────────────────────────────
+export const getCampaignsApi = (status?: string) =>
+  api.get('/campaign', { params: status ? { status } : undefined });
+export const getActiveCampaignsApi = () => api.get('/campaign/active');
+export const createCampaignApi = (data: {
+  name: string; brief: string; product_id?: string;
+  start_date: string; end_date: string;
+  status?: string; target_all?: boolean; team_ids?: string[];
+}) => api.post('/campaign', data);
+export const updateCampaignApi = (id: string, data: Partial<{
+  name: string; brief: string; product_id: string | null;
+  start_date: string; end_date: string;
+  status: string; target_all: boolean; team_ids: string[];
+}>) => api.put(`/campaign/${id}`, data);
+export const deleteCampaignApi = (id: string) => api.delete(`/campaign/${id}`);
+
+// ─── Sample balance (team-level) ──────────────────────────────────────────────
+export const getCompanySampleSummaryApi = () => api.get('/sample-balance/team-summary');
+
+// ─── Plan / billing ───────────────────────────────────────────────────────────
 export const getAllPlanConfigsApi = () => api.get('/plan/config');
 export const updatePlanConfigApi = (plan: string, data: object) => api.put(`/plan/config/${plan}`, data);
 export const getAllCompaniesWithPlanApi = () => api.get('/plan/companies');

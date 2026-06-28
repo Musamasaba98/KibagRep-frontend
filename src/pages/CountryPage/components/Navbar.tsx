@@ -22,14 +22,10 @@ const Navbar = () => {
       {/* Right — actions + user */}
       <div className="flex items-center gap-1.5 ml-auto">
 
-        <button
-          onClick={() => navigate("/country/messaging")}
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-500 hover:bg-[#dcfce7] hover:text-[#16a34a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#16a34a]"
-          style={{ transition: "background-color 0.15s, color 0.15s" }}
-          aria-label="Messages"
-        >
+        {/* Messaging button hidden — route not yet implemented */}
+        {/* <button onClick={() => navigate("/country/messaging")} aria-label="Messages">
           <FaRegComment className="w-[18px] h-[18px]" />
-        </button>
+        </button> */}
 
         <NotificationBell />
 
