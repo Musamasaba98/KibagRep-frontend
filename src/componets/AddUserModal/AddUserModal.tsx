@@ -97,9 +97,10 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
   const [results, setResults]   = useState<UserResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<UserResult | null>(null);
-  const [role, setRole]         = useState(defaultRole ?? "");
-  const [teamId, setTeamId]     = useState("");
-  const [teams, setTeams]       = useState<Team[]>([]);
+  const [role, setRole]           = useState(defaultRole ?? "");
+  const [managerType, setManagerType] = useState("");
+  const [teamId, setTeamId]       = useState("");
+  const [teams, setTeams]         = useState<Team[]>([]);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // — New user tab —
@@ -139,7 +140,12 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
     if (!selected || !role) { setError("Select a user and a role"); return; }
     setSaving(true); setError("");
     try {
-      const res = await addUserToCompanyApi({ userId: selected.id, role, ...(teamId ? { team_id: teamId } : {}), ...(companyId ? { company_id: companyId } : {}) });
+      const res = await addUserToCompanyApi({
+        userId: selected.id, role,
+        ...(teamId ? { team_id: teamId } : {}),
+        ...(role === "Manager" && managerType ? { manager_type: managerType } : {}),
+        ...(companyId ? { company_id: companyId } : {}),
+      });
       onSuccess();
       if (res.data?.requires_teams) {
         setRequiresTeams(true);
@@ -169,6 +175,7 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
         contact: newForm.contact || undefined,
         company_id: companyId,
         must_reset_password: true,
+        ...(newRole === "Manager" && managerType ? { manager_type: managerType } : {}),
       });
       setDone({ name: `${firstname} ${lastname}`, password: tempPassword });
       onSuccess();
@@ -351,6 +358,22 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
                 </select>
               </div>
 
+              {/* Manager type — only shown when role is Manager */}
+              {role === "Manager" && (
+                <div>
+                  <label className="block text-xs font-poppins-semibold text-gray-500 mb-1.5">
+                    Manager Function <span className="font-normal text-gray-400">(optional)</span>
+                  </label>
+                  <select value={managerType} onChange={(e) => setManagerType(e.target.value)}
+                    className="w-full px-3.5 py-2.5 font-poppins border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white">
+                    <option value="">Not specified</option>
+                    <option value="Field">Field Manager — oversees field operations across all teams</option>
+                    <option value="Sales">Sales Manager — oversees sales performance across all teams</option>
+                    <option value="Marketing">Marketing Manager — oversees campaigns across all teams</option>
+                  </select>
+                </div>
+              )}
+
               {/* Team */}
               {teams.length > 0 && (
                 <div>
@@ -429,6 +452,22 @@ const AddUserModal = ({ actorRole, onClose, onSuccess, defaultRole, title = "Add
                   </select>
                 </div>
               </div>
+
+              {/* Manager type — only when creating a Manager */}
+              {newForm.role === "Manager" && (
+                <div>
+                  <label className="block text-xs font-poppins-semibold text-gray-500 mb-1.5">
+                    Manager Function <span className="font-normal text-gray-400">(optional)</span>
+                  </label>
+                  <select value={managerType} onChange={(e) => setManagerType(e.target.value)}
+                    className="w-full px-3.5 py-2.5 font-poppins border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white">
+                    <option value="">Not specified</option>
+                    <option value="Field">Field Manager — oversees field operations across all teams</option>
+                    <option value="Sales">Sales Manager — oversees sales performance across all teams</option>
+                    <option value="Marketing">Marketing Manager — oversees campaigns across all teams</option>
+                  </select>
+                </div>
+              )}
 
               {/* Temp password preview */}
               <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">

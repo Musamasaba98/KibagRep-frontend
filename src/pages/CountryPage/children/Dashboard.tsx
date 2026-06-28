@@ -43,6 +43,8 @@ interface CompanyUser {
 interface Team {
   id: string;
   team_name: string;
+  supervisor?: { id: string; firstname: string; lastname: string } | null;
+  users?: { id: string; role: string }[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -121,29 +123,27 @@ const Dashboard = () => {
   const repVisitMap: Record<string, number> = {};
   summary.forEach((r) => { repVisitMap[r.user.id] = r.visits; });
 
-  // Managers with their team + derived visit sum for their team's reps
   const managers = allUsers.filter((u) => u.role === "Manager");
-  const reps = allUsers.filter((u) => u.role === "MedicalRep");
 
-  const managersWithStats = managers.map((mgr) => {
-    const teamReps = reps.filter((r) => r.team?.id && r.team.id === mgr.team?.id);
-    const teamVisits = teamReps.reduce((s, r) => s + (repVisitMap[r.id] ?? 0), 0);
-    const maxVisits = Math.max(...managers.map((m) => {
-      const tr = reps.filter((r) => r.team?.id && r.team.id === m.team?.id);
-      return tr.reduce((s, r2) => s + (repVisitMap[r2.id] ?? 0), 0);
-    }), 1);
-    const pct = Math.round((teamVisits / maxVisits) * 100);
-    const prevPct = pct; // no prev-period data yet
-    return { ...mgr, teamReps: teamReps.length, teamVisits, pct, trend: pct >= 70 ? "up" : pct >= 50 ? "neutral" : "down", prevPct };
-  }).sort((a, b) => b.teamVisits - a.teamVisits);
+  // Supervisor performance — derived from teams (Team.supervisor = the supervisor assigned to each team)
+  // This is correct: Supervisor → Team → Reps. Managers are cross-cutting and don't own specific teams.
+  const supervisorStats = teams
+    .filter((t) => t.supervisor)
+    .map((team) => {
+      const teamReps = (team.users ?? []).filter((u) => u.role === "MedicalRep");
+      const teamVisits = teamReps.reduce((s, u) => s + (repVisitMap[u.id] ?? 0), 0);
+      return { team, sup: team.supervisor!, repCount: teamReps.length, teamVisits };
+    })
+    .sort((a, b) => b.teamVisits - a.teamVisits);
 
-  // Teams coverage: each team + rep count + total visits
+  const maxSupVisits = Math.max(...supervisorStats.map((s) => s.teamVisits), 1);
+
+  // Teams coverage cards (for the grid below)
   const teamsWithStats = teams.map((team) => {
-    const teamReps = reps.filter((r) => r.team?.id === team.id);
-    const visits = teamReps.reduce((s, r) => s + (repVisitMap[r.id] ?? 0), 0);
+    const teamReps = (team.users ?? []).filter((u) => u.role === "MedicalRep");
+    const visits = teamReps.reduce((s, u) => s + (repVisitMap[u.id] ?? 0), 0);
     const maxV = Math.max(...teams.map((t) => {
-      const tr = reps.filter((r) => r.team?.id === t.id);
-      return tr.reduce((s, r2) => s + (repVisitMap[r2.id] ?? 0), 0);
+      return (t.users ?? []).filter(u => u.role === "MedicalRep").reduce((s, u) => s + (repVisitMap[u.id] ?? 0), 0);
     }), 1);
     const pct = Math.round((visits / maxV) * 100);
     return { ...team, repCount: teamReps.length, visits, pct };
@@ -250,21 +250,21 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* ── Manager Performance + Product Performance ── */}
+      {/* ── Supervisor Performance + Product Performance ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
-        {/* Manager Performance — live */}
+        {/* Supervisor Performance — Supervisors own teams directly; managers are cross-cutting */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Manager Performance</h2>
+              <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Supervisor Performance</h2>
               <p className="text-xs font-poppins text-gray-400 mt-0.5">Visit volume by team, this month</p>
             </div>
             <button
-              onClick={() => navigate("/country/managers")}
+              onClick={() => navigate("/country/analytics")}
               className="text-xs font-poppins-semibold text-[#16a34a] hover:underline focus-visible:outline-none"
             >
-              View all
+              Full analytics
             </button>
           </div>
 
@@ -280,45 +280,62 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-          ) : managersWithStats.length === 0 ? (
+          ) : supervisorStats.length === 0 ? (
             <div className="flex flex-col items-center py-8 text-center">
               <LuUsers className="w-8 h-8 text-gray-200 mb-2" />
-              <p className="text-sm font-poppins-semibold text-gray-400">No managers yet</p>
-              <p className="text-xs font-poppins text-gray-300 mt-1">Add managers in the Managers section</p>
+              <p className="text-sm font-poppins-semibold text-gray-400">No supervisors assigned yet</p>
+              <p className="text-xs font-poppins text-gray-300 mt-1">Assign supervisors to teams in the Admin portal</p>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {managersWithStats.map((mgr) => (
-                <div key={mgr.id} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
-                    <span className="text-[#16a34a] font-poppins-extrabold text-xs">{avatarInitials(mgr.firstname, mgr.lastname)}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-poppins-semibold text-[#1a1a1a] truncate">
-                        {mgr.firstname} {mgr.lastname}
-                      </p>
-                      <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                        {mgr.trend === "up" && <FaArrowTrendUp className="w-3 h-3 text-[#16a34a]" />}
-                        {mgr.trend === "down" && <FaArrowTrendDown className="w-3 h-3 text-red-500" />}
-                        <span className={`text-xs font-poppins-semibold ${pctColor(mgr.pct)}`}>
-                          {mgr.teamVisits} visits
-                        </span>
+              {supervisorStats.slice(0, 6).map(({ sup, team, repCount, teamVisits }) => {
+                const pct = Math.round((teamVisits / maxSupVisits) * 100);
+                return (
+                  <div key={team.id} className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center flex-shrink-0">
+                      <span className="text-[#16a34a] font-poppins-extrabold text-xs">{avatarInitials(sup.firstname, sup.lastname)}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-sm font-poppins-semibold text-[#1a1a1a] truncate">
+                          {sup.firstname} {sup.lastname}
+                        </p>
+                        <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+                          {pct >= 70 && <FaArrowTrendUp className="w-3 h-3 text-[#16a34a]" />}
+                          {pct < 50 && <FaArrowTrendDown className="w-3 h-3 text-red-500" />}
+                          <span className={`text-xs font-poppins-semibold ${pctColor(pct)}`}>
+                            {teamVisits} visits
+                          </span>
+                        </div>
                       </div>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${barBg(pct)}`}
+                          style={{ width: `${pct}%`, transition: "width 0.6s ease" }}
+                        />
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        {team.team_name} · {repCount} rep{repCount !== 1 ? "s" : ""}
+                      </p>
                     </div>
-                    <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${barBg(mgr.pct)}`}
-                        style={{ width: `${mgr.pct}%`, transition: "width 0.6s ease" }}
-                      />
-                    </div>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                      {mgr.team?.team_name ?? "No team"} · {mgr.teamReps} rep{mgr.teamReps !== 1 ? "s" : ""}
-                    </p>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+          )}
+
+          {/* Manager count callout */}
+          {!usersLoading && managers.length > 0 && (
+            <button
+              onClick={() => navigate("/country/managers")}
+              className="mt-4 w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-100 hover:bg-amber-100/60 focus-visible:outline-none"
+              style={{ transition: "background-color 0.15s" }}
+            >
+              <span className="text-xs font-poppins-semibold text-amber-700">
+                {managers.length} cross-cutting manager{managers.length !== 1 ? "s" : ""} (Field / Sales / Marketing)
+              </span>
+              <LuChevronRight className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            </button>
           )}
         </div>
 

@@ -219,7 +219,7 @@ export const changePasswordApi = (data: { current_password: string; new_password
 export const createCompanyUserApi = (data: {
   firstname: string; lastname: string; email: string; username: string;
   password: string; role: string; gender: string; contact?: string;
-  company_id: string; must_reset_password: boolean;
+  company_id: string; must_reset_password: boolean; manager_type?: string;
 }) => api.post('/user/addUser', data);
 
 // ─── Pharmacy Search ──────────────────────────────────────────────────────────
