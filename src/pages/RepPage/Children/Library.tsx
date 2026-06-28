@@ -18,6 +18,7 @@ interface LiteratureItem {
   file_size_kb?: number | null;
   sort_order?: number;
   product?: { id: string; product_name: string } | null;
+  team?: { id: string; team_name: string } | null;
   created_at: string;
 }
 
@@ -230,6 +231,15 @@ const Library = () => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-poppins-bold text-[#1a1a1a] text-sm">{item.title}</p>
                     <span className={`text-[10px] font-poppins-bold px-2 py-0.5 rounded-full ${badge.color}`}>{badge.label}</span>
+                    {item.team ? (
+                      <span className="text-[10px] font-poppins-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-600 border border-sky-100">
+                        {item.team.team_name}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-poppins-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-100">
+                        Company-wide
+                      </span>
+                    )}
                     {item.product && (
                       <span className="text-[11px] font-poppins-semibold bg-[#f0fdf4] text-[#16a34a] px-2 py-0.5 rounded-full">{item.product.product_name}</span>
                     )}
