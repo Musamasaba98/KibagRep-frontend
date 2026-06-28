@@ -179,10 +179,11 @@ const router = createBrowserRouter([
           { path: "reports", element: <ManagerReports /> },
           { path: "library", element: <RepLibrary /> },
           { path: "analytics", element: <ManagerAnalytics /> },
+          // messaging is intentionally hidden from Manager nav (not shown in sidebar or MobileNav)
           { path: "messaging", element: <Messaging /> },
           { path: "calendar", element: <ManagerCalendar /> },
           { path: "territories", element: <TerritoryManagement /> },
-          { path: "reps/:id", element: <ManagerRepDetail /> },
+          { path: "reps/:id",   element: <ManagerRepDetail /> },
         ],
       },
     ],
