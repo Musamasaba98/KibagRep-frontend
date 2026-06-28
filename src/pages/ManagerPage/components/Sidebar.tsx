@@ -4,10 +4,10 @@ import { useDispatch } from "react-redux";
 import { FaHouse, FaUserGroup } from "react-icons/fa6";
 import { GoGear } from "react-icons/go";
 import { BsBell } from "react-icons/bs";
-import { IoCalendarOutline, IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import { IoCalendarOutline } from "react-icons/io5";
 import { SlLogout } from "react-icons/sl";
 import { TbReport } from "react-icons/tb";
-import { LuChartNoAxesCombined, LuStethoscope, LuClipboardCheck, LuCalendarDays, LuArrowRightLeft } from "react-icons/lu";
+import { LuChartNoAxesCombined, LuStethoscope, LuClipboardCheck, LuCalendarDays, LuArrowRightLeft, LuBookOpen } from "react-icons/lu";
 import { GrTask } from "react-icons/gr";
 import { FiMapPin } from "react-icons/fi";
 import { logout } from "../../../store/authSlice";
@@ -64,7 +64,7 @@ const Sidebar = ({ onNav }: { onNav?: () => void }) => {
     { to: "/manager/cycles",                  icon: LuCalendarDays,              label: "Call Cycles"   },
     { to: "/manager/reports",                 icon: TbReport,                    label: "Reports"       },
     { to: "/manager/analytics",               icon: LuChartNoAxesCombined,       label: "Analytics"     },
-    { to: "/manager/messaging",               icon: IoChatbubbleEllipsesOutline, label: "Messaging"     },
+    { to: "/manager/library",                 icon: LuBookOpen,                  label: "Library"       },
     { to: "/manager/calendar",                icon: IoCalendarOutline,           label: "Calendar"      },
     { to: "/manager/territories",             icon: FiMapPin,                    label: "Territories"   },
   ];

@@ -43,6 +43,7 @@ import TourPlan from "./pages/RepPage/Children/TourPlan";
 import NearMe from "./pages/RepPage/Children/NearMe";
 import Settings from "./pages/RepPage/Children/Settings";
 import Events from "./pages/RepPage/Children/Events";
+import RepLibrary from "./pages/RepPage/Children/Library";
 
 // Manager
 import ManagerPage from "./pages/ManagerPage/ManagerPage";
@@ -155,6 +156,7 @@ const router = createBrowserRouter([
           { path: "near-me", element: <NearMe /> },
           { path: "settings", element: <Settings /> },
           { path: "events", element: <Events /> },
+          { path: "library", element: <RepLibrary /> },
         ],
       },
     ],
@@ -175,6 +177,7 @@ const router = createBrowserRouter([
           { path: "approvals", element: <ManagerApprovals /> },
           { path: "cycles", element: <ManagerCycles /> },
           { path: "reports", element: <ManagerReports /> },
+          { path: "library", element: <RepLibrary /> },
           { path: "analytics", element: <ManagerAnalytics /> },
           { path: "messaging", element: <Messaging /> },
           { path: "calendar", element: <ManagerCalendar /> },
@@ -204,6 +207,7 @@ const router = createBrowserRouter([
           { path: "jfw", element: <SupervisorJfw /> },
           { path: "events", element: <SupervisorEvents /> },
           { path: "reports", element: <SupervisorReports /> },
+          { path: "library", element: <RepLibrary /> },
           { path: "messages", element:<Messages/>}
         ],
       },
@@ -225,6 +229,7 @@ const router = createBrowserRouter([
           { path: "doctors", element: <CountryDoctors /> },
           { path: "analytics", element: <CountryAnalytics /> },
           { path: "reports", element: <CountryReports /> },
+          { path: "library", element: <RepLibrary /> },
         ],
       },
     ],
@@ -250,6 +255,7 @@ const router = createBrowserRouter([
           { path: "upload", element: <SalesAdminBulkUpload /> },
           { path: "cycles", element: <SalesAdminCycles /> },
           { path: "reports", element: <SalesAdminReports /> },
+          { path: "library", element: <RepLibrary /> },
           { path: "placement", element: <SalesAdminPlacement /> },
           { path: "compliance", element: <AdminCompliance /> },
           { path: "teams", element: <AdminTeams /> },

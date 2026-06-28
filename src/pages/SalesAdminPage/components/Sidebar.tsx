@@ -6,7 +6,7 @@ import {
   FaHouse, FaUserDoctor, FaHospital, FaBoxOpen, FaBuildingColumns,
   FaArrowUpFromBracket, FaRotate, FaFileLines, FaUsers, FaPills, FaWarehouse, FaMap, FaUserGroup,
 } from "react-icons/fa6";
-import { LuClipboardCheck, LuWallet, LuCalendarClock } from "react-icons/lu";
+import { LuClipboardCheck, LuWallet, LuCalendarClock, LuBookOpen } from "react-icons/lu";
 import { BsBell } from "react-icons/bs";
 import { GoGear } from "react-icons/go";
 import { SlLogout } from "react-icons/sl";
@@ -51,6 +51,7 @@ const Sidebar = ({ onNav }: { onNav?: () => void }) => {
     { to: "/admin/cycles",                icon: FaRotate,             label: "Call Cycles",  showBadge: false },
     { to: "/admin/placement",             icon: FaWarehouse,          label: "Stock Targets", showBadge: false },
     { to: "/admin/reports",               icon: FaFileLines,          label: "Reports",      showBadge: false },
+    { to: "/admin/library",               icon: LuBookOpen,           label: "Library",      showBadge: false },
   ];
 
   const peopleLinks = [

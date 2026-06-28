@@ -5,7 +5,7 @@ import { GoGear } from "react-icons/go";
 import { BsBell } from "react-icons/bs";
 import { SlLogout } from "react-icons/sl";
 import { TbReport } from "react-icons/tb";
-import { LuChartNoAxesCombined, LuMap, LuStethoscope, LuArrowRightLeft } from "react-icons/lu";
+import { LuChartNoAxesCombined, LuMap, LuStethoscope, LuArrowRightLeft, LuBookOpen } from "react-icons/lu";
 import { IoMegaphoneOutline } from "react-icons/io5";
 import { logout } from "../../../store/authSlice";
 
@@ -17,6 +17,7 @@ const NAV_LINKS = [
   { to: "/country/doctors",                icon: LuStethoscope,         label: "HCP Directory" },
   { to: "/country/analytics",              icon: LuChartNoAxesCombined, label: "Analytics"     },
   { to: "/country/reports",                icon: TbReport,              label: "Reports"       },
+  { to: "/country/library",               icon: LuBookOpen,            label: "Library"       },
 ];
 
 const Sidebar = ({ onNav }: { onNav?: () => void }) => {

@@ -7,7 +7,7 @@ import { BsBell } from "react-icons/bs";
 import { IoCalendarOutline } from "react-icons/io5";
 import { SlLogout } from "react-icons/sl";
 import { TbReport, TbChartBar } from "react-icons/tb";
-import { LuClipboardCheck, LuStethoscope, LuMap } from "react-icons/lu";
+import { LuClipboardCheck, LuStethoscope, LuMap, LuBookOpen } from "react-icons/lu";
 import { GrTask } from "react-icons/gr";
 import { logout } from "../../../store/authSlice";
 import {
@@ -64,6 +64,7 @@ const Sidebar = () => {
     { to: "/supervisor/jfw",                   icon: GrTask,           label: "JFW"           },
     { to: "/supervisor/events",                icon: FaMugHot,         label: "Field Events"  },
     { to: "/supervisor/reports",               icon: TbReport,         label: "Reports"       },
+    { to: "/supervisor/library",               icon: LuBookOpen,       label: "Library"       },
   ];
 
   return (

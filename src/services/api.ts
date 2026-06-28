@@ -387,6 +387,38 @@ export const removeCompanyFacilityApi = (facilityId: string) =>
   api.delete(`/company-facility/${facilityId}`);
 
 
+// ─── Competitor Intel ─────────────────────────────────────────────────────────
+export const logCompetitorIntelApi = (data: {
+  competitor_company: string;
+  competitor_brand: string;
+  competitor_sku?: string;
+  is_listed?: boolean;
+  price_to_trade?: number | null;
+  price_to_consumer?: number | null;
+  stock_quantity?: number | null;
+  notes?: string;
+  doctor_id?: string | null;
+  pharmacy_id?: string | null;
+}) => api.post('/competitor', data);
+export const getCompetitorIntelApi = (params?: { page?: number; limit?: number; q?: string }) =>
+  api.get('/competitor', { params });
+export const getCompetitorSummaryApi = () => api.get('/competitor/summary');
+
+// ─── Product Library ──────────────────────────────────────────────────────────
+export const getLibraryApi = (params?: { product_id?: string }) =>
+  api.get('/library', { params });
+export const addLiteratureItemApi = (data: {
+  title: string;
+  description?: string;
+  file_url: string;
+  file_key?: string;
+  file_type?: string;
+  file_size_kb?: number;
+  product_id?: string;
+  sort_order?: number;
+}) => api.post('/library', data);
+export const removeLiteratureItemApi = (id: string) => api.delete(`/library/${id}`);
+
 // ─── Plan / Subscription ───────────────────────────────────────────────────────
 export const getPublicPlanConfigsApi = () => api.get('/plan/public');
 export const getMyPlanStatusApi = () => api.get('/plan/status');

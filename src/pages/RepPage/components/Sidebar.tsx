@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleSidebarPanel } from "../../../store/uiStateSlice";
-import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap, BiCoffee } from "react-icons/bi";
+import { BiCalendar, BiFileBlank, BiHome, BiReceipt, BiMap, BiCoffee, BiBook } from "react-icons/bi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { BsCardChecklist } from "react-icons/bs";
 import { FaUserMd, FaHistory } from "react-icons/fa";
@@ -790,6 +790,7 @@ const Sidebar = () => {
           <div className="w-8 h-px bg-gray-100 my-1.5" />
 
           <NavItem to="/rep-page/reports" icon={BiFileBlank} label="Reports" />
+          <NavItem to="/rep-page/library" icon={BiBook} label="Library" />
           <NavItem to="/rep-page/expenses" icon={BiReceipt} label="Expense Claims" />
           <NavItem to="/rep-page/calendar" icon={BiCalendar} label="Calendar" />
 

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { LuArrowLeft, LuFileText, LuCircleCheck } from "react-icons/lu";
+import { LuArrowLeft, LuFileText, LuCircleCheck, LuDownload } from "react-icons/lu";
 import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 import { MdOutlineGpsOff, MdOutlineHistory, MdOutlineWarningAmber } from "react-icons/md";
 import { BsDroplet } from "react-icons/bs";
 import { IoCalendarOutline } from "react-icons/io5";
 import { TbActivityHeartbeat } from "react-icons/tb";
-import { getTeamPerformanceApi, getCompanyFeedApi, getCompanyReportsApi } from "../../../services/api";
+import { getTeamPerformanceApi, getCompanyFeedApi, getCompanyReportsApi, downloadReportApi } from "../../../services/api";
 
 interface TeamPerf {
   user: { id: string; firstname: string; lastname: string; role: string };
@@ -59,6 +59,28 @@ const RepDetail = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const now = new Date();
+  const [dlMonth, setDlMonth] = useState(now.getMonth() + 1);
+  const [dlYear, setDlYear]   = useState(now.getFullYear());
+  const [dlLoading, setDlLoading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!id) return;
+    setDlLoading(true);
+    try {
+      const res = await downloadReportApi(dlMonth, dlYear, id);
+      const url = URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `report-${repName.replace(/\s+/g, "-")}-${dlYear}-${String(dlMonth).padStart(2, "0")}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("No report data found for that period.");
+    } finally {
+      setDlLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -175,6 +197,37 @@ const RepDetail = () => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Report download */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_16px_0_rgba(0,0,0,0.04)] px-5 py-4 flex items-center gap-3 flex-wrap">
+            <LuDownload className="w-4 h-4 text-gray-400 shrink-0" />
+            <span className="text-sm font-poppins-semibold text-[#1a1a1a] mr-auto">Download monthly report</span>
+            <select
+              value={dlMonth}
+              onChange={(e) => setDlMonth(Number(e.target.value))}
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] bg-white"
+            >
+              {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
+                <option key={i} value={i + 1}>{m}</option>
+              ))}
+            </select>
+            <input
+              type="number"
+              value={dlYear}
+              onChange={(e) => setDlYear(Number(e.target.value))}
+              min={2024}
+              max={now.getFullYear()}
+              className="w-20 px-3 py-1.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-[#16a34a]"
+            />
+            <button
+              onClick={handleDownload}
+              disabled={dlLoading}
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-[#16a34a] text-white text-sm font-poppins-semibold rounded-xl hover:bg-[#15803d] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none"
+            >
+              <LuDownload className="w-3.5 h-3.5" />
+              {dlLoading ? "Generating…" : "Download"}
+            </button>
           </div>
 
           {/* KPI cards */}
