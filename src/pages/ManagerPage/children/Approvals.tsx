@@ -231,7 +231,7 @@ const Approvals = () => {
   const totalPending = reports.length + cycles.length + expenses.length + recs.length + tourplans.length + lateRequests.length + staffSuggestions.length;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
 
       {previewReport && (
         <ReportPreviewSlideOver

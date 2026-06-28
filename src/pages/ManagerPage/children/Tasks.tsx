@@ -171,7 +171,7 @@ const Tasks = () => {
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="w-full p-6 flex flex-col gap-6">
+      <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <GrTask className="w-5 h-5 text-[#16a34a] shrink-0" />
           <div>
@@ -190,7 +190,7 @@ const Tasks = () => {
   // ── Error ────────────────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="w-full p-6 flex flex-col gap-6">
+      <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <GrTask className="w-5 h-5 text-[#16a34a] shrink-0" />
           <div>
@@ -302,7 +302,7 @@ const Tasks = () => {
             {filtered.map((task) => (
               <div
                 key={task.id}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60"
+                className="flex items-center gap-3 px-4 sm:px-6 py-4 hover:bg-gray-50/60"
                 style={{ transition: "background-color 0.15s" }}
               >
                 {/* Priority dot */}

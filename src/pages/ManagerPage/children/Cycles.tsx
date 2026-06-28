@@ -122,7 +122,7 @@ const Cycles = () => {
   const pendingCount = cycles.filter((c) => c.status === "SUBMITTED").length;
 
   return (
-    <div className="w-full p-6 flex flex-col gap-6">
+    <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
       <div>
         <h1 className="font-poppins-extrabold text-[#1a1a1a] text-xl tracking-tight">Call Cycles</h1>
         <p className="text-gray-400 font-poppins text-sm mt-0.5">Team call cycles — submitted cycles await your approval</p>
@@ -133,7 +133,7 @@ const Cycles = () => {
       )}
 
       <div className="bg-white rounded-2xl border border-violet-100 shadow-sm">
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-violet-100">
+        <div className="flex items-center gap-3 px-4 sm:px-6 py-4 border-b border-violet-100">
           <IoCalendarOutline className="w-5 h-5 text-violet-500" />
           <div className="flex-1">
             <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Call Cycles</h2>
@@ -159,7 +159,7 @@ const Cycles = () => {
               const isActioning = actioning === cycle.id;
               const canAct = cycle.status === "SUBMITTED";
               return (
-                <div key={cycle.id} className="px-6 py-4 flex flex-col gap-3">
+                <div key={cycle.id} className="px-4 sm:px-6 py-4 flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">

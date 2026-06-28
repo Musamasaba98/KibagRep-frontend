@@ -156,7 +156,7 @@ const ManagerRepDetail = () => {
     : [];
 
   return (
-    <div className="w-full p-6 flex flex-col gap-6 max-w-5xl mx-auto">
+    <div className="w-full p-4 sm:p-6 flex flex-col gap-6 max-w-5xl mx-auto">
 
       {/* Back nav */}
       <button

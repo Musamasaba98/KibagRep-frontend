@@ -3,12 +3,23 @@ import { Line } from "@ant-design/plots";
 import { getCompanyFeedApi } from "../../../services/api";
 import { format, subDays, startOfDay } from "date-fns";
 
+function useIsMobile() {
+  const [mobile, setMobile] = useState(() => window.innerWidth < 640);
+  useEffect(() => {
+    const fn = () => setMobile(window.innerWidth < 640);
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+  return mobile;
+}
+
 interface TrendPoint { date: string; value: number; type: string; }
 interface ProductStat { name: string; count: number; pct: number; }
 
 const PRODUCT_COLORS = ["#16a34a", "#0ea5e9", "#f59e0b", "#8b5cf6", "#ef4444"];
 
 const VisitsTrendCont = () => {
+  const isMobile = useIsMobile();
   const [trendData, setTrendData] = useState<TrendPoint[]>([]);
   const [topProducts, setTopProducts] = useState<ProductStat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,22 +73,31 @@ const VisitsTrendCont = () => {
     yField: "value",
     seriesField: "type",
     smooth: true,
-    height: 260,
+    height: isMobile ? 200 : 260,
     color: ["#16a34a"],
-    point: { size: 4, shape: "circle", style: { fill: "#16a34a", stroke: "#fff", lineWidth: 2 } },
+    point: {
+      size: isMobile ? 3 : 4,
+      shape: "circle",
+      style: { fill: "#16a34a", stroke: "#fff", lineWidth: 2 },
+    },
     line: { style: { lineWidth: 2.5 } },
     area: { style: { fill: "l(270) 0:rgba(22,163,74,0) 1:rgba(22,163,74,0.12)" } },
     legend: false,
-    yAxis: { grid: { line: { style: { stroke: "#f3f4f6", lineWidth: 1 } } }, label: { style: { fill: "#9ca3af", fontSize: 11 } } },
+    yAxis: {
+      grid: { line: { style: { stroke: "#f3f4f6", lineWidth: 1 } } },
+      label: { style: { fill: "#9ca3af", fontSize: 11 } },
+    },
     xAxis: {
       label: {
-        style: { fill: "#9ca3af", fontSize: 10 },
+        style: { fill: "#9ca3af", fontSize: isMobile ? 9 : 10 },
         autoRotate: false,
-        formatter: (_: string, __: unknown, index: number) => index % 2 === 0 ? _ : "",
+        autoHide: true,
+        // Show just the day number ("15" not "Jun 15") — month is clear from subtitle
+        formatter: (val: string) => val.split(" ")[1] ?? val,
       },
     },
     tooltip: { showMarkers: true },
-    padding: [16, 24, 32, 40],
+    padding: isMobile ? [12, 12, 28, 32] : [16, 24, 32, 40],
   };
 
   return (

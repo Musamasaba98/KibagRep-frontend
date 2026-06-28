@@ -3,10 +3,10 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaHouse, FaUserGroup } from "react-icons/fa6";
 import { MdMoreHoriz } from "react-icons/md";
-import { LuClipboardCheck, LuStethoscope, LuCalendarDays, LuChartNoAxesCombined, LuArrowRightLeft } from "react-icons/lu";
+import { LuClipboardCheck, LuStethoscope, LuCalendarDays, LuChartNoAxesCombined, LuArrowRightLeft, LuBookOpen } from "react-icons/lu";
 import { TbReport } from "react-icons/tb";
 import { GrTask } from "react-icons/gr";
-import { IoChatbubbleEllipsesOutline, IoCalendarOutline } from "react-icons/io5";
+import { IoCalendarOutline } from "react-icons/io5";
 import { FiMapPin } from "react-icons/fi";
 import { GoGear } from "react-icons/go";
 import { SlLogout } from "react-icons/sl";
@@ -20,13 +20,13 @@ const PRIMARY = [
 ];
 
 const MORE = [
-  { to: "/manager/tasks",       label: "Tasks",         icon: GrTask                      },
-  { to: "/manager/doctors",     label: "HCP Directory", icon: LuStethoscope               },
-  { to: "/manager/analytics",   label: "Analytics",     icon: LuChartNoAxesCombined       },
-  { to: "/manager/messaging",   label: "Messaging",     icon: IoChatbubbleEllipsesOutline  },
-  { to: "/manager/calendar",    label: "Calendar",      icon: IoCalendarOutline            },
-  { to: "/manager/cycles",      label: "Call Cycles",   icon: LuCalendarDays               },
-  { to: "/manager/territories", label: "Territories",   icon: FiMapPin                    },
+  { to: "/manager/tasks",       label: "Tasks",         icon: GrTask               },
+  { to: "/manager/doctors",     label: "HCP Directory", icon: LuStethoscope        },
+  { to: "/manager/analytics",   label: "Analytics",     icon: LuChartNoAxesCombined },
+  { to: "/manager/library",     label: "Library",       icon: LuBookOpen            },
+  { to: "/manager/calendar",    label: "Calendar",      icon: IoCalendarOutline     },
+  { to: "/manager/cycles",      label: "Call Cycles",   icon: LuCalendarDays        },
+  { to: "/manager/territories", label: "Territories",   icon: FiMapPin              },
 ];
 
 const MobileNav = () => {

@@ -102,7 +102,7 @@ const Analytics = () => {
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="w-full p-6 flex flex-col gap-6">
+      <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
         <div>
           <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
           <p className="text-gray-400 font-poppins text-sm mt-0.5">Company-wide KPI analytics</p>
@@ -146,7 +146,7 @@ const Analytics = () => {
   }
 
   return (
-    <div className="w-full p-6 flex flex-col gap-6">
+    <div className="w-full p-4 sm:p-6 flex flex-col gap-6">
       {/* Header */}
       <div>
         <h1 className="font-poppins-extrabold text-[#1a1a1a] text-2xl tracking-tight">Analytics</h1>
@@ -175,11 +175,58 @@ const Analytics = () => {
 
       {/* ── Section 2: Rep Leaderboard ─────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
+        <div className="px-5 sm:px-6 py-4 border-b border-gray-100">
           <h2 className="font-poppins-bold text-[#1a1a1a] text-[15px]">Rep Leaderboard</h2>
           <p className="text-xs font-poppins text-gray-400 mt-0.5">Ranked by visits this month</p>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile cards */}
+        <div className="md:hidden divide-y divide-gray-50">
+          {leaderboard.map((rep, idx) => {
+            const isInactive = rep.days_since_last_visit != null && rep.days_since_last_visit > 3;
+            return (
+              <div
+                key={rep.user.id}
+                onClick={() => navigate(`/manager/reps/${rep.user.id}`)}
+                className="flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50/60 cursor-pointer active:bg-gray-100"
+                style={{ transition: "background-color 0.15s" }}
+              >
+                <span className="text-sm font-poppins-bold text-gray-300 w-5 shrink-0 text-center">{idx + 1}</span>
+                <div className="w-9 h-9 rounded-xl bg-[#f0fdf4] border border-[#dcfce7] flex items-center justify-center shrink-0">
+                  <span className="text-[#16a34a] font-poppins-bold text-xs">
+                    {getInitials(rep.user.firstname, rep.user.lastname)}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-poppins-semibold text-[#1a1a1a] truncate">
+                    {rep.user.firstname} {rep.user.lastname}
+                  </p>
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    {isInactive && (
+                      <span className="text-[10px] font-poppins-bold text-red-500">Inactive {rep.days_since_last_visit}d</span>
+                    )}
+                    <span className="text-xs font-poppins text-gray-400">{rep.visits_this_month ?? 0} visits</span>
+                    {(rep.gps_anomaly_count_week ?? 0) > 0 && (
+                      <span className="text-[10px] font-poppins-bold text-red-500">{rep.gps_anomaly_count_week} GPS</span>
+                    )}
+                    {(rep.pending_reports ?? 0) > 0 && (
+                      <span className="text-[10px] font-poppins-bold text-amber-500">{rep.pending_reports} pending</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`text-xs font-poppins-bold px-2 py-0.5 rounded-full ${cycleBg(rep.cycle_adherence_pct)}`}>
+                    {rep.cycle_adherence_pct != null ? `${rep.cycle_adherence_pct}%` : "—"}
+                  </span>
+                  <LuChevronRight className="w-4 h-4 text-gray-300" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead>
               <tr className="bg-gray-50/70">
@@ -195,8 +242,7 @@ const Analytics = () => {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {leaderboard.map((rep, idx) => {
-                const isInactive =
-                  rep.days_since_last_visit != null && rep.days_since_last_visit > 3;
+                const isInactive = rep.days_since_last_visit != null && rep.days_since_last_visit > 3;
                 return (
                   <tr
                     key={rep.user.id}
@@ -224,32 +270,20 @@ const Analytics = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-poppins-bold text-[#1a1a1a]">
-                      {rep.visits_this_month ?? 0}
-                    </td>
-                    <td className="px-4 py-4 text-right font-poppins text-sm text-gray-600">
-                      {rep.visits_this_week ?? 0}
-                    </td>
+                    <td className="px-4 py-4 text-right text-sm font-poppins-bold text-[#1a1a1a]">{rep.visits_this_month ?? 0}</td>
+                    <td className="px-4 py-4 text-right font-poppins text-sm text-gray-600">{rep.visits_this_week ?? 0}</td>
                     <td className="px-4 py-4 text-right">
                       <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-poppins-bold ${cycleBg(rep.cycle_adherence_pct)}`}>
                         {rep.cycle_adherence_pct != null ? `${rep.cycle_adherence_pct}%` : "—"}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span
-                        className={`text-sm font-poppins-semibold ${
-                          (rep.gps_anomaly_count_week ?? 0) > 0 ? "text-red-500" : "text-gray-400"
-                        }`}
-                      >
+                      <span className={`text-sm font-poppins-semibold ${(rep.gps_anomaly_count_week ?? 0) > 0 ? "text-red-500" : "text-gray-400"}`}>
                         {rep.gps_anomaly_count_week ?? 0}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span
-                        className={`text-sm font-poppins-semibold ${
-                          (rep.pending_reports ?? 0) > 0 ? "text-amber-500" : "text-gray-400"
-                        }`}
-                      >
+                      <span className={`text-sm font-poppins-semibold ${(rep.pending_reports ?? 0) > 0 ? "text-amber-500" : "text-gray-400"}`}>
                         {rep.pending_reports ?? 0}
                       </span>
                     </td>
