@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import { FaBars, FaXmark } from "react-icons/fa6";
+import MobileNav from "./components/MobileNav";
+import { FaXmark } from "react-icons/fa6";
 
 const CountryPage = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -14,7 +15,7 @@ const CountryPage = () => {
         <Sidebar />
       </div>
 
-      {/* Mobile drawer */}
+      {/* Slide-in drawer (desktop breakpoint fallback) */}
       {drawerOpen && (
         <div className="fixed inset-0 z-40 flex lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setDrawerOpen(false)} />
@@ -31,29 +32,28 @@ const CountryPage = () => {
       )}
 
       {/* Main content */}
-      <div className="flex-1 lg:ml-64 min-w-0 h-screen overflow-y-auto">
-        {/* Mobile topbar */}
-        <div className="lg:hidden h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3 sticky top-0 z-10">
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 focus-visible:outline-none"
-          >
-            <FaBars className="w-4 h-4" />
-          </button>
-          <h1 className="font-black text-base text-[#1a1a1a]">
+      <div className="flex-1 lg:ml-64 min-w-0 h-screen overflow-y-auto overflow-x-hidden">
+        {/* Mobile topbar — logo only, navigation is in the bottom bar */}
+        <div className="lg:hidden h-14 bg-white border-b border-gray-200 flex items-center px-4 sticky top-0 z-10">
+          <h1 className="font-poppins-extrabold text-base text-[#1a1a1a]">
             KIBAG<span className="text-[#16a34a]">REP</span>
           </h1>
+          <span className="ml-2 text-xs font-poppins-semibold text-gray-400">Country</span>
         </div>
 
-        {/* Desktop navbar — sticky wrapper */}
+        {/* Desktop navbar */}
         <div className="hidden lg:block sticky top-0 z-30">
           <Navbar />
         </div>
 
-        <div className="w-full">
+        {/* pb-20 on mobile so content clears the fixed bottom nav */}
+        <div className="w-full pb-20 lg:pb-0">
           <Outlet />
         </div>
       </div>
+
+      {/* Bottom tab nav — mobile only */}
+      <MobileNav />
     </div>
   );
 };
