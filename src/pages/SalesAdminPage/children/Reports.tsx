@@ -5,6 +5,7 @@ import {
   getCompanyTeamsApi,
   exportReportApi,
 } from "../../../services/api";
+import DownloadReportWidget from "../../../componets/DownloadReportWidget/DownloadReportWidget";
 
 type ReportType = "visits" | "samples" | "call_cycle" | "nca" | "expenses" | "compliance";
 
@@ -144,6 +145,9 @@ const Reports = () => {
           </p>
         )}
       </div>
+
+      {/* Per-rep monthly Excel download */}
+      <DownloadReportWidget roles={["MedicalRep", "Supervisor", "Manager"]} />
 
       {/* Report cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

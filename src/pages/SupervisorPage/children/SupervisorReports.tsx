@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { LuFileText, LuChevronDown, LuChevronUp, LuCheck, LuX, LuUsers, LuBeaker, LuClock, LuActivity } from "react-icons/lu";
+import { LuFileText, LuChevronDown, LuChevronUp, LuCheck, LuX, LuUsers, LuBeaker, LuClock, LuActivity, LuDownload } from "react-icons/lu";
+import DownloadReportWidget from "../../../componets/DownloadReportWidget/DownloadReportWidget";
 import { MdOutlineWarningAmber } from "react-icons/md";
 import { TbActivityHeartbeat, TbPill } from "react-icons/tb";
 import {
@@ -58,7 +59,7 @@ interface JfwReport {
 
 type StatusTab = "SUBMITTED" | "APPROVED" | "REJECTED" | "ALL";
 type Days = 7 | 30 | 60;
-type MainTab = "reports" | "team" | "late" | "samples" | "jfw";
+type MainTab = "reports" | "team" | "late" | "samples" | "jfw" | "download";
 
 const INITIALS = (u: { firstname: string; lastname: string }) =>
   `${u.firstname?.[0] ?? ""}${u.lastname?.[0] ?? ""}`.toUpperCase();
@@ -677,11 +678,12 @@ const JfwTab = () => {
 // ─── Page Shell ───────────────────────────────────────────────────────────────
 
 const MAIN_TABS: { key: MainTab; label: string; Icon: React.FC<{ className?: string }> }[] = [
-  { key: "reports", label: "Reports",     Icon: LuFileText    },
-  { key: "team",    label: "Team",        Icon: LuActivity    },
-  { key: "late",    label: "Late Req",    Icon: LuClock       },
-  { key: "samples", label: "Samples",     Icon: LuBeaker      },
-  { key: "jfw",     label: "JFW",         Icon: LuUsers       },
+  { key: "reports",  label: "Reports",   Icon: LuFileText  },
+  { key: "team",     label: "Team",      Icon: LuActivity  },
+  { key: "late",     label: "Late Req",  Icon: LuClock     },
+  { key: "samples",  label: "Samples",   Icon: LuBeaker    },
+  { key: "jfw",      label: "JFW",       Icon: LuUsers     },
+  { key: "download", label: "Download",  Icon: LuDownload  },
 ];
 
 const SupervisorReports = () => {
@@ -706,11 +708,12 @@ const SupervisorReports = () => {
         ))}
       </div>
 
-      {mainTab === "reports" && <ReportsTab />}
-      {mainTab === "team"    && <TeamTab />}
-      {mainTab === "late"    && <LateTab />}
-      {mainTab === "samples" && <SamplesTab />}
-      {mainTab === "jfw"     && <JfwTab />}
+      {mainTab === "reports"  && <ReportsTab />}
+      {mainTab === "team"     && <TeamTab />}
+      {mainTab === "late"     && <LateTab />}
+      {mainTab === "samples"  && <SamplesTab />}
+      {mainTab === "jfw"      && <JfwTab />}
+      {mainTab === "download" && <DownloadReportWidget roles={["MedicalRep", "Supervisor"]} />}
     </div>
   );
 };

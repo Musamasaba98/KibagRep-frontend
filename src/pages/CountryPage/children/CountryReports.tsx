@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import { Column } from "@ant-design/plots";
 import {
   LuTrendingUp, LuUsers, LuMapPin, LuFlaskConical,
-  LuActivity, LuCalendarCheck, LuTriangleAlert,
+  LuActivity, LuCalendarCheck, LuTriangleAlert, LuDownload,
 } from "react-icons/lu";
 import {
   getNationalOverviewApi, getTerritoryCoverageApi, getTierCoverageApi,
   getVisitTrendApi,
 } from "../../../services/api";
+import DownloadReportWidget from "../../../componets/DownloadReportWidget/DownloadReportWidget";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type MainTab = "overview" | "territories" | "tiers" | "trend";
+type MainTab = "overview" | "territories" | "tiers" | "trend" | "download";
 
 interface Overview {
   month: number; year: number;
@@ -424,10 +425,11 @@ const TrendTab = () => {
 // ─── Page Shell ───────────────────────────────────────────────────────────────
 
 const MAIN_TABS: { key: MainTab; label: string; Icon: React.FC<{ className?: string }> }[] = [
-  { key: "overview",    label: "Overview",    Icon: LuTrendingUp    },
-  { key: "territories", label: "Territories", Icon: LuMapPin        },
+  { key: "overview",    label: "Overview",      Icon: LuTrendingUp    },
+  { key: "territories", label: "Territories",   Icon: LuMapPin        },
   { key: "tiers",       label: "Tier Coverage", Icon: LuTriangleAlert },
-  { key: "trend",       label: "Trend",       Icon: LuActivity      },
+  { key: "trend",       label: "Trend",         Icon: LuActivity      },
+  { key: "download",    label: "Download",      Icon: LuDownload      },
 ];
 
 const CountryReports = () => {
@@ -455,6 +457,7 @@ const CountryReports = () => {
       {mainTab === "territories" && <TerritoriesTab />}
       {mainTab === "tiers"       && <TiersTab />}
       {mainTab === "trend"       && <TrendTab />}
+      {mainTab === "download"    && <DownloadReportWidget roles={["MedicalRep", "Supervisor", "Manager"]} />}
     </div>
   );
 };

@@ -5,19 +5,20 @@ import {
 } from "react-icons/fi";
 import { MdOutlineWarningAmber } from "react-icons/md";
 import {
-  LuTrendingUp, LuFlaskConical, LuTriangleAlert, LuUsers, LuFileText,
+  LuTrendingUp, LuFlaskConical, LuTriangleAlert, LuUsers, LuFileText, LuDownload,
 } from "react-icons/lu";
 import {
   getCompanyReportsApi, approveReportApi, rejectReportApi,
   getDailyReportActivitiesApi, getTeamPerformanceApi, getTeamTargetsApi,
   getVisitTrendApi, getProductDetailingApi, getAnomaliesApi,
 } from "../../../services/api";
+import DownloadReportWidget from "../../../componets/DownloadReportWidget/DownloadReportWidget";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type StatusTab = "SUBMITTED" | "APPROVED" | "REJECTED" | "ALL";
 type Days = 7 | 30 | 60;
-type MainTab = "reports" | "team" | "trend" | "detailing" | "anomalies";
+type MainTab = "reports" | "team" | "trend" | "detailing" | "anomalies" | "download";
 
 interface Report {
   id: string; report_date: string;
@@ -652,6 +653,7 @@ const MAIN_TABS: { key: MainTab; label: string; Icon: React.FC<{ className?: str
   { key: "trend",     label: "Trend",      Icon: LuTrendingUp as React.FC<{ className?: string }>   },
   { key: "detailing", label: "Detailing",  Icon: LuFlaskConical as React.FC<{ className?: string }> },
   { key: "anomalies", label: "Anomalies",  Icon: LuTriangleAlert as React.FC<{ className?: string }>},
+  { key: "download",  label: "Download",   Icon: LuDownload as React.FC<{ className?: string }>     },
 ];
 
 const ManagerReports = () => {
@@ -680,6 +682,7 @@ const ManagerReports = () => {
       {mainTab === "trend"     && <TrendTab />}
       {mainTab === "detailing" && <DetailingTab />}
       {mainTab === "anomalies" && <AnomaliesTab />}
+      {mainTab === "download"  && <DownloadReportWidget roles={["MedicalRep", "Supervisor"]} />}
     </div>
   );
 };
