@@ -291,6 +291,7 @@ const DailyReportTab = ({
         <h3 className="text-xs font-poppins-semibold uppercase tracking-wider text-gray-400 px-1">Past 30 days</h3>
         {history.map((r) => {
           const isDraft = r.status === "DRAFT";
+          const hasContent = r.visits_count > 0 || !!r.summary?.trim();
           const isLateTarget = historyLateFor?.id === r.id;
           return (
             <div key={r.id}
@@ -323,7 +324,7 @@ const DailyReportTab = ({
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <StatusBadge status={r.status} />
-                  {isDraft && (
+                  {isDraft && hasContent && (
                     <button
                       onClick={() => onSubmitHistory(r)}
                       disabled={historySubmitting.has(r.id)}
@@ -677,6 +678,10 @@ const Reports = () => {
   };
 
   const handleSubmitHistory = async (report: DailyReport) => {
+    if (!report.id) {
+      setError("Cannot submit: report record is missing an ID. Please refresh and try again.");
+      return;
+    }
     setHistorySubmitting((prev) => new Set(prev).add(report.id));
     setError(""); setSuccess("");
     try {
