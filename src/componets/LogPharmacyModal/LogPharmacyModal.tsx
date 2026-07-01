@@ -121,7 +121,7 @@ const LogPharmacyModal = ({
     setError("");
     setLoading(true);
     try {
-      await addPharmacyActivityApi({
+      const res = await addPharmacyActivityApi({
         pharmacy_id:       pharmacyId,
         products_observed: observed,
         outcome,
@@ -129,8 +129,13 @@ const LogPharmacyModal = ({
         gps_lng:       gpsLng,
         staff_met_ids: [...metIds],
       });
-      onSuccess();
-      onClose();
+      if (res.data.data?.gps_anomaly) {
+        setError("⚠️ GPS anomaly: your location is >100m from this pharmacy's registered address. Visit saved — supervisor will be notified.");
+        setTimeout(() => { onSuccess(); onClose(); }, 3000);
+      } else {
+        onSuccess();
+        onClose();
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to log pharmacy visit. Try again.");
     } finally {
