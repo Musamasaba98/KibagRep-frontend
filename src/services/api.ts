@@ -351,10 +351,13 @@ export const adminApproveStaffApi       = (id: string) => api.put(`/pharmacy-sta
 export const rejectStaffApi             = (id: string, note?: string) => api.put(`/pharmacy-staff/${id}/reject`, { note });
 
 // ─── Location / GPS trail ─────────────────────────────────────────────────────
+export const batchPingsApi = (pings: { lat: number; lng: number; accuracy: number | null; recorded_at: string }[]) =>
+  api.post('/location/batch', { pings });
 export const getMyTrailApi = (date?: string) =>
   api.get('/location/my-trail', { params: date ? { date } : undefined });
 export const getRepTrailApi = (userId: string, date?: string) =>
   api.get(`/location/trail/${userId}`, { params: date ? { date } : undefined });
+export const getTeamLastSeenApi = () => api.get('/location/team-last-seen');
 export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000/api").replace(/\/api$/, "");
 
 // ─── Facility Search ──────────────────────────────────────────────────────────

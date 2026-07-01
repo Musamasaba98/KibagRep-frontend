@@ -1,10 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MdOutlineGpsOff, MdChevronLeft, MdChevronRight, MdToday } from "react-icons/md";
-import { LuMapPin, LuRoute } from "react-icons/lu";
-import { getTeamMapApi, getRepTrailApi } from "../../../services/api";
+import { LuMapPin, LuRoute, LuRadar } from "react-icons/lu";
+import { FiWifi, FiWifiOff } from "react-icons/fi";
+import { getTeamMapApi, getRepTrailApi, getTeamLastSeenApi } from "../../../services/api";
 import { BiX } from "react-icons/bi";
 import { useDispatch } from "react-redux";
 import { toggleSupervisorPannel } from "../../../store/uiStateSlice";
@@ -65,6 +66,14 @@ interface RepData {
   user: { id: string; firstname: string; lastname: string };
   activities: Activity[];
 }
+interface LastSeen {
+  user_id: string; firstname: string; lastname: string;
+  is_online: boolean;
+  last_seen_ms: number | null;
+  last_ping: { lat: number; lng: number; recorded_at: string } | null;
+}
+
+const LAST_SEEN_REFRESH_MS = 60_000; // refresh live status every 60s
 
 const FMT_DT = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -88,6 +97,21 @@ const TeamMap = () => {
   const [trail, setTrail] = useState<TrailPing[]>([]);
   const [trailLoading, setTrailLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(TODAY_STR);
+  const [lastSeen, setLastSeen] = useState<LastSeen[]>([]);
+  const [liveTab, setLiveTab] = useState<"visits" | "live">("visits");
+  const lastSeenTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const fetchLastSeen = useCallback(() => {
+    getTeamLastSeenApi()
+      .then(r => setLastSeen(r.data?.data ?? []))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchLastSeen();
+    lastSeenTimerRef.current = setInterval(fetchLastSeen, LAST_SEEN_REFRESH_MS);
+    return () => { if (lastSeenTimerRef.current) clearInterval(lastSeenTimerRef.current); };
+  }, [fetchLastSeen]);
 
   const load = useCallback((d: Days) => {
     setLoading(true);
@@ -141,13 +165,20 @@ const TeamMap = () => {
     r.activities.map(a => [a.gps_lat, a.gps_lng] as [number, number])
   );
   const trailPoints: [number, number][] = trail.map(p => [p.lat, p.lng]);
-  const allPoints: [number, number][] = trailPoints.length > 0 ? trailPoints : visitPoints;
+  const lastSeenPoints: [number, number][] = lastSeen
+    .filter(r => r.last_ping)
+    .map(r => [r.last_ping!.lat, r.last_ping!.lng]);
+  const allPoints: [number, number][] =
+    trailPoints.length > 0 ? trailPoints :
+    visitPoints.length  > 0 ? visitPoints :
+    lastSeenPoints;
 
   const colorOf = (userId: string) => {
     const idx = repData.findIndex(r => r.user.id === userId);
     return PALETTE[idx % PALETTE.length];
   };
 
+  const hasAnyData = visitPoints.length > 0 || lastSeenPoints.length > 0;
   const totalPins = visitPoints.length;
   const dispatch = useDispatch()
 
@@ -184,6 +215,24 @@ const TeamMap = () => {
             ))}
           </div>
           <p className="text-xs font-poppins text-gray-400 mt-2">{totalPins} GPS points visible</p>
+
+          {/* Visits / Live tab */}
+          <div className="flex gap-1 mt-3">
+            <button
+              onClick={() => setLiveTab("visits")}
+              className={`flex-1 py-1.5 text-xs font-poppins-semibold rounded-lg flex items-center justify-center gap-1 ${liveTab === "visits" ? "bg-[#16a34a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              style={{ transition: "background-color 0.15s" }}
+            >
+              <LuMapPin className="w-3 h-3" /> Visits
+            </button>
+            <button
+              onClick={() => setLiveTab("live")}
+              className={`flex-1 py-1.5 text-xs font-poppins-semibold rounded-lg flex items-center justify-center gap-1 ${liveTab === "live" ? "bg-[#16a34a] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              style={{ transition: "background-color 0.15s" }}
+            >
+              <LuRadar className="w-3 h-3" /> Live
+            </button>
+          </div>
         </div>
 
         {/* Date navigator — shown when a trail is active */}
@@ -240,51 +289,110 @@ const TeamMap = () => {
         )}
 
         <div className="flex-1 overflow-y-auto py-2">
-          {loading ? (
-            <div className="py-8 flex justify-center">
-              <div className="w-6 h-6 rounded-full border-2 border-[#16a34a] border-t-transparent animate-spin" />
-            </div>
-          ) : repData.length === 0 ? (
-            <p className="text-xs text-gray-400 font-poppins px-4 py-6 text-center">No GPS data yet</p>
-          ) : (
-            repData.map((r, i) => {
-              const color = PALETTE[i % PALETTE.length];
-              const active = activeReps.has(r.user.id);
-              const count = r.activities.length;
-              const anomalies = r.activities.filter(a => a.gps_anomaly).length;
-              const showingTrail = trailRepId === r.user.id;
-              return (
-                <div key={r.user.id} className={`flex flex-col border-b border-gray-50 ${!active ? "opacity-40" : ""}`}>
-                  <button onClick={() => toggleRep(r.user.id)}
-                    className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
-                    style={{ transition: "opacity 0.15s" }}>
-                    <span className="w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate">
-                        {r.user.firstname} {r.user.lastname}
-                      </p>
-                      <p className="text-[10px] font-poppins text-gray-400">
-                        {count} visit{count !== 1 ? "s" : ""}
-                        {anomalies > 0 && <span className="text-red-500 ml-1">· {anomalies} anomal{anomalies !== 1 ? "ies" : "y"}</span>}
-                      </p>
+          {liveTab === "live" ? (
+            /* ── Live status panel ── */
+            lastSeen.length === 0 ? (
+              <p className="text-xs text-gray-400 font-poppins px-4 py-6 text-center">No reps tracked yet</p>
+            ) : (
+              lastSeen
+                .slice()
+                .sort((a, b) => (b.last_seen_ms ?? 0) - (a.last_seen_ms ?? 0))
+                .map(rep => {
+                  const minsAgo = rep.last_seen_ms
+                    ? Math.floor((Date.now() - rep.last_seen_ms) / 60_000)
+                    : null;
+                  const lastSeenLabel = rep.last_ping == null
+                    ? "Never tracked"
+                    : rep.is_online
+                      ? "Online now"
+                      : minsAgo != null && minsAgo < 60
+                        ? `${minsAgo}m ago`
+                        : minsAgo != null && minsAgo < 1440
+                          ? `${Math.floor(minsAgo / 60)}h ago`
+                          : new Date(rep.last_ping.recorded_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+                  const showingTrail = trailRepId === rep.user_id;
+                  return (
+                    <div key={rep.user_id} className="flex flex-col border-b border-gray-50">
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${rep.is_online ? "bg-[#16a34a]" : "bg-gray-300"}`} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate">
+                            {rep.firstname} {rep.lastname}
+                          </p>
+                          <p className={`text-[10px] font-poppins flex items-center gap-1 mt-0.5 ${rep.is_online ? "text-[#16a34a]" : "text-gray-400"}`}>
+                            {rep.is_online
+                              ? <><FiWifi className="w-2.5 h-2.5" />{lastSeenLabel}</>
+                              : <><FiWifiOff className="w-2.5 h-2.5" />{lastSeenLabel}</>
+                            }
+                          </p>
+                          {rep.last_ping && (
+                            <p className="text-[10px] font-poppins text-gray-400 mt-0.5">
+                              {new Date(rep.last_ping.recorded_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          )}
+                        </div>
+                        {rep.last_ping && (
+                          <button
+                            onClick={() => openTrail(rep.user_id)}
+                            title="Show route"
+                            className={`w-6 h-6 flex items-center justify-center rounded-full border ${showingTrail ? "bg-[#16a34a] border-[#16a34a] text-white" : "border-gray-200 text-gray-400 hover:border-[#16a34a] hover:text-[#16a34a]"}`}
+                            style={{ transition: "all 0.15s" }}
+                          >
+                            <LuRoute className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </button>
-                  {/* Route trail toggle */}
-                  <button
-                    onClick={() => openTrail(r.user.id)}
-                    className={`mx-4 mb-2 flex items-center gap-1.5 text-[10px] font-poppins-semibold px-2.5 py-1 rounded-full border ${
-                      showingTrail
-                        ? "bg-[#16a34a] text-white border-[#16a34a]"
-                        : "bg-white text-gray-500 border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a]"
-                    }`}
-                    style={{ transition: "all 0.15s" }}
-                  >
-                    <LuRoute className={`w-2.5 h-2.5 ${showingTrail ? "text-white" : "text-gray-400"}`} />
-                    {showingTrail ? "Hide route" : "Show route"}
-                  </button>
-                </div>
-              );
-            })
+                  );
+                })
+            )
+          ) : (
+            /* ── Visits list ── */
+            loading ? (
+              <div className="py-8 flex justify-center">
+                <div className="w-6 h-6 rounded-full border-2 border-[#16a34a] border-t-transparent animate-spin" />
+              </div>
+            ) : repData.length === 0 ? (
+              <p className="text-xs text-gray-400 font-poppins px-4 py-6 text-center">No GPS data yet</p>
+            ) : (
+              repData.map((r, i) => {
+                const color = PALETTE[i % PALETTE.length];
+                const active = activeReps.has(r.user.id);
+                const count = r.activities.length;
+                const anomalies = r.activities.filter(a => a.gps_anomaly).length;
+                const showingTrail = trailRepId === r.user.id;
+                return (
+                  <div key={r.user.id} className={`flex flex-col border-b border-gray-50 ${!active ? "opacity-40" : ""}`}>
+                    <button onClick={() => toggleRep(r.user.id)}
+                      className="w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
+                      style={{ transition: "opacity 0.15s" }}>
+                      <span className="w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-poppins-semibold text-[#1a1a1a] truncate">
+                          {r.user.firstname} {r.user.lastname}
+                        </p>
+                        <p className="text-[10px] font-poppins text-gray-400">
+                          {count} visit{count !== 1 ? "s" : ""}
+                          {anomalies > 0 && <span className="text-red-500 ml-1">· {anomalies} anomal{anomalies !== 1 ? "ies" : "y"}</span>}
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => openTrail(r.user.id)}
+                      className={`mx-4 mb-2 flex items-center gap-1.5 text-[10px] font-poppins-semibold px-2.5 py-1 rounded-full border ${
+                        showingTrail
+                          ? "bg-[#16a34a] text-white border-[#16a34a]"
+                          : "bg-white text-gray-500 border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a]"
+                      }`}
+                      style={{ transition: "all 0.15s" }}
+                    >
+                      <LuRoute className={`w-2.5 h-2.5 ${showingTrail ? "text-white" : "text-gray-400"}`} />
+                      {showingTrail ? "Hide route" : "Show route"}
+                    </button>
+                  </div>
+                );
+              })
+            )
           )}
         </div>
       </div>
@@ -296,7 +404,7 @@ const TeamMap = () => {
             <div className="w-10 h-10 rounded-full border-2 border-[#16a34a] border-t-transparent animate-spin" />
           </div>
         )}
-        {!loading && totalPins === 0 ? (
+        {!loading && !hasAnyData ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-400 bg-gray-50">
             <MdOutlineGpsOff className="w-14 h-14 opacity-25" />
             <p className="text-sm font-poppins-semibold">No GPS data in the last {days} day{days !== 1 ? "s" : ""}</p>
@@ -361,16 +469,12 @@ const TeamMap = () => {
 
             {visibleData.map((r) => {
               const color = colorOf(r.user.id);
-              // When trail mode is active for this rep, show only that day's visits
               const activities = (trailRepId === r.user.id)
                 ? r.activities.filter(a => a.date.slice(0, 10) === selectedDate)
                 : r.activities;
               return activities.map(a => (
                 <div key={a.id}>
-                  <Marker
-                    position={[a.gps_lat, a.gps_lng]}
-                    icon={repIcon(color)}
-                  >
+                  <Marker position={[a.gps_lat, a.gps_lng]} icon={repIcon(color)}>
                     <Popup>
                       <div className="text-xs min-w-[160px]">
                         <p className="font-poppins-bold text-[#1a1a1a] mb-1">{r.user.firstname} {r.user.lastname}</p>
@@ -390,6 +494,36 @@ const TeamMap = () => {
                   )}
                 </div>
               ));
+            })}
+
+            {/* Live last-known-location markers — pulsing ring for online reps */}
+            {lastSeen.filter(rep => rep.last_ping).map(rep => {
+              const ping = rep.last_ping!;
+              const color = rep.is_online ? "#16a34a" : "#9ca3af";
+              return (
+                <CircleMarker
+                  key={`live-${rep.user_id}`}
+                  center={[ping.lat, ping.lng]}
+                  radius={rep.is_online ? 8 : 5}
+                  pathOptions={{ color, fillColor: color, fillOpacity: rep.is_online ? 0.9 : 0.4, weight: 2 }}
+                >
+                  <Popup>
+                    <div className="text-xs min-w-[150px]">
+                      <p className="font-poppins-bold text-[#1a1a1a] mb-1">
+                        {rep.firstname} {rep.lastname}
+                      </p>
+                      <p className={`font-poppins-semibold ${rep.is_online ? "text-[#16a34a]" : "text-gray-400"}`}>
+                        {rep.is_online ? "● Online now" : "○ Last seen"}
+                      </p>
+                      <p className="text-gray-400 mt-0.5">
+                        {new Date(ping.recorded_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {" · "}
+                        {new Date(ping.recorded_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      </p>
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              );
             })}
           </MapContainer>
         )}
