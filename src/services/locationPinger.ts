@@ -8,8 +8,8 @@ const PING_STORE = "location_pings";
 
 const INTERVAL_MS   = 45_000;  // 45 seconds between pings
 const BATCH_EVERY   = 4;       // sync after this many pings (≈ 3 min)
-const WORK_START_H  = 6;       // don't ping before 6am
-const WORK_END_H    = 20;      // don't ping after 8pm
+const WORK_START_H  = 8;       // don't ping before 8am EAT
+const WORK_END_H    = 18;      // don't ping after 6pm EAT
 
 interface Ping {
   lat:         number;

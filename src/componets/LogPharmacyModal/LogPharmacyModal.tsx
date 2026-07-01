@@ -66,7 +66,7 @@ const LogPharmacyModal = ({
     if (!navigator.geolocation) { setGpsStatus("unavailable"); return; }
     navigator.geolocation.getCurrentPosition(
       (pos) => { setGpsLat(pos.coords.latitude); setGpsLng(pos.coords.longitude); setGpsStatus("acquired"); },
-      () => setGpsStatus("denied"),
+      (err) => setGpsStatus(err.code === 1 ? "denied" : "unavailable"),
       { timeout: 10000, maximumAge: 60000 }
     );
   }, []);
@@ -117,6 +117,7 @@ const LogPharmacyModal = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (gpsStatus === "denied") { setError("Location access is blocked. Enable it in your phone settings to log visits."); return; }
     const observed = stockItems.filter((s) => s.qty > 0);
     setError("");
     setLoading(true);

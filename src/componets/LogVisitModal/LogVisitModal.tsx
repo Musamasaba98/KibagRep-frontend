@@ -50,7 +50,7 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
     if (!navigator.geolocation) { setGpsStatus("unavailable"); return; }
     navigator.geolocation.getCurrentPosition(
       (pos) => { setGpsLat(pos.coords.latitude); setGpsLng(pos.coords.longitude); setGpsStatus("acquired"); },
-      () => setGpsStatus("denied"),
+      (err) => setGpsStatus(err.code === 1 ? "denied" : "unavailable"),
       { timeout: 10000, maximumAge: 60000 }
     );
   }, []);
@@ -102,6 +102,7 @@ const LogVisitModal = ({ onClose, onSuccess, initialDoctorId = "", initialDoctor
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (gpsStatus === "denied") { setError("Location access is blocked. Enable it in your phone settings to log visits."); return; }
     if (!doctorId)         { setError("Select a doctor first");         return; }
     if (!focusedProductId) { setError("Select the focused product");    return; }
     setError("");
