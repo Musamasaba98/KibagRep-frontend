@@ -102,7 +102,7 @@ const AddUnplanned = ({ onClose, onSuccess }: AddUnplannedProps) => {
       });
       if (res.data.gps_anomaly) {
         setError(
-          "⚠️ GPS anomaly: your location is >500m from the doctor's registered facility. Visit saved — supervisor will be notified."
+          "⚠️ GPS anomaly: your location is >100m from the doctor's registered facility. Visit saved — supervisor will be notified."
         );
         setTimeout(() => { onSuccess(); onClose(); }, 3000);
       } else {
